@@ -1,0 +1,1209 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Blog | Greenville Disc Golf Club</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Archivo:wght@400;600;700&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --primary: #FF6B35;
+            --secondary: #004E89;
+            --accent: #F7B801;
+            --dark: #1A1A2E;
+            --light: #F4F4F9;
+            --green: #2D5016;
+            
+            /* Light mode (default) */
+            --bg-primary: #F4F4F9;
+            --bg-secondary: #FFFFFF;
+            --bg-tertiary: #F4F4F9;
+            --text-primary: #1A1A2E;
+            --text-secondary: #333333;
+            --text-tertiary: #555555;
+            --text-muted: #666666;
+            --border-color: #F4F4F9;
+            --card-shadow: rgba(0, 0, 0, 0.1);
+            --card-shadow-hover: rgba(0, 0, 0, 0.15);
+        }
+        
+        [data-theme="dark"] {
+            --bg-primary: #0F0F1E;
+            --bg-secondary: #1A1A2E;
+            --bg-tertiary: #252538;
+            --text-primary: #F4F4F9;
+            --text-secondary: #E0E0E0;
+            --text-tertiary: #C0C0C0;
+            --text-muted: #A0A0A0;
+            --border-color: #2A2A3E;
+            --card-shadow: rgba(0, 0, 0, 0.3);
+            --card-shadow-hover: rgba(0, 0, 0, 0.5);
+        }
+        
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+      /* Site background image layer */
+body{
+  position: relative; /* allows the ::before layer to sit behind content */
+  font-family: 'Archivo', sans-serif;
+  color: var(--text-primary);
+  overflow-x: hidden;
+  transition: background-color 0.3s ease, color 0.3s ease;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+/* Background image + subtle fade so content stays readable */
+body::before{
+  content: "";
+  position: fixed;
+  inset: 0;
+  z-index: -1;
+
+  background:
+    /* top-to-bottom fade to match your theme */
+    linear-gradient(
+      to bottom,
+      rgba(244,244,249,0.25),
+      rgba(244,244,249,0.15)
+    ),
+    url("img/bg/forest-bg.png");
+
+  background-repeat: no-repeat;
+  background-position: center bottom;
+  background-size: cover;
+
+  /* adjust if you want it more/less visible */
+  opacity: 1;
+}
+
+/* Dark mode background adjustment */
+[data-theme="dark"] body::before {
+  background:
+    linear-gradient(
+      to bottom,
+      rgba(15,15,30,0.25),
+      rgba(15,15,30,0.15)
+    ),
+    url("img/bg/forest-bg.png");
+  background-repeat: no-repeat;
+  background-position: center bottom;
+  background-size: cover;
+}
+
+        
+        /* Header Navigation - Matches Original Site Exactly */
+        header {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            z-index: 1000;
+            background: rgba(26, 26, 46, 0.95);
+            backdrop-filter: blur(10px);
+            padding: 1rem 1.5rem;
+            transition: all 0.3s ease;
+        }
+        
+        [data-theme="dark"] header {
+            background: rgba(15, 15, 30, 0.95);
+        }
+        
+        header.scrolled {
+            box-shadow: 0 5px 20px rgba(0, 0, 0, 0.2);
+            padding: 0.75rem 1.5rem;
+        }
+        
+        nav {
+            max-width: 1200px;
+            margin: 0 auto;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        
+        .logo {
+            font-family: 'Bebas Neue', sans-serif;
+            font-size: 1.8rem;
+            color: white;
+            letter-spacing: 0.05em;
+            text-decoration: none;
+            transition: transform 0.3s ease;
+            display: flex;
+            align-items: center;
+        }
+        
+        .logo-image {
+            height: 50px;
+            width: auto;
+            transition: transform 0.3s ease;
+        }
+        
+        header.scrolled .logo-image {
+            height: 40px;
+        }
+        
+        .logo:active {
+            transform: scale(0.95);
+        }
+        
+        .logo:hover .logo-image {
+            transform: scale(1.05);
+        }
+        
+        .nav-right {
+            display: flex;
+            align-items: center;
+            gap: 1.5rem;
+        }
+        
+        /* Dark Mode Toggle - Enhanced for mobile */
+        .theme-toggle {
+            background: rgba(255, 255, 255, 0.1);
+            border: 2px solid rgba(255, 255, 255, 0.3);
+            color: white;
+            width: 44px;
+            height: 44px;
+            min-width: 44px;
+            min-height: 44px;
+            border-radius: 50%;
+            cursor: pointer;
+            font-size: 1.3rem;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: all 0.3s ease;
+            backdrop-filter: blur(5px);
+            -webkit-tap-highlight-color: transparent;
+        }
+        
+        .theme-toggle:hover {
+            background: rgba(255, 255, 255, 0.2);
+            transform: rotate(20deg) scale(1.1);
+        }
+        
+        .theme-toggle:active {
+            transform: rotate(20deg) scale(0.95);
+        }
+        
+        .nav-links {
+            display: flex;
+            gap: 2.5rem;
+            list-style: none;
+        }
+        
+        .nav-links a {
+            color: white;
+            text-decoration: none;
+            font-weight: 600;
+            font-size: 0.95rem;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+            position: relative;
+            transition: color 0.3s ease;
+            -webkit-tap-highlight-color: transparent;
+        }
+        
+        .nav-links a::after {
+            content: '';
+            position: absolute;
+            bottom: -5px;
+            left: 0;
+            width: 0;
+            height: 2px;
+            background: var(--primary);
+            transition: width 0.3s ease;
+        }
+        
+        .nav-links a:hover::after,
+        .nav-links a:active::after,
+        .nav-links a.active::after {
+            width: 100%;
+        }
+        
+        .nav-links a:hover,
+        .nav-links a.active {
+            color: var(--primary);
+        }
+        
+        /* Mobile Menu - Enhanced */
+        .menu-toggle {
+            display: none;
+            background: none;
+            border: none;
+            color: white;
+            font-size: 1.5rem;
+            cursor: pointer;
+            padding: 0.5rem;
+            min-width: 44px;
+            min-height: 44px;
+            -webkit-tap-highlight-color: transparent;
+            transition: transform 0.2s ease;
+        }
+        
+        .menu-toggle:active {
+            transform: scale(0.9);
+        }
+        
+        @media (max-width: 768px) {
+            header {
+                padding: 1rem;
+            }
+            
+            .logo-image {
+                height: 40px;
+            }
+            
+            header.scrolled .logo-image {
+                height: 35px;
+            }
+            
+            .menu-toggle {
+                display: flex;
+                align-items: center;
+                justify-content: center;
+            }
+            
+            .nav-right {
+                gap: 1rem;
+            }
+            
+            .nav-links {
+                position: fixed;
+                top: 70px;
+                left: 0;
+                right: 0;
+                background: rgba(26, 26, 46, 0.98);
+                flex-direction: column;
+                gap: 0;
+                padding: 2rem;
+                transform: translateY(-100%);
+                opacity: 0;
+                transition: all 0.3s ease;
+                pointer-events: none;
+                max-height: calc(100vh - 70px);
+                overflow-y: auto;
+            }
+            
+            [data-theme="dark"] .nav-links {
+                background: rgba(15, 15, 30, 0.98);
+            }
+            
+            .nav-links.active {
+                transform: translateY(0);
+                opacity: 1;
+                pointer-events: all;
+            }
+            
+            .nav-links li {
+                padding: 1.25rem 0;
+                border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+            }
+            
+            .nav-links li:last-child {
+                border-bottom: none;
+            }
+            
+            .nav-links a {
+                font-size: 1.1rem;
+                display: block;
+                padding: 0.5rem 0;
+            }
+        }
+        
+        /* Page Hero */
+        .page-hero {
+            background: linear-gradient(135deg, var(--secondary) 0%, var(--green) 100%);
+            padding: 8rem 2rem 4rem;
+            text-align: center;
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .page-hero::before {
+            content: '';
+            position: absolute;
+            inset: 0;
+            opacity: 0.1;
+            background-image: repeating-linear-gradient(45deg, transparent, transparent 35px, rgba(255,255,255,.05) 35px, rgba(255,255,255,.05) 70px);
+        }
+        
+        .page-hero-content {
+            position: relative;
+            z-index: 2;
+            max-width: 800px;
+            margin: 0 auto;
+        }
+        
+        .page-title {
+            font-family: 'Bebas Neue', sans-serif;
+            font-size: clamp(2.5rem, 8vw, 4rem);
+            color: white;
+            letter-spacing: 0.05em;
+            margin-bottom: 1rem;
+        }
+        
+        .page-subtitle {
+            font-size: clamp(1rem, 2.5vw, 1.25rem);
+            color: rgba(255, 255, 255, 0.9);
+            max-width: 600px;
+            margin: 0 auto;
+        }
+        
+        /* Main Content */
+        main {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 3rem 2rem;
+        }
+        
+        /* Blog Layout */
+        .blog-layout {
+            display: grid;
+            grid-template-columns: 1fr;
+            gap: 3rem;
+        }
+        
+        @media (min-width: 992px) {
+            .blog-layout {
+                grid-template-columns: 2fr 1fr;
+            }
+        }
+        
+        /* Featured Post */
+        .featured-post {
+            background: var(--bg-secondary);
+            border-radius: 20px;
+            overflow: hidden;
+            box-shadow: 0 10px 40px var(--card-shadow);
+            margin-bottom: 3rem;
+            transition: all 0.3s ease;
+            border: 1px solid rgba(0, 78, 137, 0.08);
+        }
+        
+        [data-theme="dark"] .featured-post {
+            border-color: rgba(255, 255, 255, 0.05);
+        }
+        
+        .featured-post:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 15px 50px var(--card-shadow-hover);
+        }
+        
+        .featured-image {
+            width: 100%;
+            height: 350px;
+            background: linear-gradient(135deg, var(--secondary), var(--green));
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .featured-image img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            transition: transform 0.5s ease;
+        }
+        
+        .featured-post:hover .featured-image img {
+            transform: scale(1.05);
+        }
+        
+        .featured-image::before {
+            content: '🥏';
+            position: absolute;
+            font-size: 6rem;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            opacity: 0.15;
+        }
+        
+        .featured-badge {
+            position: absolute;
+            top: 1.5rem;
+            left: 1.5rem;
+            background: var(--primary);
+            color: white;
+            padding: 0.5rem 1rem;
+            border-radius: 25px;
+            font-size: 0.85rem;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+        }
+        
+        .featured-content {
+            padding: 2rem;
+        }
+        
+        .post-meta {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 1rem;
+            margin-bottom: 1rem;
+            font-size: 0.9rem;
+            color: var(--text-muted);
+        }
+        
+        .post-meta span {
+            display: flex;
+            align-items: center;
+            gap: 0.4rem;
+        }
+        
+        .post-category {
+            background: var(--bg-tertiary);
+            padding: 0.3rem 0.8rem;
+            border-radius: 15px;
+            font-weight: 600;
+            color: var(--primary);
+        }
+        
+        .featured-title {
+            font-family: 'Bebas Neue', sans-serif;
+            font-size: clamp(1.8rem, 4vw, 2.5rem);
+            color: var(--text-primary);
+            margin-bottom: 1rem;
+            letter-spacing: 0.02em;
+            line-height: 1.2;
+        }
+        
+        .featured-title a {
+            color: inherit;
+            text-decoration: none;
+            transition: color 0.3s ease;
+        }
+        
+        .featured-title a:hover {
+            color: var(--primary);
+        }
+        
+        .featured-excerpt {
+            font-size: 1.05rem;
+            line-height: 1.7;
+            color: var(--text-secondary);
+            margin-bottom: 1.5rem;
+        }
+        
+        .read-more {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+            color: var(--primary);
+            font-weight: 700;
+            text-decoration: none;
+            text-transform: uppercase;
+            font-size: 0.95rem;
+            letter-spacing: 0.05em;
+            transition: all 0.3s ease;
+        }
+        
+        .read-more:hover {
+            gap: 0.8rem;
+        }
+        
+        .read-more::after {
+            content: '→';
+            transition: transform 0.3s ease;
+        }
+        
+        .read-more:hover::after {
+            transform: translateX(5px);
+        }
+        
+        /* Blog Posts Grid */
+        .posts-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+            gap: 2rem;
+        }
+        
+        .post-card {
+            background: var(--bg-secondary);
+            border-radius: 15px;
+            overflow: hidden;
+            box-shadow: 0 5px 20px var(--card-shadow);
+            transition: all 0.3s ease;
+            border: 2px solid var(--border-color);
+        }
+        
+        .post-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 10px 30px var(--card-shadow-hover);
+            border-color: var(--primary);
+        }
+        
+        .post-image {
+            width: 100%;
+            height: 180px;
+            background: linear-gradient(135deg, var(--secondary), var(--green));
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .post-image img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            transition: transform 0.3s ease;
+        }
+        
+        .post-card:hover .post-image img {
+            transform: scale(1.05);
+        }
+        
+        .post-image::before {
+            content: '🥏';
+            position: absolute;
+            font-size: 3rem;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            opacity: 0.2;
+        }
+        
+        .post-content {
+            padding: 1.5rem;
+        }
+        
+        .post-title {
+            font-family: 'Bebas Neue', sans-serif;
+            font-size: 1.4rem;
+            color: var(--text-primary);
+            margin-bottom: 0.75rem;
+            line-height: 1.2;
+        }
+        
+        .post-title a {
+            color: inherit;
+            text-decoration: none;
+            transition: color 0.3s ease;
+        }
+        
+        .post-title a:hover {
+            color: var(--primary);
+        }
+        
+        .post-excerpt {
+            font-size: 0.95rem;
+            line-height: 1.6;
+            color: var(--text-tertiary);
+            margin-bottom: 1rem;
+        }
+        
+        /* Sidebar */
+        .sidebar {
+            display: flex;
+            flex-direction: column;
+            gap: 2rem;
+        }
+        
+        .sidebar-widget {
+            background: var(--bg-secondary);
+            border-radius: 15px;
+            padding: 1.5rem;
+            box-shadow: 0 5px 20px var(--card-shadow);
+            border: 1px solid rgba(0, 78, 137, 0.08);
+        }
+        
+        [data-theme="dark"] .sidebar-widget {
+            border-color: rgba(255, 255, 255, 0.05);
+        }
+        
+        .widget-title {
+            font-family: 'Bebas Neue', sans-serif;
+            font-size: 1.5rem;
+            color: var(--text-primary);
+            margin-bottom: 1.25rem;
+            padding-bottom: 0.75rem;
+            border-bottom: 2px solid var(--primary);
+        }
+        
+        /* Categories Widget */
+        .categories-list {
+            list-style: none;
+        }
+        
+        .categories-list li {
+            margin-bottom: 0.75rem;
+        }
+        
+        .categories-list a {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            color: var(--text-secondary);
+            text-decoration: none;
+            padding: 0.5rem 0;
+            transition: all 0.3s ease;
+        }
+        
+        .categories-list a:hover {
+            color: var(--primary);
+            padding-left: 0.5rem;
+        }
+        
+        .category-count {
+            background: var(--bg-tertiary);
+            padding: 0.2rem 0.6rem;
+            border-radius: 10px;
+            font-size: 0.85rem;
+            font-weight: 600;
+        }
+        
+        /* Popular Posts Widget */
+        .popular-post {
+            display: flex;
+            gap: 1rem;
+            padding: 1rem 0;
+            border-bottom: 1px solid var(--border-color);
+        }
+        
+        .popular-post:last-child {
+            border-bottom: none;
+            padding-bottom: 0;
+        }
+        
+        .popular-post:first-child {
+            padding-top: 0;
+        }
+        
+        .popular-thumb {
+            width: 70px;
+            height: 70px;
+            border-radius: 10px;
+            background: linear-gradient(135deg, var(--secondary), var(--green));
+            flex-shrink: 0;
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .popular-thumb::before {
+            content: '🥏';
+            position: absolute;
+            font-size: 1.5rem;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            opacity: 0.3;
+        }
+        
+        .popular-thumb img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+        
+        .popular-info h4 {
+            font-family: 'Bebas Neue', sans-serif;
+            font-size: 1.1rem;
+            color: var(--text-primary);
+            margin-bottom: 0.3rem;
+            line-height: 1.2;
+        }
+        
+        .popular-info h4 a {
+            color: inherit;
+            text-decoration: none;
+            transition: color 0.3s ease;
+        }
+        
+        .popular-info h4 a:hover {
+            color: var(--primary);
+        }
+        
+        .popular-date {
+            font-size: 0.85rem;
+            color: var(--text-muted);
+        }
+        
+        /* Tags Widget */
+        .tags-cloud {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 0.5rem;
+        }
+        
+        .tag {
+            background: var(--bg-tertiary);
+            color: var(--text-secondary);
+            padding: 0.4rem 0.8rem;
+            border-radius: 20px;
+            font-size: 0.85rem;
+            text-decoration: none;
+            transition: all 0.3s ease;
+        }
+        
+        .tag:hover {
+            background: var(--primary);
+            color: white;
+        }
+        
+        /* Newsletter Widget */
+        .newsletter-form {
+            display: flex;
+            flex-direction: column;
+            gap: 1rem;
+        }
+        
+        .newsletter-text {
+            font-size: 0.95rem;
+            color: var(--text-tertiary);
+            line-height: 1.5;
+        }
+        
+        .newsletter-input {
+            padding: 0.8rem 1rem;
+            border: 2px solid var(--border-color);
+            border-radius: 10px;
+            font-size: 1rem;
+            font-family: inherit;
+            background: var(--bg-primary);
+            color: var(--text-primary);
+            transition: border-color 0.3s ease;
+        }
+        
+        .newsletter-input:focus {
+            outline: none;
+            border-color: var(--primary);
+        }
+        
+        .newsletter-btn {
+            background: var(--primary);
+            color: white;
+            border: none;
+            padding: 0.8rem 1.5rem;
+            border-radius: 10px;
+            font-size: 1rem;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+        
+        .newsletter-btn:hover {
+            background: #ff7f4d;
+            transform: translateY(-2px);
+        }
+        
+        /* Pagination */
+        .pagination {
+            display: flex;
+            justify-content: center;
+            gap: 0.5rem;
+            margin-top: 3rem;
+            padding-top: 2rem;
+            border-top: 2px solid var(--border-color);
+        }
+        
+        .pagination a,
+        .pagination span {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            width: 44px;
+            height: 44px;
+            border-radius: 10px;
+            font-weight: 600;
+            text-decoration: none;
+            transition: all 0.3s ease;
+        }
+        
+        .pagination a {
+            background: var(--bg-secondary);
+            color: var(--text-primary);
+            border: 2px solid var(--border-color);
+        }
+        
+        .pagination a:hover {
+            border-color: var(--primary);
+            color: var(--primary);
+        }
+        
+        .pagination span.current {
+            background: var(--primary);
+            color: white;
+        }
+        
+        /* Footer */
+        footer {
+            background: linear-gradient(135deg, var(--dark) 0%, #0d1a0d 100%);
+            color: white;
+            text-align: center;
+            padding: 2.5rem 2rem;
+            font-size: 0.95rem;
+            border-top: 3px solid var(--accent);
+        }
+        
+        [data-theme="dark"] footer {
+            background: linear-gradient(135deg, var(--bg-secondary) 0%, #0a0a14 100%);
+        }
+        
+        /* Animations */
+        .fade-in {
+            opacity: 0;
+            transform: translateY(20px);
+            transition: all 0.6s ease;
+        }
+        
+        .fade-in.visible {
+            opacity: 1;
+            transform: translateY(0);
+        }
+    </style>
+</head>
+<body>
+    <!-- Header Navigation -->
+    <header>
+        <nav>
+            <a href="gvdg-site.html" class="logo">
+                <img src="img/logo.png" alt="Greenville DGC Logo" class="logo-image">
+            </a>
+            <div class="nav-right">
+                <button class="menu-toggle" aria-label="Toggle menu">☰</button>
+                <ul class="nav-links">
+                    <li><a href="gvdg-site.html#about">About</a></li>
+                    <li><a href="gvdg-site.html#courses">Courses</a></li>
+                    <li><a href="gvdg-site.html#events">Events</a></li>
+                    <li><a href="gvdg-blog.html" class="active">Blog</a></li>
+                    <li><a href="gvdg-site.html#membership">Join</a></li>
+                    <li><a href="gvdg-site.html#contact">Contact</a></li>
+                </ul>
+                <button class="theme-toggle" aria-label="Toggle dark mode">
+                    <span class="theme-icon">🌙</span>
+                </button>
+            </div>
+        </nav>
+    </header>
+    
+    <!-- Page Hero -->
+    <section class="page-hero">
+        <div class="page-hero-content">
+            <h1 class="page-title">Club Blog</h1>
+            <p class="page-subtitle">News, tips, tournament recaps, and stories from the Greenville disc golf community</p>
+        </div>
+    </section>
+    
+    <!-- Main Content -->
+    <main>
+        <!-- Featured Post -->
+        <article class="featured-post fade-in">
+            <div class="featured-image">
+                <span class="featured-badge">Featured</span>
+            </div>
+            <div class="featured-content">
+                <div class="post-meta">
+                    <span class="post-category">Tournament</span>
+                    <span>📅 December 15, 2024</span>
+                    <span>👤 Mike Thompson</span>
+                    <span>💬 12 Comments</span>
+                </div>
+                <h2 class="featured-title">
+                    <a href="#">Winter Championship Recap: Record Turnout at Wildwood Park</a>
+                </h2>
+                <p class="featured-excerpt">
+                    This past weekend saw our biggest winter tournament yet, with over 80 players braving the cold for an unforgettable day of disc golf. The newly redesigned back nine at Wildwood proved to be a game-changer, with hole 15's island green claiming its fair share of victims. Read on for full results, highlights, and photos from the event.
+                </p>
+                <a href="#" class="read-more">Read Full Story</a>
+            </div>
+        </article>
+        
+        <!-- Blog Layout -->
+        <div class="blog-layout">
+            <!-- Posts Grid -->
+            <div class="posts-section">
+                <div class="posts-grid">
+                    <!-- Post Card 1 -->
+                    <article class="post-card fade-in">
+                        <div class="post-image"></div>
+                        <div class="post-content">
+                            <div class="post-meta">
+                                <span class="post-category">Tips</span>
+                                <span>📅 Dec 10, 2024</span>
+                            </div>
+                            <h3 class="post-title">
+                                <a href="#">5 Essential Putting Drills to Practice This Winter</a>
+                            </h3>
+                            <p class="post-excerpt">
+                                Don't let the cold weather stop your progress. These indoor putting drills will keep your game sharp all winter long.
+                            </p>
+                            <a href="#" class="read-more">Read More</a>
+                        </div>
+                    </article>
+                    
+                    <!-- Post Card 2 -->
+                    <article class="post-card fade-in">
+                        <div class="post-image"></div>
+                        <div class="post-content">
+                            <div class="post-meta">
+                                <span class="post-category">News</span>
+                                <span>📅 Dec 8, 2024</span>
+                            </div>
+                            <h3 class="post-title">
+                                <a href="#">New Disc Golf Course Coming to East Greenville</a>
+                            </h3>
+                            <p class="post-excerpt">
+                                City council approved plans for an 18-hole championship course at River Park. Construction begins in spring 2025.
+                            </p>
+                            <a href="#" class="read-more">Read More</a>
+                        </div>
+                    </article>
+                    
+                    <!-- Post Card 3 -->
+                    <article class="post-card fade-in">
+                        <div class="post-image"></div>
+                        <div class="post-content">
+                            <div class="post-meta">
+                                <span class="post-category">Interview</span>
+                                <span>📅 Dec 5, 2024</span>
+                            </div>
+                            <h3 class="post-title">
+                                <a href="#">Member Spotlight: Sarah Chen's Journey to 900-Rated</a>
+                            </h3>
+                            <p class="post-excerpt">
+                                From picking up her first disc two years ago to competing in regionals, Sarah shares her inspiring story.
+                            </p>
+                            <a href="#" class="read-more">Read More</a>
+                        </div>
+                    </article>
+                    
+                    <!-- Post Card 4 -->
+                    <article class="post-card fade-in">
+                        <div class="post-image"></div>
+                        <div class="post-content">
+                            <div class="post-meta">
+                                <span class="post-category">Gear</span>
+                                <span>📅 Dec 1, 2024</span>
+                            </div>
+                            <h3 class="post-title">
+                                <a href="#">Best Cold Weather Gear for Winter Disc Golf</a>
+                            </h3>
+                            <p class="post-excerpt">
+                                Stay warm on the course with our club's top picks for gloves, layers, and accessories for cold weather play.
+                            </p>
+                            <a href="#" class="read-more">Read More</a>
+                        </div>
+                    </article>
+                    
+                    <!-- Post Card 5 -->
+                    <article class="post-card fade-in">
+                        <div class="post-image"></div>
+                        <div class="post-content">
+                            <div class="post-meta">
+                                <span class="post-category">Community</span>
+                                <span>📅 Nov 28, 2024</span>
+                            </div>
+                            <h3 class="post-title">
+                                <a href="#">Thanksgiving Turkey Shoot Results & Photos</a>
+                            </h3>
+                            <p class="post-excerpt">
+                                45 players competed for frozen turkeys in our annual Thanksgiving doubles tournament. Check out the winners!
+                            </p>
+                            <a href="#" class="read-more">Read More</a>
+                        </div>
+                    </article>
+                    
+                    <!-- Post Card 6 -->
+                    <article class="post-card fade-in">
+                        <div class="post-image"></div>
+                        <div class="post-content">
+                            <div class="post-meta">
+                                <span class="post-category">Course</span>
+                                <span>📅 Nov 22, 2024</span>
+                            </div>
+                            <h3 class="post-title">
+                                <a href="#">Wildwood Park Course Redesign Complete</a>
+                            </h3>
+
+                            <p class="post-excerpt">
+                                After months of work, the back nine holes at Wildwood have been completely redesigned. Here's what's new.
+                            </p>
+                            <a href="#" class="read-more">Read More</a>
+                        </div>
+                    </article>
+                </div>
+                
+                <!-- Pagination -->
+                <nav class="pagination">
+                    <a href="#">←</a>
+                    <span class="current">1</span>
+                    <a href="#">2</a>
+                    <a href="#">3</a>
+                    <a href="#">4</a>
+                    <a href="#">→</a>
+                </nav>
+            </div>
+            
+            <!-- Sidebar -->
+            <aside class="sidebar">
+                <!-- Search Widget -->
+                <div class="sidebar-widget">
+                    <h3 class="widget-title">Search</h3>
+                    <form class="newsletter-form">
+                        <input type="text" class="newsletter-input" placeholder="Search posts...">
+                    </form>
+                </div>
+                
+                <!-- Categories Widget -->
+                <div class="sidebar-widget fade-in">
+                    <h3 class="widget-title">Categories</h3>
+                    <ul class="categories-list">
+                        <li><a href="#">Tournament <span class="category-count">15</span></a></li>
+                        <li><a href="#">Tips & Technique <span class="category-count">23</span></a></li>
+                        <li><a href="#">Club News <span class="category-count">18</span></a></li>
+                        <li><a href="#">Gear Reviews <span class="category-count">9</span></a></li>
+                        <li><a href="#">Member Spotlights <span class="category-count">12</span></a></li>
+                        <li><a href="#">Course Updates <span class="category-count">7</span></a></li>
+                    </ul>
+                </div>
+                
+                <!-- Popular Posts Widget -->
+                <div class="sidebar-widget fade-in">
+                    <h3 class="widget-title">Popular Posts</h3>
+                    <div class="popular-post">
+                        <div class="popular-thumb"></div>
+                        <div class="popular-info">
+                            <h4><a href="#">How to Throw a Forehand: Complete Guide</a></h4>
+                            <span class="popular-date">Oct 15, 2024</span>
+                        </div>
+                    </div>
+                    <div class="popular-post">
+                        <div class="popular-thumb"></div>
+                        <div class="popular-info">
+                            <h4><a href="#">Best Discs for Beginners in 2024</a></h4>
+                            <span class="popular-date">Sep 22, 2024</span>
+                        </div>
+                    </div>
+                    <div class="popular-post">
+                        <div class="popular-thumb"></div>
+                        <div class="popular-info">
+                            <h4><a href="#">Wildwood Park Course Guide</a></h4>
+                            <span class="popular-date">Aug 10, 2024</span>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Tags Widget -->
+                <div class="sidebar-widget fade-in">
+                    <h3 class="widget-title">Tags</h3>
+                    <div class="tags-cloud">
+                        <a href="#" class="tag">Putting</a>
+                        <a href="#" class="tag">Driving</a>
+                        <a href="#" class="tag">Tournament</a>
+                        <a href="#" class="tag">Beginner</a>
+                        <a href="#" class="tag">Wildwood</a>
+                        <a href="#" class="tag">Technique</a>
+                        <a href="#" class="tag">Disc Reviews</a>
+                        <a href="#" class="tag">Community</a>
+                        <a href="#" class="tag">Events</a>
+                    </div>
+                </div>
+                
+                <!-- Newsletter Widget -->
+                <div class="sidebar-widget fade-in">
+                    <h3 class="widget-title">Newsletter</h3>
+                    <form class="newsletter-form">
+                        <p class="newsletter-text">Subscribe to get the latest club news, tournament updates, and disc golf tips delivered to your inbox.</p>
+                        <input type="email" class="newsletter-input" placeholder="Your email address">
+                        <button type="submit" class="newsletter-btn">Subscribe</button>
+                    </form>
+                </div>
+            </aside>
+        </div>
+    </main>
+    
+    <!-- Footer -->
+    <footer>
+        <p>© 2024 Greenville Disc Golf Club. All rights reserved.</p>
+    </footer>
+    
+    <script>
+        // Dark mode toggle
+        const themeToggle = document.querySelector('.theme-toggle');
+        const themeIcon = document.querySelector('.theme-icon');
+        const html = document.documentElement;
+        
+        // Check for saved theme preference
+        const savedTheme = localStorage.getItem('theme');
+        if (savedTheme) {
+            html.setAttribute('data-theme', savedTheme);
+            if (themeIcon) themeIcon.textContent = savedTheme === 'dark' ? '☀️' : '🌙';
+        }
+        
+        themeToggle.addEventListener('click', () => {
+            const currentTheme = html.getAttribute('data-theme');
+            const newTheme = currentTheme === 'dark' ? 'light' : 'dark';
+            html.setAttribute('data-theme', newTheme);
+            localStorage.setItem('theme', newTheme);
+            if (themeIcon) themeIcon.textContent = newTheme === 'dark' ? '☀️' : '🌙';
+        });
+        
+        // Mobile menu toggle
+        const menuToggle = document.querySelector('.menu-toggle');
+        const navLinks = document.querySelector('.nav-links');
+        
+        menuToggle.addEventListener('click', () => {
+            navLinks.classList.toggle('active');
+            menuToggle.textContent = navLinks.classList.contains('active') ? '✕' : '☰';
+        });
+        
+        // Close mobile menu when clicking a link
+        document.querySelectorAll('.nav-links a').forEach(link => {
+            link.addEventListener('click', () => {
+                navLinks.classList.remove('active');
+                menuToggle.textContent = '☰';
+            });
+        });
+        
+        // Header scroll effect
+        const header = document.querySelector('header');
+        window.addEventListener('scroll', () => {
+            if (window.scrollY > 100) {
+                header.classList.add('scrolled');
+            } else {
+                header.classList.remove('scrolled');
+            }
+        });
+        
+        // Scroll animations
+        const observerOptions = {
+            threshold: 0.1,
+            rootMargin: '0px 0px -50px 0px'
+        };
+        
+        const observer = new IntersectionObserver((entries) => {
+            entries.forEach((entry) => {
+                if (entry.isIntersecting) {
+                    const delay = entry.target.dataset.delay || 0;
+                    setTimeout(() => {
+                        entry.target.classList.add('visible');
+                    }, delay);
+                }
+            });
+        }, observerOptions);
+        
+        // Apply staggered delays to post cards
+        document.querySelectorAll('.post-card').forEach((card, index) => {
+            card.dataset.delay = index * 100;
+            observer.observe(card);
+        });
+        
+        document.querySelectorAll('.sidebar-widget').forEach((widget, index) => {
+            widget.dataset.delay = index * 100;
+            observer.observe(widget);
+        });
+        
+        document.querySelectorAll('.fade-in').forEach(el => {
+            observer.observe(el);
+        });
+    </script>
+</body>
+</html>

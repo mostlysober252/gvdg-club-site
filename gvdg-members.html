@@ -1,0 +1,1372 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Members Directory | Greenville Disc Golf Club</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Archivo:wght@400;600;700&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --primary: #FF6B35;
+            --secondary: #004E89;
+            --accent: #F7B801;
+            --dark: #1A1A2E;
+            --light: #F4F4F9;
+            --green: #2D5016;
+            --bg-primary: #F4F4F9;
+            --bg-secondary: #FFFFFF;
+            --bg-tertiary: #F4F4F9;
+            --text-primary: #1A1A2E;
+            --text-secondary: #333333;
+            --text-tertiary: #555555;
+            --text-muted: #666666;
+            --border-color: #E0E0E0;
+            --card-shadow: rgba(0, 0, 0, 0.1);
+            --card-shadow-hover: rgba(0, 0, 0, 0.15);
+        }
+
+        [data-theme="dark"] {
+            --bg-primary: #0F0F1E;
+            --bg-secondary: #1A1A2E;
+            --bg-tertiary: #252538;
+            --text-primary: #F4F4F9;
+            --text-secondary: #E0E0E0;
+            --text-tertiary: #C0C0C0;
+            --text-muted: #A0A0A0;
+            --border-color: #2A2A3E;
+            --card-shadow: rgba(0, 0, 0, 0.3);
+            --card-shadow-hover: rgba(0, 0, 0, 0.5);
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Archivo', -apple-system, BlinkMacSystemFont, sans-serif;
+            background: var(--bg-primary);
+            min-height: 100vh;
+            color: var(--text-primary);
+            position: relative;
+        }
+
+        body::before {
+            content: "";
+            position: fixed;
+            inset: 0;
+            z-index: -1;
+            background: linear-gradient(to bottom, rgba(244,244,249,0.25), rgba(244,244,249,0.15)), url("img/bg/forest-bg.png");
+            background-repeat: no-repeat;
+            background-position: center bottom;
+            background-size: cover;
+        }
+
+        [data-theme="dark"] body::before {
+            background: linear-gradient(to bottom, rgba(15,15,30,0.25), rgba(15,15,30,0.15)), url("img/bg/forest-bg.png");
+            background-repeat: no-repeat;
+            background-position: center bottom;
+            background-size: cover;
+        }
+
+        /* Header */
+        header {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            z-index: 1000;
+            background: rgba(26, 26, 46, 0.95);
+            backdrop-filter: blur(10px);
+            padding: 1rem 1.5rem;
+        }
+
+        nav {
+            max-width: 1200px;
+            margin: 0 auto;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .logo {
+            text-decoration: none;
+        }
+
+        .logo-image {
+            height: 50px;
+            width: auto;
+        }
+
+        .nav-right {
+            display: flex;
+            align-items: center;
+            gap: 1.5rem;
+        }
+
+        .nav-links {
+            display: flex;
+            gap: 2rem;
+            list-style: none;
+        }
+
+        .nav-links a {
+            color: white;
+            text-decoration: none;
+            font-weight: 600;
+            font-size: 0.95rem;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+            transition: color 0.3s ease;
+        }
+
+        .nav-links a:hover {
+            color: var(--primary);
+        }
+
+        .nav-links a.active {
+            color: var(--primary);
+        }
+
+        .theme-toggle {
+            background: transparent;
+            border: 1px solid rgba(255, 255, 255, 0.3);
+            color: white;
+            width: 40px;
+            height: 40px;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 1.2rem;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: border-color 0.15s ease;
+        }
+
+        .theme-toggle:hover {
+            border-color: rgba(255, 255, 255, 0.6);
+        }
+
+        .menu-toggle {
+            display: none;
+            background: none;
+            border: none;
+            color: white;
+            font-size: 1.5rem;
+            cursor: pointer;
+            padding: 0.5rem;
+        }
+
+        @media (max-width: 768px) {
+            .menu-toggle { display: block; }
+            .nav-links {
+                position: fixed;
+                top: 70px;
+                left: 0;
+                right: 0;
+                background: rgba(26, 26, 46, 0.98);
+                flex-direction: column;
+                gap: 0;
+                padding: 2rem;
+                transform: translateY(-100%);
+                opacity: 0;
+                transition: all 0.3s ease;
+                pointer-events: none;
+            }
+            .nav-links.active {
+                transform: translateY(0);
+                opacity: 1;
+                pointer-events: all;
+            }
+            .nav-links li {
+                padding: 1rem 0;
+                border-bottom: 1px solid rgba(255,255,255,0.1);
+            }
+        }
+
+        /* Login Gate */
+        .login-gate {
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 6rem 2rem 2rem;
+        }
+
+        .login-card {
+            background: var(--bg-secondary);
+            border-radius: 12px;
+            padding: 2.5rem;
+            max-width: 400px;
+            width: 100%;
+            box-shadow: 0 4px 24px var(--card-shadow);
+            text-align: center;
+            border: 1px solid var(--border-color);
+        }
+
+        .login-icon {
+            font-size: 4rem;
+            margin-bottom: 1.5rem;
+        }
+
+        .login-title {
+            font-family: 'Bebas Neue', sans-serif;
+            font-size: 2rem;
+            color: var(--text-primary);
+            margin-bottom: 0.5rem;
+            letter-spacing: 0.02em;
+        }
+
+        .login-subtitle {
+            color: var(--text-muted);
+            margin-bottom: 2rem;
+            font-size: 0.95rem;
+        }
+
+        .login-form {
+            display: flex;
+            flex-direction: column;
+            gap: 1rem;
+        }
+
+        .form-group {
+            text-align: left;
+        }
+
+        .form-label {
+            display: block;
+            font-weight: 600;
+            margin-bottom: 0.5rem;
+            color: var(--text-secondary);
+            font-size: 0.9rem;
+        }
+
+        .form-input {
+            width: 100%;
+            padding: 0.875rem 1rem;
+            border-radius: 6px;
+            border: 1px solid var(--border-color);
+            background: var(--bg-primary);
+            font-size: 1rem;
+            color: var(--text-primary);
+            transition: border-color 0.15s ease;
+        }
+
+        .form-input:focus {
+            outline: none;
+            border-color: var(--secondary);
+        }
+
+        .form-input::placeholder {
+            color: var(--text-muted);
+        }
+
+        .form-hint {
+            font-size: 0.8rem;
+            color: var(--text-muted);
+            margin-top: 0.25rem;
+        }
+
+        .login-btn {
+            background: var(--primary);
+            color: white;
+            border: none;
+            padding: 1rem 2rem;
+            border-radius: 8px;
+            font-size: 1rem;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+            cursor: pointer;
+            transition: background 0.2s ease;
+            margin-top: 1rem;
+        }
+
+        .login-btn:hover {
+            background: #e55a2b;
+        }
+
+        .login-error {
+            background: rgba(220, 53, 69, 0.1);
+            color: #dc3545;
+            padding: 1rem;
+            border-radius: 10px;
+            margin-top: 1rem;
+            display: none;
+            font-weight: 600;
+        }
+
+        .login-error.show {
+            display: block;
+            animation: shake 0.5s ease;
+        }
+
+        @keyframes shake {
+            0%, 100% { transform: translateX(0); }
+            25% { transform: translateX(-10px); }
+            75% { transform: translateX(10px); }
+        }
+
+        .back-link {
+            display: inline-block;
+            margin-top: 1.5rem;
+            color: var(--text-muted);
+            text-decoration: none;
+            font-size: 0.9rem;
+            transition: color 0.3s ease;
+        }
+
+        .back-link:hover {
+            color: var(--primary);
+        }
+
+        /* Members Content (hidden initially) */
+        .members-content {
+            display: none;
+            padding-top: 100px;
+        }
+
+        .members-content.active {
+            display: block;
+        }
+
+        #members {
+            background: var(--bg-secondary);
+            border-radius: 12px;
+            margin: 2rem auto;
+            padding: clamp(1.5rem, 5vw, 3rem);
+            max-width: calc(1200px - 4rem);
+            border: 1px solid var(--border-color);
+            box-shadow: 0 2px 12px var(--card-shadow);
+        }
+
+        .section-title {
+            font-family: 'Bebas Neue', sans-serif;
+            font-size: clamp(2rem, 6vw, 3rem);
+            text-align: center;
+            margin-bottom: 2rem;
+            letter-spacing: 0.05em;
+            color: var(--text-primary);
+        }
+
+        .welcome-banner {
+            background: var(--green);
+            color: white;
+            padding: 1.25rem 1.5rem;
+            border-radius: 8px;
+            margin-bottom: 2rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 1rem;
+            border-left: 4px solid var(--primary);
+        }
+
+        .welcome-text {
+            font-size: 1.1rem;
+        }
+
+        .welcome-text strong {
+            font-family: 'Bebas Neue', sans-serif;
+            font-size: 1.3rem;
+            letter-spacing: 0.02em;
+        }
+
+        .logout-btn {
+            background: rgba(255,255,255,0.15);
+            color: white;
+            border: 1px solid rgba(255,255,255,0.25);
+            padding: 0.5rem 1.25rem;
+            border-radius: 6px;
+            font-weight: 600;
+            font-size: 0.875rem;
+            cursor: pointer;
+            transition: background 0.15s ease;
+        }
+
+        .logout-btn:hover {
+            background: rgba(255,255,255,0.25);
+        }
+
+        .members-stats-grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 1.25rem;
+            margin-bottom: 2.5rem;
+        }
+
+        @media (min-width: 768px) {
+            .members-stats-grid { grid-template-columns: repeat(4, 1fr); }
+        }
+
+        .members-stat-card {
+            background: var(--secondary);
+            padding: 1.25rem 1rem;
+            border-radius: 10px;
+            text-align: center;
+            color: white;
+            transition: transform 0.15s ease;
+        }
+
+        .members-stat-card:nth-child(2) {
+            background: var(--green);
+        }
+
+        .members-stat-card:nth-child(3) {
+            background: var(--primary);
+        }
+
+        .members-stat-card:nth-child(4) {
+            background: #5a4a78;
+        }
+
+        .members-stat-card:hover {
+            transform: translateY(-2px);
+        }
+
+        .members-stat-icon { font-size: 1.8rem; margin-bottom: 0.5rem; }
+
+        .members-stat-number {
+            font-family: 'Bebas Neue', sans-serif;
+            font-size: clamp(2rem, 5vw, 2.8rem);
+            line-height: 1;
+            margin-bottom: 0.25rem;
+        }
+
+        .members-stat-label {
+            font-size: clamp(0.75rem, 2vw, 0.9rem);
+            opacity: 0.95;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+        }
+
+        .members-chart-container {
+            background: var(--bg-primary);
+            border-radius: 8px;
+            padding: 1.25rem;
+            margin-bottom: 2rem;
+            border: 1px solid var(--border-color);
+        }
+
+        .members-chart-title {
+            font-family: 'Bebas Neue', sans-serif;
+            font-size: 1.4rem;
+            color: var(--primary);
+            margin-bottom: 1rem;
+            text-align: center;
+        }
+
+        .members-chart {
+            display: flex;
+            align-items: flex-end;
+            justify-content: space-between;
+            height: 140px;
+            gap: 3px;
+            padding: 0 0.5rem;
+        }
+
+        .members-chart-bar {
+            flex: 1;
+            min-width: 0;
+            background: var(--secondary);
+            border-radius: 3px 3px 0 0;
+            transition: opacity 0.15s ease;
+            cursor: pointer;
+            position: relative;
+        }
+
+        .members-chart-bar:hover {
+            opacity: 0.85;
+        }
+
+        .members-chart-bar::after {
+            content: attr(data-tooltip);
+            position: absolute;
+            bottom: 100%;
+            left: 50%;
+            transform: translateX(-50%);
+            background: var(--dark);
+            color: white;
+            padding: 0.4rem 0.6rem;
+            border-radius: 6px;
+            font-size: 0.75rem;
+            white-space: nowrap;
+            opacity: 0;
+            pointer-events: none;
+            transition: opacity 0.2s;
+            z-index: 10;
+            margin-bottom: 5px;
+        }
+
+        .members-chart-bar:hover::after { opacity: 1; }
+
+        .members-chart-labels {
+            display: flex;
+            justify-content: space-between;
+            margin-top: 0.75rem;
+            padding: 0 0.5rem;
+        }
+
+        .members-chart-label {
+            font-size: 0.65rem;
+            color: var(--text-muted);
+            text-align: center;
+            flex: 1;
+        }
+
+        @media (max-width: 640px) {
+            .members-chart-label:nth-child(odd) { visibility: hidden; }
+        }
+
+        /* Meeting Minutes Section */
+        .meeting-minutes-container {
+            background: var(--bg-primary);
+            border-radius: 8px;
+            padding: 1.5rem;
+            margin-bottom: 2rem;
+            border: 1px solid var(--border-color);
+        }
+
+        .meeting-minutes-title {
+            font-family: 'Bebas Neue', sans-serif;
+            font-size: 1.4rem;
+            color: var(--primary);
+            margin-bottom: 1rem;
+            text-align: center;
+        }
+
+        .meeting-minutes-list {
+            display: flex;
+            flex-direction: column;
+            gap: 0.75rem;
+        }
+
+        .meeting-minutes-item {
+            background: var(--bg-secondary);
+            border: 1px solid var(--border-color);
+            border-radius: 8px;
+            overflow: hidden;
+            transition: box-shadow 0.15s ease;
+        }
+
+        .meeting-minutes-item:hover {
+            box-shadow: 0 2px 8px var(--card-shadow-hover);
+        }
+
+        .meeting-minutes-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 1rem 1.25rem;
+            cursor: pointer;
+            gap: 1rem;
+        }
+
+        .meeting-minutes-info {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+            flex-wrap: wrap;
+        }
+
+        .meeting-minutes-date {
+            font-weight: 700;
+            color: var(--text-primary);
+            font-size: 1rem;
+        }
+
+        .meeting-minutes-badge {
+            background: var(--secondary);
+            color: white;
+            padding: 0.25rem 0.6rem;
+            border-radius: 4px;
+            font-size: 0.75rem;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 0.03em;
+        }
+
+        .meeting-minutes-badge.new {
+            background: var(--green);
+        }
+
+        .meeting-minutes-toggle {
+            background: none;
+            border: none;
+            color: var(--text-muted);
+            font-size: 1.25rem;
+            cursor: pointer;
+            transition: transform 0.2s ease;
+            padding: 0.25rem;
+        }
+
+        .meeting-minutes-item.expanded .meeting-minutes-toggle {
+            transform: rotate(180deg);
+        }
+
+        .meeting-minutes-content {
+            display: none;
+            padding: 0 1.25rem 1.25rem;
+            border-top: 1px solid var(--border-color);
+        }
+
+        .meeting-minutes-item.expanded .meeting-minutes-content {
+            display: block;
+        }
+
+        .meeting-minutes-section {
+            margin-top: 1rem;
+        }
+
+        .meeting-minutes-section-title {
+            font-weight: 700;
+            color: var(--secondary);
+            font-size: 0.95rem;
+            margin-bottom: 0.5rem;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .meeting-minutes-section ul {
+            list-style: none;
+            padding-left: 0;
+        }
+
+        .meeting-minutes-section li {
+            position: relative;
+            padding-left: 1.25rem;
+            margin-bottom: 0.4rem;
+            color: var(--text-secondary);
+            font-size: 0.9rem;
+            line-height: 1.5;
+        }
+
+        .meeting-minutes-section li::before {
+            content: "•";
+            position: absolute;
+            left: 0;
+            color: var(--primary);
+            font-weight: bold;
+        }
+
+        .meeting-minutes-action-items {
+            background: rgba(255, 107, 53, 0.08);
+            border-radius: 6px;
+            padding: 1rem;
+            margin-top: 1rem;
+        }
+
+        [data-theme="dark"] .meeting-minutes-action-items {
+            background: rgba(255, 107, 53, 0.12);
+        }
+
+        .meeting-minutes-action-items .meeting-minutes-section-title {
+            color: var(--primary);
+        }
+
+        .meeting-minutes-action-items li::before {
+            content: counter(action-item) ".";
+            counter-increment: action-item;
+            color: var(--primary);
+            font-weight: 600;
+        }
+
+        .meeting-minutes-action-items ul {
+            counter-reset: action-item;
+        }
+
+        .meeting-minutes-download {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+            margin-top: 1rem;
+            padding: 0.5rem 1rem;
+            background: var(--secondary);
+            color: white;
+            text-decoration: none;
+            border-radius: 6px;
+            font-size: 0.85rem;
+            font-weight: 600;
+            transition: background 0.15s ease;
+        }
+
+        .meeting-minutes-download:hover {
+            background: #003d6b;
+        }
+
+        .members-controls {
+            display: flex;
+            gap: 1rem;
+            margin-bottom: 1.5rem;
+            flex-wrap: wrap;
+        }
+
+        .members-search {
+            flex: 1;
+            min-width: 200px;
+            padding: 0.75rem 1rem;
+            border-radius: 6px;
+            border: 1px solid var(--border-color);
+            background: var(--bg-primary);
+            font-size: 1rem;
+            color: var(--text-primary);
+            outline: none;
+            transition: border-color 0.15s ease;
+        }
+
+        .members-search:focus {
+            border-color: var(--secondary);
+        }
+
+        .members-filter-btn {
+            padding: 0.75rem 1.25rem;
+            border-radius: 6px;
+            border: 1px solid var(--border-color);
+            background: var(--bg-primary);
+            color: var(--text-secondary);
+            font-weight: 600;
+            font-size: 0.9rem;
+            cursor: pointer;
+            transition: all 0.15s ease;
+            white-space: nowrap;
+        }
+
+        .members-filter-btn:hover {
+            border-color: var(--secondary);
+            color: var(--secondary);
+        }
+        
+        .members-filter-btn.active {
+            background: var(--secondary);
+            border-color: var(--secondary);
+            color: white;
+        }
+
+        .members-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+            gap: 1.25rem;
+        }
+
+        @media (max-width: 640px) {
+            .members-grid { grid-template-columns: 1fr; }
+        }
+
+        .member-card {
+            background: var(--green);
+            border-radius: 10px;
+            padding: 1.25rem;
+            color: white;
+            transition: transform 0.15s ease;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .member-card:hover {
+            transform: translateY(-3px);
+        }
+
+        .member-card.founding {
+            background: var(--secondary);
+            border-left: 4px solid var(--primary);
+        }
+
+        .member-card.founding:hover {
+            transform: translateY(-3px);
+        }
+
+        .member-card.special-badge::before {
+            content: attr(data-badge);
+            position: absolute;
+            top: 12px;
+            right: -32px;
+            background: var(--accent);
+            color: var(--dark);
+            padding: 0.25rem 2.5rem;
+            font-size: 0.6rem;
+            font-weight: 700;
+            transform: rotate(45deg);
+            text-transform: uppercase;
+        }
+
+        .member-avatar {
+            width: 48px;
+            height: 48px;
+            border-radius: 50%;
+            background: rgba(255, 255, 255, 0.2);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.1rem;
+            margin-bottom: 0.875rem;
+            font-weight: 700;
+            font-family: 'Bebas Neue', sans-serif;
+        }
+
+        .member-name {
+            font-family: 'Bebas Neue', sans-serif;
+            font-size: 1.35rem;
+            margin-bottom: 0.35rem;
+        }
+
+        .member-since {
+            font-size: 0.85rem;
+            opacity: 0.9;
+            margin-bottom: 0.75rem;
+        }
+
+        .member-pdga {
+            display: inline-block;
+            background: rgba(255, 255, 255, 0.18);
+            padding: 0.3rem 0.6rem;
+            border-radius: 4px;
+            font-size: 0.8rem;
+            font-weight: 600;
+        }
+
+        .member-pdga a {
+            color: white;
+            text-decoration: none;
+        }
+
+        .member-pdga a:hover { text-decoration: underline; }
+
+        .members-load-more { text-align: center; margin-top: 2rem; }
+
+        .members-load-btn {
+            background: var(--secondary);
+            color: white;
+            padding: 0.75rem 2rem;
+            border-radius: 6px;
+            font-weight: 600;
+            font-size: 0.95rem;
+            border: none;
+            cursor: pointer;
+            transition: background 0.15s ease;
+        }
+
+        .members-load-btn:hover {
+            background: #003d6d;
+        }
+
+        .members-count {
+            text-align: center;
+            margin-top: 1rem;
+            color: var(--text-muted);
+            font-size: 0.9rem;
+        }
+
+        .members-no-results {
+            text-align: center;
+            padding: 3rem;
+            color: var(--text-muted);
+            grid-column: 1 / -1;
+        }
+
+        .members-no-results-icon {
+            font-size: 3rem;
+            margin-bottom: 1rem;
+            opacity: 0.5;
+        }
+
+        /* Footer */
+        footer {
+            text-align: center;
+            padding: 2rem;
+            color: var(--text-muted);
+            font-size: 0.9rem;
+        }
+
+        footer a {
+            color: var(--primary);
+            text-decoration: none;
+        }
+    </style>
+</head>
+<body>
+    <header>
+        <nav>
+            <a href="gvdg-site.html" class="logo">
+                <img src="img/logo.png" alt="Greenville DGC Logo" class="logo-image">
+            </a>
+            <div class="nav-right">
+                <button class="menu-toggle" aria-label="Toggle menu">☰</button>
+                <ul class="nav-links">
+                    <li><a href="gvdg-site.html#about">About</a></li>
+                    <li><a href="gvdg-site.html#courses">Courses</a></li>
+                    <li><a href="gvdg-site.html#events">Events</a></li>
+                    <li><a href="gvdg-blog.html">Blog</a></li>
+                    <li><a href="gvdg-members.html" class="active">Members</a></li>
+                    <li><a href="gvdg-site.html#contact">Contact</a></li>
+                </ul>
+                <button class="theme-toggle" aria-label="Toggle dark mode">
+                    <span class="theme-icon">🌙</span>
+                </button>
+            </div>
+        </nav>
+    </header>
+
+    <!-- Login Gate -->
+    <div class="login-gate" id="loginGate">
+        <div class="login-card">
+            <div class="login-icon">🔐</div>
+            <h1 class="login-title">Members Only</h1>
+            <p class="login-subtitle">This directory is exclusive to GVDG club members.<br>Enter your credentials to access.</p>
+            
+            <div class="login-form">
+                <div class="form-group">
+                    <label class="form-label">Password</label>
+                    <input type="password" class="form-input" id="passwordInput" placeholder="Enter member password">
+                    <p class="form-hint">Provided when you joined the club</p>
+                </div>
+                
+                <div class="form-group">
+                    <label class="form-label">Code Phrase</label>
+                    <input type="text" class="form-input" id="codeInput" placeholder="Enter the code phrase">
+                    <p class="form-hint">Hint: Our founding year 🥏</p>
+                </div>
+                
+                <button class="login-btn" id="loginBtn">Access Directory</button>
+                
+                <div class="login-error" id="loginError">
+                    ❌ Incorrect credentials. Please try again.
+                </div>
+            </div>
+            
+            <a href="gvdg-site.html" class="back-link">← Back to main site</a>
+        </div>
+    </div>
+
+    <!-- Members Content (hidden until login) -->
+    <div class="members-content" id="membersContent">
+        <section id="members">
+            <h2 class="section-title">🥏 GVDG Member Directory</h2>
+            
+            <div class="welcome-banner">
+                <div class="welcome-text">
+                    <strong>Welcome back!</strong><br>
+                    You're viewing the exclusive GVDG member directory.
+                </div>
+                <button class="logout-btn" id="logoutBtn">Log Out</button>
+            </div>
+            
+            <div class="members-stats-grid">
+                <div class="members-stat-card">
+                    <div class="members-stat-icon">👥</div>
+                    <div class="members-stat-number" data-target="347">0</div>
+                    <div class="members-stat-label">Total Members</div>
+                </div>
+                <div class="members-stat-card">
+                    <div class="members-stat-icon">🏆</div>
+                    <div class="members-stat-number" data-target="184">0</div>
+                    <div class="members-stat-label">PDGA Members</div>
+                </div>
+                <div class="members-stat-card">
+
+                    <div class="members-stat-icon">📅</div>
+                    <div class="members-stat-number" data-target="21">0</div>
+                    <div class="members-stat-label">Years Active</div>
+                </div>
+                <div class="members-stat-card">
+                    <div class="members-stat-icon">🌟</div>
+                    <div class="members-stat-number" data-target="25">0</div>
+                    <div class="members-stat-label">Founding Members</div>
+                </div>
+            </div>
+            
+            <div class="members-chart-container">
+                <h3 class="members-chart-title">📈 Membership Growth Since 2004</h3>
+                <div class="members-chart" id="membersChart"></div>
+                <div class="members-chart-labels" id="membersChartLabels"></div>
+            </div>
+            
+            <div class="members-controls">
+                <input type="text" class="members-search" id="memberSearch" placeholder="🔍 Search members by name or PDGA #...">
+                <button class="members-filter-btn active" data-filter="all">All Members</button>
+                <button class="members-filter-btn" data-filter="founding">Founding (2004)</button>
+                <button class="members-filter-btn" data-filter="pdga">PDGA Members</button>
+            </div>
+            
+            <div class="members-grid" id="membersGrid"></div>
+            
+            <div class="members-load-more">
+                <button class="members-load-btn" id="loadMoreBtn">Show More Members</button>
+            </div>
+            <div class="members-count" id="membersCount"></div>
+            
+            <!-- Meeting Minutes Section -->
+            <div class="meeting-minutes-container">
+                <h3 class="meeting-minutes-title">📋 Meeting Minutes</h3>
+                <div class="meeting-minutes-list">
+                    
+                    <!-- January 2026 Meeting -->
+                    <div class="meeting-minutes-item expanded">
+                        <div class="meeting-minutes-header" onclick="this.parentElement.classList.toggle('expanded')">
+                            <div class="meeting-minutes-info">
+                                <span class="meeting-minutes-date">January 12, 2026</span>
+                                <span class="meeting-minutes-badge new">New</span>
+                            </div>
+                            <button class="meeting-minutes-toggle">▼</button>
+                        </div>
+                        <div class="meeting-minutes-content">
+                            
+                            <div class="meeting-minutes-section">
+                                <div class="meeting-minutes-section-title">🏞️ Future Course Improvements - Ayden</div>
+                                <ul>
+                                    <li>Discussed potential layout changes including moving Hole 1 away from the ditch and behind the tree on the right</li>
+                                    <li>Considering adding a pyramid obstacle on Hole 2</li>
+                                    <li>Drainage work has been completed on several ditches</li>
+                                    <li>Tree trimming completed on Holes 7, 12, 15, and 17 - overhanging limbs removed</li>
+                                    <li>Plans to add planks/boards for ditch crossings</li>
+                                </ul>
+                            </div>
+                            
+                            <div class="meeting-minutes-section">
+                                <div class="meeting-minutes-section-title">🏆 Ayden Founders Day Tournament</div>
+                                <ul>
+                                    <li>Date: Saturday, February 7th</li>
+                                    <li>Funds raised will go toward team jerseys for the Ayden/Grifton DGC ($25 each)</li>
+                                    <li>Plan to take junior players to USDGC with remaining funds</li>
+                                    <li>Discussed making the ditch on Hole 8 OB rather than casual for player benefit</li>
+                                    <li>Bathroom availability: Tommy (Parks) will open bathrooms if temperature is above 35 degrees</li>
+                                    <li>Paint for OB lines has been donated; spray wands available</li>
+                                    <li>March 28th: Disc golf event at Ayden/Grifton Festival with chili cook-off, car show, and CTE showcase</li>
+                                </ul>
+                            </div>
+                            
+                            <div class="meeting-minutes-section">
+                                <div class="meeting-minutes-section-title">🌳 Course Improvements - Farmville</div>
+                                <ul>
+                                    <li>Long-term plans for concrete tee pads to replace current turf pads</li>
+                                    <li>Hole 7 retaining wall will be removed due to safety concerns</li>
+                                    <li>Future design: Most holes will have one tee pad with two pin placements; three holes will have two tee pads with one basket</li>
+                                    <li>Pond work in progress - artificially lowering water level to clear vegetation</li>
+                                    <li>Parks Director Christopher has been very supportive - mowing has improved significantly</li>
+                                </ul>
+                            </div>
+                            
+                            <div class="meeting-minutes-section">
+                                <div class="meeting-minutes-section-title">🍲 Chili Bowl Fundraiser Tournament</div>
+                                <ul>
+                                    <li>Date: Saturday, January 24th at Farmville</li>
+                                    <li>Format: Two rounds - First round with Mulligans ($1 each, 5 per hole), second round is a sanctioned C-tier tournament</li>
+                                    <li>Paper scorecards will be used to help track mulligans</li>
+                                    <li>Benefiting local soup kitchen</li>
+                                    <li>Need: Chili makers (sign up!), bowls and spoons are covered - don't forget your ladles!</li>
+                                    <li>Tent/generator for crockpots being brought by Mike Ellis</li>
+                                </ul>
+                            </div>
+                            
+                            <div class="meeting-minutes-section">
+                                <div class="meeting-minutes-section-title">💳 Club Membership Discussion</div>
+                                <ul>
+                                    <li>Current Club membership for 2026: 25 members</li>
+                                    <li>2025 Total club members: 41</li>
+                                    <li>Membership fee: $15/annually</li>
+                                    <li>Current benefits: Patch, $1 off premium plastic from store, $1 off doubles</li>
+                                    <li>Proposal: Partner with local pros (Blake Poland, Stephen Futrell, etc.) to offer discounted coaching sessions and clinics for GVDG members</li>
+                                    <li>Discussed potential tiered membership system with additional benefits</li>
+                                </ul>
+                            </div>
+                            
+                            <div class="meeting-minutes-section">
+                                <div class="meeting-minutes-section-title">📢 Club Communication</div>
+                                <ul>
+                                    <li>Concern raised about reaching members - not everyone sees Facebook invites</li>
+                                    <li>Discord server proposed for announcements, disc sales/trades, and event coordination</li>
+                                    <li>New GVDG website in development - will include events calendar, tournament listings, course information</li>
+                                    <li>Website will feature automatic tournament scraping from Disc Golf Scene (60 mile radius)</li>
+                                    <li>Coordination needed with Adam regarding domain/hosting</li>
+                                </ul>
+                            </div>
+                            
+                            <div class="meeting-minutes-section">
+                                <div class="meeting-minutes-section-title">⛺ Camp Boddie Disc Golf Course - Special Presentation</div>
+                                <ul>
+                                    <li>Presented by Stewart Goodson (founding GVDG member, former 7-year treasurer)</li>
+                                    <li>Location: Boy Scout camp near Blunts Creek (approximately 30 minutes from Greenville)</li>
+                                    <li>Two courses being developed: 9-hole course near dining hall and 18-hole championship course in wilderness area</li>
+                                    <li>Camp already has 9 portable baskets</li>
+                                    <li>9-hole course: Tee signs built and installed, tee pads in, fairways cut - baskets to be placed in February</li>
+                                    <li>18-hole course: 65-70% of fairways already cut; most holes will have alternate pin placements</li>
+                                    <li>Course will be open to the public (not just scouts)</li>
+                                    <li>Seeking GVDG support: Volunteers needed for Sunday afternoon work days (February timeline)</li>
+                                    <li>Hole sponsorship opportunity: $500 covers basket, two pin placements, and tee sign</li>
+                                    <li>Background: Disc golf is now an option for the Golf Merit Badge</li>
+                                </ul>
+                            </div>
+                            
+                            <div class="meeting-minutes-section">
+                                <div class="meeting-minutes-section-title">🎁 Donations</div>
+                                <ul>
+                                    <li>Jim Engelman donated 80-90 discs</li>
+                                    <li>Tax receipt being prepared</li>
+                                    <li>GVDG is a 501(c)(3) - donations are tax deductible; local businesses can sponsor holes</li>
+                                </ul>
+                            </div>
+                            
+                            <div class="meeting-minutes-action-items">
+                                <div class="meeting-minutes-section-title">✅ Action Items</div>
+                                <ul>
+                                    <li>TJ/Stelly to mark Ayden course on January 19th for Ayden Founders</li>
+                                    <li>Monitor weather 10 days before Ayden Founders, arrange portable toilets if needed</li>
+                                    <li>Post layout updates to UDisc and ensure course layout is entered into PDGA for the tourney</li>
+                                    <li>Document Chili Bowl fundraiser results with photos of donation</li>
+                                    <li>TJ to coordinate with Adam on domain/hosting and website launch</li>
+                                    <li>Schedule Camp Boddie volunteer workday for Sunday in February</li>
+                                    <li>Reach out to local clubs for Camp Boddie hole sponsorships</li>
+                                    <li>Explore partnership opportunities with local pros for member clinics</li>
+                                </ul>
+                            </div>
+                            
+                            <div class="meeting-minutes-section">
+                                <div class="meeting-minutes-section-title">📝 Additional Notes</div>
+                                <ul>
+                                    <li>Another Round disc golf store has recently expanded into the area</li>
+                                    <li>The Refuge mentioned as potential future course location (has land, lakes, and may have existing baskets)</li>
+                                    <li>Tree on Hole 13 at Farmville is a safety concern - large branches falling; will be addressed during future course redesign</li>
+                                </ul>
+                            </div>
+                            
+                            <a href="docs/GVDG_Meeting_Minutes_January_2026.docx" class="meeting-minutes-download" download>
+                                📄 Download Full Minutes (DOCX)
+                            </a>
+                        </div>
+                    </div>
+                    
+                </div>
+            </div>
+        </section>
+        
+        <footer>
+            <p>© 2025 Greenville Disc Golf Club | <a href="gvdg-site.html">Return to Main Site</a></p>
+        </footer>
+    </div>
+
+    <script>
+    (function() {
+        // =====================================================
+        // CREDENTIALS - CHANGE THESE TO YOUR DESIRED VALUES
+        // =====================================================
+        const VALID_PASSWORD = 'gvdg2025';      // Change this!
+        const VALID_CODE = '2004';               // Change this!
+        // =====================================================
+
+        const SESSION_KEY = 'gvdg_member_auth';
+        
+        // Check if already logged in
+        function checkSession() {
+            const session = sessionStorage.getItem(SESSION_KEY);
+            if (session === 'authenticated') {
+                showMembersContent();
+            }
+        }
+
+        function showMembersContent() {
+            document.getElementById('loginGate').style.display = 'none';
+            document.getElementById('membersContent').classList.add('active');
+            sessionStorage.setItem(SESSION_KEY, 'authenticated');
+            initMembersPage();
+        }
+
+        function logout() {
+            sessionStorage.removeItem(SESSION_KEY);
+            document.getElementById('membersContent').classList.remove('active');
+            document.getElementById('loginGate').style.display = 'flex';
+            document.getElementById('passwordInput').value = '';
+            document.getElementById('codeInput').value = '';
+        }
+
+        // Login handler
+        document.getElementById('loginBtn').addEventListener('click', function() {
+            const password = document.getElementById('passwordInput').value.trim().toLowerCase();
+            const code = document.getElementById('codeInput').value.trim();
+            const errorEl = document.getElementById('loginError');
+            
+            if (password === VALID_PASSWORD.toLowerCase() && code === VALID_CODE) {
+                errorEl.classList.remove('show');
+                showMembersContent();
+            } else {
+                errorEl.classList.add('show');
+                setTimeout(() => errorEl.classList.remove('show'), 3000);
+            }
+        });
+
+        // Enter key support
+        document.getElementById('passwordInput').addEventListener('keypress', function(e) {
+            if (e.key === 'Enter') document.getElementById('codeInput').focus();
+        });
+        document.getElementById('codeInput').addEventListener('keypress', function(e) {
+            if (e.key === 'Enter') document.getElementById('loginBtn').click();
+        });
+
+        // Logout handler
+        document.getElementById('logoutBtn').addEventListener('click', logout);
+
+        // Mobile menu toggle
+        document.querySelector('.menu-toggle').addEventListener('click', function() {
+            document.querySelector('.nav-links').classList.toggle('active');
+        });
+
+        // Theme toggle
+        const themeToggle = document.querySelector('.theme-toggle');
+        const themeIcon = document.querySelector('.theme-icon');
+        
+        if (localStorage.getItem('theme') === 'dark') {
+            document.documentElement.setAttribute('data-theme', 'dark');
+            themeIcon.textContent = '☀️';
+        }
+        
+        themeToggle.addEventListener('click', function() {
+            const isDark = document.documentElement.getAttribute('data-theme') === 'dark';
+            document.documentElement.setAttribute('data-theme', isDark ? 'light' : 'dark');
+            themeIcon.textContent = isDark ? '🌙' : '☀️';
+            localStorage.setItem('theme', isDark ? 'light' : 'dark');
+        });
+
+        // Initialize on page load
+        checkSession();
+
+        // =====================================================
+        // MEMBERS PAGE FUNCTIONALITY
+        // =====================================================
+        function initMembersPage() {
+            // All 347 members
+            const allMembers = [{"firstName":"Scott","lastName":"Faison","yearJoined":2004,"pdga":"14844","special":"Lifetime Member"},{"firstName":"Holden","lastName":"Faison","yearJoined":2008,"pdga":null,"special":"Disc Golf Heaven"},{"firstName":"Stewart","lastName":"Goodson","yearJoined":2004,"pdga":"133359","special":null},{"firstName":"Stephen","lastName":"Rogers","yearJoined":2006,"pdga":"47395","special":null},{"firstName":"Josh","lastName":"Shrader","yearJoined":2004,"pdga":null,"special":null},{"firstName":"Todd \"Pygmyman\"","lastName":"Markov","yearJoined":2004,"pdga":"9042","special":null},{"firstName":"Paul \"PJ\"","lastName":"Evans","yearJoined":2004,"pdga":"25951","special":null},{"firstName":"Jason","lastName":"Myers","yearJoined":2004,"pdga":"22143","special":null},{"firstName":"Richard","lastName":"Biggs","yearJoined":2004,"pdga":"26765","special":null},{"firstName":"Max","lastName":"Crotts","yearJoined":2004,"pdga":"25901","special":null},{"firstName":"Fred","lastName":"Jarrett","yearJoined":2004,"pdga":"25363","special":null},{"firstName":"Sean","lastName":"Gough","yearJoined":2004,"pdga":"22776","special":null},{"firstName":"Jason","lastName":"Turner","yearJoined":2004,"pdga":null,"special":null},{"firstName":"Richard","lastName":"Vinson","yearJoined":2004,"pdga":null,"special":null},{"firstName":"Tobin","lastName":"Wright","yearJoined":2004,"pdga":"25558","special":null},{"firstName":"Robert","lastName":"Leonard","yearJoined":2004,"pdga":"21676","special":null},{"firstName":"Rob","lastName":"Brown","yearJoined":2004,"pdga":null,"special":null},{"firstName":"Jonathon","lastName":"Riddle","yearJoined":2004,"pdga":null,"special":null},{"firstName":"Jon","lastName":"Mills","yearJoined":2005,"pdga":"26582","special":null},{"firstName":"Matt","lastName":"Williams","yearJoined":2004,"pdga":null,"special":null},{"firstName":"Joey","lastName":"Hughes","yearJoined":2005,"pdga":"27650","special":null},{"firstName":"Joe","lastName":"Noble","yearJoined":2005,"pdga":"26332","special":null},{"firstName":"Robert","lastName":"Wynn RIP","yearJoined":2004,"pdga":"17117","special":null},{"firstName":"Jeb","lastName":"Bryant","yearJoined":2004,"pdga":"24658","special":null},{"firstName":"Dan","lastName":"Dill","yearJoined":2005,"pdga":null,"special":null},{"firstName":"Dave \"Hippie\"","lastName":"Cloughley","yearJoined":2004,"pdga":"22756","special":null},{"firstName":"Josh","lastName":"Johnson","yearJoined":2004,"pdga":"25532","special":null},{"firstName":"Patrick","lastName":"Byrd","yearJoined":2006,"pdga":"27904","special":null},{"firstName":"Tony","lastName":"Adinolfi","yearJoined":2006,"pdga":"24655","special":null},{"firstName":"Jake","lastName":"Davis","yearJoined":2007,"pdga":null,"special":null},{"firstName":"Bob","lastName":"Godshall","yearJoined":2007,"pdga":null,"special":null},{"firstName":"Brian","lastName":"Williams","yearJoined":2007,"pdga":null,"special":null},{"firstName":"John","lastName":"Peszko RIP","yearJoined":2007,"pdga":null,"special":null},{"firstName":"Joel","lastName":"Smith RIP","yearJoined":2009,"pdga":"27919","special":null},{"firstName":"Christian","lastName":"Smith","yearJoined":2009,"pdga":"29902","special":null},{"firstName":"Jim","lastName":"Engleman","yearJoined":2009,"pdga":"37175","special":null},{"firstName":"Justin","lastName":"Halton","yearJoined":2009,"pdga":null,"special":null},{"firstName":"Jeff","lastName":"Stroud","yearJoined":2009,"pdga":"43559","special":null},{"firstName":"Brian","lastName":"Harmon","yearJoined":2009,"pdga":null,"special":null},{"firstName":"AJ","lastName":"Sours","yearJoined":2009,"pdga":"27770","special":null},{"firstName":"Joseph","lastName":"Warren","yearJoined":2009,"pdga":"45164","special":null},{"firstName":"Kurt","lastName":"Hodnett","yearJoined":2009,"pdga":"40358","special":null},{"firstName":"Kyle","lastName":"Hodnett","yearJoined":2009,"pdga":"32545","special":null},{"firstName":"Mike","lastName":"Wathen","yearJoined":2009,"pdga":"30729","special":null},{"firstName":"Adam","lastName":"Alt","yearJoined":2010,"pdga":null,"special":null},{"firstName":"Shawn","lastName":"Irish","yearJoined":2010,"pdga":null,"special":null},{"firstName":"Nikole","lastName":"Sutton","yearJoined":2010,"pdga":null,"special":null},{"firstName":"Jenny","lastName":"Baker","yearJoined":2010,"pdga":null,"special":null},{"firstName":"Paul","lastName":"Jacobs","yearJoined":2010,"pdga":null,"special":null},{"firstName":"Justin","lastName":"Kingery","yearJoined":2010,"pdga":"41103","special":null},{"firstName":"Jim","lastName":"Markov","yearJoined":2010,"pdga":"2866","special":null},{"firstName":"Steven","lastName":"Lilly","yearJoined":2010,"pdga":null,"special":null},{"firstName":"Nick","lastName":"Morreale","yearJoined":2010,"pdga":"48686","special":null},{"firstName":"Ryan","lastName":"Perkins","yearJoined":2010,"pdga":null,"special":null},{"firstName":"Will","lastName":"Pittman","yearJoined":2010,"pdga":null,"special":null},{"firstName":"Alan","lastName":"Ramirez","yearJoined":2010,"pdga":null,"special":null},{"firstName":"Mark","lastName":"Sanders","yearJoined":2010,"pdga":null,"special":null},{"firstName":"Mike","lastName":"Simone","yearJoined":2010,"pdga":"3996","special":null},{"firstName":"Chris","lastName":"Teague","yearJoined":2010,"pdga":null,"special":null},{"firstName":"Michael","lastName":"Webster","yearJoined":2010,"pdga":"31490","special":null},{"firstName":"Wes","lastName":"Anslinger","yearJoined":2010,"pdga":null,"special":null},{"firstName":"Bret","lastName":"Kinlaw","yearJoined":2010,"pdga":"51579","special":null},{"firstName":"Mason","lastName":"Myles RIP","yearJoined":2010,"pdga":null,"special":null},{"firstName":"Michael","lastName":"Blackmon","yearJoined":2011,"pdga":"50135","special":null},{"firstName":"Daniel","lastName":"Coward","yearJoined":2011,"pdga":"58683","special":null},{"firstName":"David","lastName":"Guy","yearJoined":2011,"pdga":"51456","special":null},{"firstName":"Sid","lastName":"Mosely","yearJoined":2011,"pdga":null,"special":null},{"firstName":"Ira","lastName":"Rushing","yearJoined":2011,"pdga":null,"special":null},{"firstName":"Jon","lastName":"Upchurch","yearJoined":2004,"pdga":"28915","special":null},{"firstName":"Matt","lastName":"Sadler","yearJoined":2011,"pdga":null,"special":null},{"firstName":"Garrett","lastName":"Allen","yearJoined":2011,"pdga":null,"special":null},{"firstName":"TJ","lastName":"Langley","yearJoined":2011,"pdga":null,"special":null},{"firstName":"Mike","lastName":"Gough","yearJoined":2011,"pdga":"41520","special":null},{"firstName":"Stephen","lastName":"Gough","yearJoined":2011,"pdga":"32953","special":null},{"firstName":"Bob","lastName":"Ward","yearJoined":2011,"pdga":null,"special":null},{"firstName":"Jim","lastName":"West","yearJoined":2011,"pdga":"56224","special":null},{"firstName":"Shelby","lastName":"White","yearJoined":2006,"pdga":null,"special":null},{"firstName":"Eric","lastName":"Jackson","yearJoined":2011,"pdga":null,"special":null},{"firstName":"Jeremy","lastName":"Larsen","yearJoined":2011,"pdga":null,"special":null},{"firstName":"Scott","lastName":"Conway","yearJoined":2012,"pdga":"38603","special":null},{"firstName":"Andrew","lastName":"Duppstadt","yearJoined":2012,"pdga":"65098","special":null},{"firstName":"Nigel","lastName":"Barefoot","yearJoined":2012,"pdga":null,"special":null},{"firstName":"Keneth","lastName":"Bordeaux","yearJoined":2012,"pdga":null,"special":null},{"firstName":"Nazzar","lastName":"Brothers","yearJoined":2012,"pdga":null,"special":null},{"firstName":"Blake","lastName":"Dahlem","yearJoined":2012,"pdga":"34116","special":null},{"firstName":"Alex","lastName":"Delia","yearJoined":2012,"pdga":null,"special":null},{"firstName":"Will","lastName":"Epperson","yearJoined":2012,"pdga":null,"special":null},{"firstName":"Allen","lastName":"Foster","yearJoined":2012,"pdga":null,"special":null},{"firstName":"Kevin","lastName":"Gaskins","yearJoined":2012,"pdga":"24552","special":null},{"firstName":"Brian","lastName":"Gilmette","yearJoined":2012,"pdga":"45156","special":null},{"firstName":"Nick","lastName":"Golden","yearJoined":2012,"pdga":"53259","special":null},{"firstName":"Russ","lastName":"Grey","yearJoined":2012,"pdga":null,"special":null},{"firstName":"Grant","lastName":"Grove","yearJoined":2012,"pdga":"56626","special":null},{"firstName":"Robert \"Hairball\"","lastName":"Harris","yearJoined":2012,"pdga":null,"special":null},{"firstName":"Gray","lastName":"Hodges","yearJoined":2012,"pdga":null,"special":null},{"firstName":"Erin","lastName":"Hodnett","yearJoined":2012,"pdga":"56785","special":null},{"firstName":"Stuart","lastName":"Hoggard","yearJoined":2012,"pdga":null,"special":null},{"firstName":"Robbie","lastName":"Johnson","yearJoined":2012,"pdga":null,"special":null},{"firstName":"Katie","lastName":"Kawaugle","yearJoined":2012,"pdga":null,"special":null},{"firstName":"Jeremy","lastName":"Lee","yearJoined":2012,"pdga":"18902","special":null},{"firstName":"Jamie","lastName":"Mallette","yearJoined":2012,"pdga":null,"special":null},{"firstName":"Michael","lastName":"Mallette","yearJoined":2012,"pdga":null,"special":null},{"firstName":"Pat","lastName":"Mallette","yearJoined":2012,"pdga":"49633","special":null},{"firstName":"Trey","lastName":"Martin","yearJoined":2012,"pdga":null,"special":null},{"firstName":"John","lastName":"Mickelson","yearJoined":2012,"pdga":"50412","special":null},{"firstName":"Andy","lastName":"Morian","yearJoined":2012,"pdga":null,"special":null},{"firstName":"Tyler","lastName":"Morra","yearJoined":2012,"pdga":null,"special":null},{"firstName":"Patrick","lastName":"Peebles","yearJoined":2012,"pdga":"50529","special":null},{"firstName":"Kevin","lastName":"Plotkin","yearJoined":2012,"pdga":null,"special":null},{"firstName":"Emilio","lastName":"Quiroz","yearJoined":2012,"pdga":null,"special":null},{"firstName":"Steve","lastName":"Rogers","yearJoined":2012,"pdga":null,"special":null},{"firstName":"Waylin","lastName":"Roork","yearJoined":2012,"pdga":null,"special":null},{"firstName":"Eric","lastName":"Rulifson","yearJoined":2012,"pdga":null,"special":null},{"firstName":"Jake","lastName":"Starr","yearJoined":2012,"pdga":null,"special":null},{"firstName":"Bobby","lastName":"Swindell","yearJoined":2012,"pdga":null,"special":null},{"firstName":"Matt","lastName":"Taylor","yearJoined":2012,"pdga":null,"special":null},{"firstName":"Adam","lastName":"Walter","yearJoined":2012,"pdga":"54198","special":null},{"firstName":"Rock","lastName":"Williams","yearJoined":2012,"pdga":null,"special":null},{"firstName":"Tucker","lastName":"Wright","yearJoined":2012,"pdga":null,"special":null},{"firstName":"Leanne","lastName":"Homsky","yearJoined":2012,"pdga":null,"special":null},{"firstName":"Brandon","lastName":"Brewington","yearJoined":2013,"pdga":null,"special":null},{"firstName":"Daniel","lastName":"Brockman II","yearJoined":2013,"pdga":null,"special":null},{"firstName":"Ken","lastName":"Cortright","yearJoined":2013,"pdga":null,"special":null},{"firstName":"Lynn","lastName":"Crumpler","yearJoined":2013,"pdga":null,"special":null},{"firstName":"Chris","lastName":"Gill","yearJoined":2013,"pdga":"45312","special":null},{"firstName":"Nolan","lastName":"Grant","yearJoined":2013,"pdga":"56916","special":null},{"firstName":"Spencer","lastName":"Hill","yearJoined":2013,"pdga":null,"special":null},{"firstName":"Todd","lastName":"Jordan","yearJoined":2013,"pdga":null,"special":null},{"firstName":"Matt","lastName":"Kiricoples","yearJoined":2013,"pdga":"63070","special":null},{"firstName":"Alex","lastName":"Lorentz","yearJoined":2013,"pdga":null,"special":null},{"firstName":"Alden","lastName":"Manning","yearJoined":2013,"pdga":null,"special":null},{"firstName":"Ben","lastName":"McLawhorn","yearJoined":2013,"pdga":null,"special":null},{"firstName":"John","lastName":"Pollitto","yearJoined":2013,"pdga":null,"special":null},{"firstName":"Chris","lastName":"Trumbo","yearJoined":2013,"pdga":null,"special":null},{"firstName":"Chris","lastName":"Wallace","yearJoined":2013,"pdga":null,"special":null},{"firstName":"Wayne","lastName":"Wilson","yearJoined":2013,"pdga":null,"special":null},{"firstName":"Drew","lastName":"Barker","yearJoined":2013,"pdga":null,"special":null},{"firstName":"Mike","lastName":"Taylor","yearJoined":2013,"pdga":null,"special":null},{"firstName":"Benny","lastName":"Harper","yearJoined":2013,"pdga":null,"special":null},{"firstName":"Bruce","lastName":"Baginski","yearJoined":2014,"pdga":"46621","special":null},{"firstName":"Tate","lastName":"Allen","yearJoined":2014,"pdga":"46682","special":null},{"firstName":"Mark","lastName":"Uvalle","yearJoined":2014,"pdga":null,"special":null},{"firstName":"Keith","lastName":"Tanner","yearJoined":2014,"pdga":null,"special":null},{"firstName":"Daniel","lastName":"Wetherington III","yearJoined":2014,"pdga":null,"special":null},{"firstName":"Tim","lastName":"Jacobs","yearJoined":2014,"pdga":"101139","special":null},{"firstName":"Paul","lastName":"Jacobs","yearJoined":2014,"pdga":"101141","special":null},{"firstName":"Jessi","lastName":"Edwards","yearJoined":2014,"pdga":null,"special":null},{"firstName":"Eric","lastName":"Murphy","yearJoined":2014,"pdga":null,"special":null},{"firstName":"Joshua","lastName":"Webb","yearJoined":2014,"pdga":null,"special":null},{"firstName":"Patrick","lastName":"Franklin","yearJoined":2014,"pdga":null,"special":null},{"firstName":"Andrew","lastName":"Phelps","yearJoined":2014,"pdga":null,"special":null},{"firstName":"Daniel","lastName":"Laymon","yearJoined":2014,"pdga":null,"special":null},{"firstName":"Will","lastName":"Sherrill","yearJoined":2014,"pdga":null,"special":null},{"firstName":"Mark","lastName":"McRorie","yearJoined":2014,"pdga":null,"special":null},{"firstName":"Joshua","lastName":"Lee","yearJoined":2014,"pdga":"131999","special":null},{"firstName":"Wesley","lastName":"Vann","yearJoined":2014,"pdga":null,"special":null},{"firstName":"Lee","lastName":"Hodges","yearJoined":2014,"pdga":null,"special":null},{"firstName":"Austin","lastName":"Mansfield","yearJoined":2014,"pdga":null,"special":null},{"firstName":"Zack","lastName":"Jones","yearJoined":2014,"pdga":null,"special":null},{"firstName":"Penny","lastName":"Asby","yearJoined":2014,"pdga":null,"special":null},{"firstName":"Jonathan","lastName":"Roop","yearJoined":2015,"pdga":null,"special":null},{"firstName":"Joey","lastName":"Prokop","yearJoined":2015,"pdga":null,"special":null},{"firstName":"Joel","lastName":"Counts","yearJoined":2015,"pdga":null,"special":null},{"firstName":"Camby","lastName":"Abell","yearJoined":2015,"pdga":null,"special":null},{"firstName":"Cliff","lastName":"Stallings","yearJoined":2015,"pdga":null,"special":null},{"firstName":"Colby","lastName":"Robinson","yearJoined":2015,"pdga":null,"special":null},{"firstName":"Erin","lastName":"Pope","yearJoined":2015,"pdga":null,"special":null},{"firstName":"Zack","lastName":"Moran","yearJoined":2015,"pdga":null,"special":null},{"firstName":"Michael","lastName":"Byrum","yearJoined":2015,"pdga":null,"special":null},{"firstName":"Jarrett","lastName":"Wallace","yearJoined":2015,"pdga":"64735","special":null},{"firstName":"Alan","lastName":"Asby","yearJoined":2015,"pdga":null,"special":null},{"firstName":"Michael","lastName":"Alloway","yearJoined":2015,"pdga":"71897","special":null},{"firstName":"Alex","lastName":"Pritchard","yearJoined":2015,"pdga":null,"special":null},{"firstName":"Rob","lastName":"Hall","yearJoined":2015,"pdga":null,"special":null},{"firstName":"Bryan","lastName":"Cooper","yearJoined":2015,"pdga":null,"special":null},{"firstName":"Duke","lastName":"Beaudoex","yearJoined":2015,"pdga":null,"special":null},{"firstName":"Vince","lastName":"Tricarico","yearJoined":2015,"pdga":"78376","special":null},{"firstName":"Ryan","lastName":"McMillan","yearJoined":2015,"pdga":"76320","special":null},{"firstName":"Chad","lastName":"Carwein","yearJoined":2016,"pdga":null,"special":null},{"firstName":"Justin","lastName":"Haggerty","yearJoined":2016,"pdga":null,"special":null},{"firstName":"Kevin","lastName":"Knight","yearJoined":2016,"pdga":null,"special":null},{"firstName":"John","lastName":"Howard","yearJoined":2016,"pdga":"87155","special":null},{"firstName":"Brian","lastName":"House","yearJoined":2016,"pdga":null,"special":null},{"firstName":"Eddie","lastName":"Baxter","yearJoined":2016,"pdga":null,"special":null},{"firstName":"Robert","lastName":"Haney","yearJoined":2016,"pdga":null,"special":null},{"firstName":"Brian","lastName":"Baker","yearJoined":2016,"pdga":"102996","special":null},{"firstName":"Nathan","lastName":"Baker","yearJoined":2016,"pdga":"102878","special":null},{"firstName":"Matthew","lastName":"Baker","yearJoined":2016,"pdga":null,"special":null},{"firstName":"Mairibethe","lastName":"Hayes-Tricarico","yearJoined":2017,"pdga":"95853","special":null},{"firstName":"Daniel","lastName":"Garrett","yearJoined":2017,"pdga":"94020","special":null},{"firstName":"Nick","lastName":"Duncan","yearJoined":2017,"pdga":"100038","special":null},{"firstName":"Barry","lastName":"Sealey","yearJoined":2017,"pdga":"7967","special":null},{"firstName":"Charles","lastName":"Thompson","yearJoined":2017,"pdga":null,"special":null},{"firstName":"Shane","lastName":"Norris","yearJoined":2017,"pdga":null,"special":null},{"firstName":"Brian","lastName":"Hammond","yearJoined":2017,"pdga":"201020","special":null},{"firstName":"Andrew","lastName":"Freeman","yearJoined":2017,"pdga":null,"special":null},{"firstName":"Lewis \"Blue Lew\"","lastName":"Hoffmann","yearJoined":2017,"pdga":"6972","special":null},{"firstName":"Juan","lastName":"Martinez","yearJoined":2018,"pdga":"95695","special":null},{"firstName":"Zack","lastName":"Poczontek","yearJoined":2018,"pdga":"96462","special":null},{"firstName":"Mike","lastName":"Smith","yearJoined":2018,"pdga":null,"special":null},{"firstName":"Nick","lastName":"Harmer","yearJoined":2018,"pdga":null,"special":null},{"firstName":"Pierce","lastName":"Taylor","yearJoined":2018,"pdga":null,"special":null},{"firstName":"Daniel","lastName":"Castro","yearJoined":2018,"pdga":"144494","special":null},{"firstName":"Richard","lastName":"Clarke","yearJoined":2018,"pdga":null,"special":null},{"firstName":"Pat","lastName":"McRae","yearJoined":2018,"pdga":"98842","special":null},{"firstName":"Blake","lastName":"Montayne","yearJoined":2018,"pdga":"93920","special":null},{"firstName":"Ryan","lastName":"Saunders","yearJoined":2018,"pdga":"114142","special":null},{"firstName":"Anthony","lastName":"Torres","yearJoined":2018,"pdga":null,"special":null},{"firstName":"Josh","lastName":"Payne","yearJoined":2018,"pdga":"109214","special":null},{"firstName":"Beth","lastName":"Payne","yearJoined":2018,"pdga":"175415","special":null},{"firstName":"Chad","lastName":"Haggerty","yearJoined":2018,"pdga":"100213","special":null},{"firstName":"Adam","lastName":"May","yearJoined":2018,"pdga":null,"special":null},{"firstName":"Daryl","lastName":"Elderkin","yearJoined":2019,"pdga":"95586","special":null},{"firstName":"Jordan","lastName":"Ervin","yearJoined":2019,"pdga":"71331","special":null},{"firstName":"Daniel","lastName":"Brubaker","yearJoined":2019,"pdga":"113391","special":null},{"firstName":"Mitchell","lastName":"Frederickson","yearJoined":2019,"pdga":"51701","special":null},{"firstName":"Tony","lastName":"Grady","yearJoined":2019,"pdga":"21753","special":null},{"firstName":"Paul","lastName":"Toriello","yearJoined":2029,"pdga":"115006","special":null},{"firstName":"Charlie","lastName":"Lassiter","yearJoined":2019,"pdga":"106851","special":null},{"firstName":"Jacob","lastName":"Whitton","yearJoined":2019,"pdga":"50260","special":null},{"firstName":"Brooklyn","lastName":"Payne","yearJoined":2019,"pdga":"139000","special":null},{"firstName":"Dave","lastName":"Neiwald","yearJoined":2019,"pdga":"106683","special":null},{"firstName":"Ryan","lastName":"Elvin","yearJoined":2019,"pdga":null,"special":null},{"firstName":"Mason","lastName":"Keen","yearJoined":2019,"pdga":null,"special":null},{"firstName":"Jeff","lastName":"Oatis","yearJoined":2019,"pdga":null,"special":null},{"firstName":"Chris","lastName":"Castleberry","yearJoined":2019,"pdga":"37665","special":null},{"firstName":"Jordan","lastName":"Shirley","yearJoined":2020,"pdga":"100228","special":null},{"firstName":"Jamie","lastName":"Rice","yearJoined":2020,"pdga":null,"special":null},{"firstName":"Adam","lastName":"Durham","yearJoined":2020,"pdga":"87903","special":null},{"firstName":"Nick","lastName":"Lietz","yearJoined":2020,"pdga":null,"special":null},{"firstName":"Steven","lastName":"Futrell","yearJoined":2020,"pdga":"127351","special":null},{"firstName":"Tanner","lastName":"Lovick","yearJoined":2020,"pdga":null,"special":null},{"firstName":"Hugh","lastName":"Lee","yearJoined":2020,"pdga":"123251","special":null},{"firstName":"Will","lastName":"Alexander-Lee","yearJoined":2020,"pdga":"123250","special":null},{"firstName":"Connor","lastName":"Gill","yearJoined":2020,"pdga":"139005","special":null},{"firstName":"Nate","lastName":"Evans","yearJoined":2020,"pdga":"129589","special":null},{"firstName":"Kory","lastName":"Hussey","yearJoined":2020,"pdga":"144109","special":null},{"firstName":"Ryan","lastName":"McDaniel","yearJoined":2020,"pdga":"139006","special":null},{"firstName":"Whitney","lastName":"Graham","yearJoined":2020,"pdga":"131920","special":null},{"firstName":"Eric","lastName":"Graham","yearJoined":2020,"pdga":null,"special":null},{"firstName":"Gordan","lastName":"Beverly III","yearJoined":2020,"pdga":"128978","special":null},{"firstName":"Jason","lastName":"Pilkington","yearJoined":2020,"pdga":"144108","special":null},{"firstName":"Rik","lastName":"Allen","yearJoined":2020,"pdga":"121130","special":null},{"firstName":"Billy","lastName":"Bauer","yearJoined":2020,"pdga":"145581","special":null},{"firstName":"Alicia","lastName":"Walter","yearJoined":2020,"pdga":null,"special":null},{"firstName":"Jennifer","lastName":"Cruz","yearJoined":2020,"pdga":"129064","special":null},{"firstName":"Mike","lastName":"Karlovec","yearJoined":2020,"pdga":"139818","special":null},{"firstName":"Kyle","lastName":"Dolezar","yearJoined":2020,"pdga":"40763","special":null},{"firstName":"Kyle","lastName":"Allen","yearJoined":2020,"pdga":"83347","special":null},{"firstName":"Mark","lastName":"Harrington","yearJoined":2020,"pdga":null,"special":null},{"firstName":"Thomas \"Andy\"","lastName":"Street","yearJoined":2020,"pdga":"126926","special":null},{"firstName":"Ryland","lastName":"Trull","yearJoined":2020,"pdga":"182577","special":null},{"firstName":"Jordan","lastName":"Richardson","yearJoined":2020,"pdga":"132142","special":null},{"firstName":"Jesus","lastName":"Mares","yearJoined":2020,"pdga":"151489","special":null},{"firstName":"Brent","lastName":"Wynne","yearJoined":2020,"pdga":"107385","special":null},{"firstName":"Alan","lastName":"Riggs","yearJoined":2020,"pdga":null,"special":null},{"firstName":"Aaron","lastName":"Westhusing","yearJoined":2020,"pdga":"151487","special":null},{"firstName":"Nick","lastName":"Allienello","yearJoined":2020,"pdga":null,"special":null},{"firstName":"Nick","lastName":"Lewis","yearJoined":2020,"pdga":"107384","special":null},{"firstName":"Dean","lastName":"McLean","yearJoined":2020,"pdga":"139002","special":null},{"firstName":"David","lastName":"Davenport Jr","yearJoined":2020,"pdga":"161054","special":null},{"firstName":"Mark","lastName":"Barber","yearJoined":2020,"pdga":"58658","special":null},{"firstName":"Jeff","lastName":"Gough","yearJoined":2020,"pdga":"55790","special":null},{"firstName":"Blake","lastName":"Poland","yearJoined":2020,"pdga":"100708","special":null},{"firstName":"Rob","lastName":"Gerard","yearJoined":2020,"pdga":"62556","special":null},{"firstName":"Andrew","lastName":"Vande Berg","yearJoined":2020,"pdga":"140283","special":null},{"firstName":"Chris","lastName":"Matthews","yearJoined":2021,"pdga":null,"special":null},{"firstName":"Freddy","lastName":"Baxter","yearJoined":2021,"pdga":"139255","special":null},{"firstName":"Avery","lastName":"Hall","yearJoined":2021,"pdga":null,"special":null},{"firstName":"Andrew","lastName":"Park","yearJoined":2021,"pdga":"165157","special":null},{"firstName":"Jay","lastName":"Morris","yearJoined":2021,"pdga":"138808","special":null},{"firstName":"Alex","lastName":"Barham","yearJoined":2021,"pdga":"181328","special":null},{"firstName":"Martha","lastName":"LaMonte","yearJoined":2021,"pdga":null,"special":null},{"firstName":"Jeff","lastName":"LaMonte","yearJoined":2021,"pdga":null,"special":null},{"firstName":"TJ","lastName":"Williams","yearJoined":2021,"pdga":"178464","special":null},{"firstName":"Troy","lastName":"Milburn","yearJoined":2021,"pdga":"182614","special":null},{"firstName":"Eric","lastName":"Angel","yearJoined":2021,"pdga":"90058","special":null},{"firstName":"Nate","lastName":"McDonald","yearJoined":2021,"pdga":null,"special":null},{"firstName":"Ryan","lastName":"Langley","yearJoined":2021,"pdga":null,"special":null},{"firstName":"Wes","lastName":"Hill","yearJoined":2021,"pdga":"186724","special":null},{"firstName":"Tanner","lastName":"Dendy","yearJoined":2021,"pdga":"186294","special":null},{"firstName":"Brian","lastName":"McVeigh","yearJoined":2021,"pdga":null,"special":null},{"firstName":"Johnathan","lastName":"Davenport","yearJoined":2021,"pdga":"198367","special":null},{"firstName":"Nathan","lastName":"Randolf","yearJoined":2021,"pdga":null,"special":null},{"firstName":"Derek","lastName":"Holsinger","yearJoined":2022,"pdga":"215143","special":null},{"firstName":"Paul","lastName":"Shiflett","yearJoined":2022,"pdga":"97888","special":null},{"firstName":"Jonathan","lastName":"Benitez","yearJoined":2022,"pdga":"172049","special":null},{"firstName":"Michelle","lastName":"Yelverton","yearJoined":2022,"pdga":null,"special":null},{"firstName":"Noah","lastName":"Lambert","yearJoined":2022,"pdga":null,"special":null},{"firstName":"Kirk","lastName":"Grice","yearJoined":2022,"pdga":"215276","special":null},{"firstName":"Thomas","lastName":"Gauthier","yearJoined":2022,"pdga":null,"special":null},{"firstName":"Tripp","lastName":"Morgan","yearJoined":2022,"pdga":"143443","special":null},{"firstName":"Marc","lastName":"Hamilton","yearJoined":2022,"pdga":"178507","special":null},{"firstName":"Jonathan","lastName":"Edwards","yearJoined":2022,"pdga":null,"special":null},{"firstName":"Frankie","lastName":"Williamson","yearJoined":2022,"pdga":"37604","special":null},{"firstName":"Chandler","lastName":"Harrell","yearJoined":2022,"pdga":null,"special":null},{"firstName":"Shannon","lastName":"O'Neal","yearJoined":2022,"pdga":"151128","special":null},{"firstName":"Keyth","lastName":"Lariscy","yearJoined":2022,"pdga":"198942","special":null},{"firstName":"Mike","lastName":"Fazzini","yearJoined":2022,"pdga":"102451","special":null},{"firstName":"Mitchell","lastName":"Griffin","yearJoined":2022,"pdga":"11729","special":null},{"firstName":"Taylor","lastName":"Rafaleowski","yearJoined":2022,"pdga":"111099","special":null},{"firstName":"Jeffrey","lastName":"Stelly","yearJoined":2022,"pdga":"173020","special":null},{"firstName":"Alex","lastName":"Schwarga","yearJoined":2022,"pdga":"123547","special":null},{"firstName":"Chas","lastName":"Shafer","yearJoined":2022,"pdga":null,"special":null},{"firstName":"Will","lastName":"Williamson","yearJoined":2022,"pdga":null,"special":null},{"firstName":"Landon","lastName":"Morrison","yearJoined":2023,"pdga":"194940","special":null},{"firstName":"Brandy","lastName":"Sutton","yearJoined":2023,"pdga":"241842","special":null},{"firstName":"Mark","lastName":"Rowe","yearJoined":2023,"pdga":null,"special":null},{"firstName":"TJ","lastName":"Braley","yearJoined":2023,"pdga":"157256","special":null},{"firstName":"Aaron","lastName":"Renaud","yearJoined":2023,"pdga":null,"special":null},{"firstName":"Josh","lastName":"Sandy","yearJoined":2023,"pdga":"113488","special":null},{"firstName":"Drew","lastName":"Nyman","yearJoined":2023,"pdga":"187062","special":null},{"firstName":"Bentley","lastName":"Nyman","yearJoined":2023,"pdga":"228647","special":null},{"firstName":"Robert","lastName":"Avery","yearJoined":2008,"pdga":"34118","special":null},{"firstName":"Michael","lastName":"Pelchat","yearJoined":2023,"pdga":"226293","special":null},{"firstName":"Christie","lastName":"Waters","yearJoined":2023,"pdga":null,"special":null},{"firstName":"Tyler","lastName":"Grady","yearJoined":2023,"pdga":"24014","special":null},{"firstName":"Rob","lastName":"Loeber","yearJoined":2023,"pdga":"234213","special":null},{"firstName":"Rodrigo","lastName":"Pacheco","yearJoined":2023,"pdga":"254243","special":null},{"firstName":"Caleb","lastName":"Leggett","yearJoined":2023,"pdga":"233625","special":null},{"firstName":"Michael","lastName":"Ellis","yearJoined":2023,"pdga":"243524","special":null},{"firstName":"Blake","lastName":"Emerson","yearJoined":2023,"pdga":"236175","special":null},{"firstName":"Travis","lastName":"Sherrod","yearJoined":2023,"pdga":"148573","special":null},{"firstName":"Blake","lastName":"Sargent","yearJoined":2024,"pdga":"254962","special":null},{"firstName":"Justin","lastName":"Griffith","yearJoined":2024,"pdga":"293120","special":null},{"firstName":"Tyler","lastName":"Jernigan","yearJoined":2024,"pdga":"116465","special":null},{"firstName":"Eric","lastName":"Davis","yearJoined":2024,"pdga":null,"special":null},{"firstName":"Joshua","lastName":"Willoughby","yearJoined":2024,"pdga":"269871","special":null},{"firstName":"Elliotte","lastName":"Pearson","yearJoined":2024,"pdga":"233554","special":null},{"firstName":"P.J.","lastName":"Corbett","yearJoined":2024,"pdga":"296116","special":null},{"firstName":"Eric","lastName":"LaRoque","yearJoined":2024,"pdga":null,"special":null},{"firstName":"Blake","lastName":"Shelton","yearJoined":2025,"pdga":null,"special":null},{"firstName":"Ryan","lastName":"Cotroneo","yearJoined":2025,"pdga":null,"special":null},{"firstName":"Paul","lastName":"Morgan","yearJoined":2025,"pdga":null,"special":null},{"firstName":"Leo","lastName":"Brown","yearJoined":2025,"pdga":null,"special":null},{"firstName":"Leo","lastName":"Hernandez","yearJoined":2025,"pdga":null,"special":null},{"firstName":"Eder","lastName":"Hernandez","yearJoined":2025,"pdga":null,"special":null},{"firstName":"Adam \"Mus\"","lastName":"Baker","yearJoined":2004,"pdga":"22766","special":null},{"firstName":"Paul","lastName":"Severino","yearJoined":2004,"pdga":"28500","special":null},{"firstName":"Mike","lastName":"Norris","yearJoined":2007,"pdga":"17390","special":null},{"firstName":"Chris","lastName":"Cox","yearJoined":2004,"pdga":"25557","special":null},{"firstName":"Ronnie","lastName":"Huffman","yearJoined":2007,"pdga":"17859","special":null},{"firstName":"Bert","lastName":"Williams","yearJoined":2005,"pdga":"18853","special":null},{"firstName":"Eddie","lastName":"Ogburn RIP","yearJoined":2006,"pdga":"23102","special":null},{"firstName":"Henry \"Trig\"","lastName":"Trier","yearJoined":2013,"pdga":"36649","special":null},{"firstName":"Daniel","lastName":"Blaisdell","yearJoined":2006,"pdga":"29265","special":null},{"firstName":"Frank","lastName":"Murray","yearJoined":2007,"pdga":"24062","special":null}];
+
+            const yearData = {2004:25,2005:5,2006:6,2007:7,2008:2,2009:11,2010:19,2011:14,2012:41,2013:20,2014:21,2015:18,2016:10,2017:9,2018:15,2019:13,2020:40,2021:18,2022:21,2023:17,2024:8,2025:6};
+
+            let currentFilter = 'all';
+            let searchTerm = '';
+            let displayCount = 12;
+
+            function initChart() {
+                const chart = document.getElementById('membersChart');
+                const labels = document.getElementById('membersChartLabels');
+                const maxVal = Math.max(...Object.values(yearData));
+                
+                chart.innerHTML = '';
+                labels.innerHTML = '';
+                
+                Object.entries(yearData).forEach(([year, count]) => {
+                    const height = (count / maxVal) * 100;
+                    const bar = document.createElement('div');
+                    bar.className = 'members-chart-bar';
+                    bar.style.height = height + '%';
+                    bar.setAttribute('data-tooltip', year + ': ' + count + ' new members');
+                    chart.appendChild(bar);
+                    
+                    const label = document.createElement('span');
+                    label.className = 'members-chart-label';
+                    label.textContent = year.toString().slice(2);
+                    labels.appendChild(label);
+                });
+            }
+
+            function animateStats() {
+                document.querySelectorAll('.members-stat-number').forEach(counter => {
+                    const target = parseInt(counter.dataset.target);
+                    const duration = 1500;
+                    const step = target / (duration / 16);
+                    let current = 0;
+                    
+                    const timer = setInterval(() => {
+                        current += step;
+                        if (current >= target) {
+                            counter.textContent = target;
+                            clearInterval(timer);
+                        } else {
+                            counter.textContent = Math.floor(current);
+                        }
+                    }, 16);
+                });
+            }
+
+            function getFilteredMembers() {
+                return allMembers.filter(m => {
+                    const fullName = (m.firstName + ' ' + m.lastName).toLowerCase();
+                    const matchesSearch = searchTerm === '' || 
+                        fullName.includes(searchTerm.toLowerCase()) ||
+                        (m.pdga && m.pdga.includes(searchTerm));
+                    
+                    let matchesFilter = true;
+                    if (currentFilter === 'founding') matchesFilter = m.yearJoined === 2004;
+                    else if (currentFilter === 'pdga') matchesFilter = m.pdga !== null;
+                    
+                    return matchesSearch && matchesFilter;
+                }).sort((a, b) => a.lastName.localeCompare(b.lastName));
+            }
+
+            function renderMembers() {
+                const grid = document.getElementById('membersGrid');
+                const filtered = getFilteredMembers();
+                const toShow = filtered.slice(0, displayCount);
+                
+                if (filtered.length === 0) {
+                    grid.innerHTML = '<div class="members-no-results"><div class="members-no-results-icon">🔍</div><p>No members found.</p></div>';
+                    document.getElementById('loadMoreBtn').style.display = 'none';
+                    document.getElementById('membersCount').textContent = '';
+                    return;
+                }
+                
+                grid.innerHTML = toShow.map(m => {
+                    const initials = (m.firstName[0] || '') + (m.lastName[0] || '');
+                    const isFounding = m.yearJoined === 2004;
+                    const hasSpecial = m.special !== null;
+                    
+                    let cardClasses = 'member-card';
+                    if (isFounding) cardClasses += ' founding';
+                    if (hasSpecial) cardClasses += ' special-badge';
+                    
+                    let html = '<div class="' + cardClasses + '"';
+                    if (hasSpecial) html += ' data-badge="' + m.special + '"';
+                    html += '><div class="member-avatar">' + initials + '</div>';
+                    html += '<div class="member-name">' + m.firstName + ' ' + m.lastName + '</div>';
+                    html += '<div class="member-since">Member since ' + m.yearJoined + '</div>';
+                    if (m.pdga) html += '<div class="member-pdga"><a href="https://www.pdga.com/player/' + m.pdga + '" target="_blank">PDGA #' + m.pdga + '</a></div>';
+                    html += '</div>';
+                    return html;
+                }).join('');
+                
+                const loadBtn = document.getElementById('loadMoreBtn');
+                loadBtn.style.display = displayCount >= filtered.length ? 'none' : 'inline-block';
+                loadBtn.textContent = 'Show More (' + (filtered.length - displayCount) + ' remaining)';
+                
+                document.getElementById('membersCount').textContent = 
+                    'Showing ' + Math.min(displayCount, filtered.length) + ' of ' + filtered.length + ' members';
+            }
+
+            document.getElementById('memberSearch').addEventListener('input', function(e) {
+                searchTerm = e.target.value;
+                displayCount = 12;
+                renderMembers();
+            });
+
+            document.querySelectorAll('.members-filter-btn').forEach(function(btn) {
+                btn.addEventListener('click', function() {
+                    document.querySelectorAll('.members-filter-btn').forEach(b => b.classList.remove('active'));
+                    this.classList.add('active');
+                    currentFilter = this.dataset.filter;
+                    displayCount = 12;
+                    renderMembers();
+                });
+            });
+
+            document.getElementById('loadMoreBtn').addEventListener('click', function() {
+                displayCount += 12;
+                renderMembers();
+            });
+
+            initChart();
+            renderMembers();
+            animateStats();
+        }
+    })();
+    </script>
+</body>
+</html>

@@ -1,0 +1,3469 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Greenville Disc Golf Club | North Carolina</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Archivo:wght@400;600;700&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --primary: #FF6B35;
+            --secondary: #004E89;
+            --accent: #F7B801;
+            --dark: #1A1A2E;
+            --light: #F4F4F9;
+            --green: #2D5016;
+            
+            /* Light mode (default) */
+            --bg-primary: #F4F4F9;
+            --bg-secondary: #FFFFFF;
+            --bg-tertiary: #F4F4F9;
+            --text-primary: #1A1A2E;
+            --text-secondary: #333333;
+            --text-tertiary: #555555;
+            --text-muted: #666666;
+            --border-color: #F4F4F9;
+            --card-shadow: rgba(0, 0, 0, 0.1);
+            --card-shadow-hover: rgba(0, 0, 0, 0.15);
+        }
+        
+        [data-theme="dark"] {
+            --bg-primary: #0F0F1E;
+            --bg-secondary: #1A1A2E;
+            --bg-tertiary: #252538;
+            --text-primary: #F4F4F9;
+            --text-secondary: #E0E0E0;
+            --text-tertiary: #C0C0C0;
+            --text-muted: #A0A0A0;
+            --border-color: #2A2A3E;
+            --card-shadow: rgba(0, 0, 0, 0.3);
+            --card-shadow-hover: rgba(0, 0, 0, 0.5);
+        }
+        
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+      /* Site background image layer */
+body{
+  position: relative; /* allows the ::before layer to sit behind content */
+}
+
+/* Background image + subtle fade so content stays readable */
+body::before{
+  content: "";
+  position: fixed;
+  inset: 0;
+  z-index: -1;
+
+  background:
+    /* top-to-bottom fade to match your theme */
+    linear-gradient(
+      to bottom,
+      rgba(244,244,249,0.25),
+      rgba(244,244,249,0.15)
+    ),
+    url("img/bg/forest-bg.png");
+
+  background-repeat: no-repeat;
+  background-position: center bottom;
+  background-size: cover;
+
+  /* adjust if you want it more/less visible */
+  opacity: 1;
+}
+
+/* Dark mode background adjustment */
+[data-theme="dark"] body::before {
+  background:
+    linear-gradient(
+      to bottom,
+      rgba(15,15,30,0.25),
+      rgba(15,15,30,0.15)
+    ),
+    url("img/bg/forest-bg.png");
+  background-repeat: no-repeat;
+  background-position: center bottom;
+  background-size: cover;
+}
+
+        
+        /* Header Navigation */
+        header {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            z-index: 1000;
+            background: rgba(26, 26, 46, 0.95);
+            backdrop-filter: blur(10px);
+            padding: 1rem 1.5rem;
+            transition: all 0.3s ease;
+        }
+        
+        [data-theme="dark"] header {
+            background: rgba(15, 15, 30, 0.95);
+        }
+        
+        header.scrolled {
+            box-shadow: 0 5px 20px rgba(0, 0, 0, 0.2);
+            padding: 0.75rem 1.5rem;
+        }
+        
+        nav {
+            max-width: 1200px;
+            margin: 0 auto;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        
+        .logo {
+            font-family: 'Bebas Neue', sans-serif;
+            font-size: 1.8rem;
+            color: white;
+            letter-spacing: 0.05em;
+            text-decoration: none;
+            transition: transform 0.3s ease;
+            display: flex;
+            align-items: center;
+        }
+        
+        .logo-image {
+            height: 50px;
+            width: auto;
+            transition: transform 0.3s ease;
+        }
+        
+        header.scrolled .logo-image {
+            height: 40px;
+        }
+        
+        .logo:active {
+            transform: scale(0.95);
+        }
+        
+        .logo:hover .logo-image {
+            transform: scale(1.05);
+        }
+        
+        .nav-right {
+            display: flex;
+            align-items: center;
+            gap: 1.5rem;
+        }
+        
+        /* Dark Mode Toggle - Enhanced for mobile */
+        .theme-toggle {
+            background: rgba(255, 255, 255, 0.1);
+            border: 2px solid rgba(255, 255, 255, 0.3);
+            color: white;
+            width: 44px;
+            height: 44px;
+            min-width: 44px;
+            min-height: 44px;
+            border-radius: 50%;
+            cursor: pointer;
+            font-size: 1.3rem;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: all 0.3s ease;
+            backdrop-filter: blur(5px);
+            -webkit-tap-highlight-color: transparent;
+        }
+        
+        .theme-toggle:hover {
+            background: rgba(255, 255, 255, 0.2);
+            transform: rotate(20deg) scale(1.1);
+        }
+        
+        .theme-toggle:active {
+            transform: rotate(20deg) scale(0.95);
+        }
+        
+        .nav-links {
+            display: flex;
+            gap: 2.5rem;
+            list-style: none;
+        }
+        
+        .nav-links a {
+            color: white;
+            text-decoration: none;
+            font-weight: 600;
+            font-size: 0.95rem;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+            position: relative;
+            transition: color 0.3s ease;
+            -webkit-tap-highlight-color: transparent;
+        }
+        
+        .nav-links a::after {
+            content: '';
+            position: absolute;
+            bottom: -5px;
+            left: 0;
+            width: 0;
+            height: 2px;
+            background: var(--primary);
+            transition: width 0.3s ease;
+        }
+        
+        .nav-links a:hover::after,
+        .nav-links a:active::after {
+            width: 100%;
+        }
+        
+        .nav-links a:hover {
+            color: var(--primary);
+        }
+        
+        /* Mobile Menu - Enhanced */
+        .menu-toggle {
+            display: none;
+            background: none;
+            border: none;
+            color: white;
+            font-size: 1.5rem;
+            cursor: pointer;
+            padding: 0.5rem;
+            min-width: 44px;
+            min-height: 44px;
+            -webkit-tap-highlight-color: transparent;
+            transition: transform 0.2s ease;
+        }
+        
+        .menu-toggle:active {
+            transform: scale(0.9);
+        }
+        
+        @media (max-width: 768px) {
+            header {
+                padding: 1rem;
+            }
+            
+            .logo-image {
+                height: 40px;
+            }
+            
+            header.scrolled .logo-image {
+                height: 35px;
+            }
+            
+            .menu-toggle {
+                display: flex;
+                align-items: center;
+                justify-content: center;
+            }
+            
+            .nav-right {
+                gap: 1rem;
+            }
+            
+            .nav-links {
+                position: fixed;
+                top: 70px;
+                left: 0;
+                right: 0;
+                background: rgba(26, 26, 46, 0.98);
+                flex-direction: column;
+                gap: 0;
+                padding: 2rem;
+                transform: translateY(-100%);
+                opacity: 0;
+                transition: all 0.3s ease;
+                pointer-events: none;
+                max-height: calc(100vh - 70px);
+                overflow-y: auto;
+            }
+            
+            [data-theme="dark"] .nav-links {
+                background: rgba(15, 15, 30, 0.98);
+            }
+            
+            .nav-links.active {
+                transform: translateY(0);
+                opacity: 1;
+                pointer-events: all;
+            }
+            
+            .nav-links li {
+                padding: 1.25rem 0;
+                border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+            }
+            
+            .nav-links li:last-child {
+                border-bottom: none;
+            }
+            
+            .nav-links a {
+                font-size: 1.1rem;
+                display: block;
+                padding: 0.5rem 0;
+            }
+        }
+        
+        /* Hero Section - Enhanced for mobile */
+        .hero {
+            position: relative;
+            height: 100vh;
+            min-height: 600px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background: var(--dark);
+            overflow: hidden;
+        }
+        
+        .hero-bg-pattern {
+            display: none;
+        }
+        
+        @keyframes slide {
+            0% { transform: translateX(0); }
+            100% { transform: translateX(70px); }
+        }
+        
+        .carousel {
+            position: absolute;
+            inset: 0;
+            width: 100%;
+            height: 100%;
+        }
+        
+        .carousel-slide {
+            position: absolute;
+            inset: 0;
+            opacity: 0;
+            transition: opacity 0.8s ease-in-out;
+            background-size: cover;
+            background-position: center;
+        }
+        
+        .carousel-slide.active {
+            opacity: 1;
+        }
+        
+        .carousel-slide::after {
+            content: '';
+            position: absolute;
+            inset: 0;
+            background: transparent;
+        }
+        
+        .carousel-slide:nth-child(1) {
+            background-image: url('img/slide1.jpg');
+        }
+        
+        .carousel-slide:nth-child(2) {
+            background-image: url('img/slide2.jpg');
+        }
+        
+        .carousel-slide:nth-child(3) {
+            background-image: url('img/slide3.jpg');
+        }
+        
+        .carousel-slide:nth-child(4) {
+            background-image: url('img/slide4.jpg');
+        }
+        
+        .carousel-slide:nth-child(5) {
+            background-image: url('img/slide5.jpg');
+        }
+        
+        /* Enhanced Carousel Controls for Touch */
+        .carousel-controls {
+            position: absolute;
+            bottom: 30px;
+            left: 50%;
+            transform: translateX(-50%);
+            display: flex;
+            gap: 15px;
+            z-index: 10;
+            padding: 1rem;
+        }
+        
+        .carousel-dot {
+            width: 12px;
+            height: 12px;
+            min-width: 44px;
+            min-height: 44px;
+            border-radius: 50%;
+            background: rgba(255, 255, 255, 0.4);
+            border: 2px solid white;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            position: relative;
+            -webkit-tap-highlight-color: transparent;
+        }
+        
+        .carousel-dot::before {
+            content: '';
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            width: 12px;
+            height: 12px;
+            border-radius: 50%;
+            background: rgba(255, 255, 255, 0.4);
+            transition: all 0.3s ease;
+        }
+        
+        .carousel-dot.active::before {
+            background: white;
+            width: 16px;
+            height: 16px;
+        }
+        
+        .carousel-dot:hover::before {
+            background: rgba(255, 255, 255, 0.8);
+            width: 14px;
+            height: 14px;
+        }
+        
+        .carousel-arrow {
+            position: absolute;
+            top: 50%;
+            transform: translateY(-50%);
+            background: rgba(255, 255, 255, 0.2);
+            border: 2px solid white;
+            color: white;
+            width: 50px;
+            height: 50px;
+            min-width: 50px;
+            min-height: 50px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            font-size: 1.5rem;
+            transition: all 0.3s ease;
+            backdrop-filter: blur(5px);
+            z-index: 10;
+            -webkit-tap-highlight-color: transparent;
+        }
+        
+        .carousel-arrow:hover {
+            background: rgba(255, 255, 255, 0.3);
+            transform: translateY(-50%) scale(1.1);
+        }
+        
+        .carousel-arrow:active {
+            transform: translateY(-50%) scale(0.95);
+        }
+        
+        .carousel-prev {
+            left: 20px;
+        }
+        
+        .carousel-next {
+            right: 20px;
+        }
+        
+        @media (max-width: 768px) {
+            .carousel-arrow {
+                width: 44px;
+                height: 44px;
+                min-width: 44px;
+                min-height: 44px;
+                font-size: 1.2rem;
+            }
+            
+            .carousel-prev {
+                left: 10px;
+            }
+            
+            .carousel-next {
+                right: 10px;
+            }
+            
+            .carousel-controls {
+                bottom: 20px;
+            }
+        }
+        
+        .hero-content {
+            position: relative;
+            z-index: 5;
+            text-align: center;
+            color: white;
+            max-width: 900px;
+            padding: 0 2rem;
+            animation: fadeInUp 1s ease-out;
+        }
+        
+        @keyframes fadeInUp {
+            from {
+                opacity: 0;
+                transform: translateY(30px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+        
+        .hero-title {
+            font-family: 'Bebas Neue', sans-serif;
+            font-size: clamp(2.5rem, 8vw, 5rem);
+            letter-spacing: 0.05em;
+            margin-bottom: 1rem;
+            text-shadow: 2px 2px 8px rgba(0, 0, 0, 0.7), 0 0 30px rgba(0, 0, 0, 0.5);
+            line-height: 1.1;
+        }
+        
+        .hero-subtitle {
+            font-size: clamp(1.1rem, 3vw, 1.5rem);
+            margin-bottom: 2rem;
+            opacity: 0.95;
+            font-weight: 400;
+            text-shadow: 2px 2px 8px rgba(0, 0, 0, 0.7), 0 0 30px rgba(0, 0, 0, 0.5);
+        }
+        
+        .cta-button {
+            display: inline-block;
+            background: var(--primary);
+            color: white;
+            padding: 1rem 2.5rem;
+            min-height: 44px;
+            border-radius: 50px;
+            text-decoration: none;
+            font-weight: 700;
+            font-size: 1.1rem;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+            transition: all 0.3s ease;
+            box-shadow: 0 5px 20px rgba(255, 107, 53, 0.4);
+            -webkit-tap-highlight-color: transparent;
+        }
+        
+        .cta-button:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 8px 25px rgba(255, 107, 53, 0.5);
+            background: #ff7f4d;
+        }
+        
+        .cta-button:active {
+            transform: translateY(-1px);
+        }
+        
+        /* Scroll Indicator */
+        .scroll-indicator {
+            position: absolute;
+            bottom: 80px;
+            left: 50%;
+            transform: translateX(-50%);
+            z-index: 10;
+            animation: bounce 2s infinite;
+        }
+        
+        @keyframes bounce {
+            0%, 20%, 50%, 80%, 100% {
+                transform: translateX(-50%) translateY(0);
+            }
+            40% {
+                transform: translateX(-50%) translateY(-10px);
+            }
+            60% {
+                transform: translateX(-50%) translateY(-5px);
+            }
+        }
+        
+        .scroll-indicator::after {
+            content: '↓';
+            display: block;
+            color: white;
+            font-size: 2rem;
+            opacity: 0.7;
+        }
+        
+        @media (max-width: 768px) {
+            .hero {
+                min-height: 500px;
+            }
+            
+            .scroll-indicator {
+                bottom: 100px;
+            }
+        }
+        
+        /* Sections */
+        section {
+            padding: clamp(3rem, 8vw, 6rem) 2rem;
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+        
+        .section-title {
+            font-family: 'Bebas Neue', sans-serif;
+            font-size: clamp(2rem, 6vw, 3.5rem);
+            text-align: center;
+            margin-bottom: 3rem;
+            letter-spacing: 0.05em;
+            color: var(--text-primary);
+            opacity: 0;
+            transform: translateY(20px);
+            transition: all 0.6s ease;
+        }
+        
+        .section-title.visible {
+            opacity: 1;
+            transform: translateY(0);
+        }
+        
+        /* About Section - Enhanced with Interactive Stats */
+        #about {
+            background: var(--bg-secondary);
+            border-radius: 20px;
+            margin: 2rem auto;
+            padding: clamp(2rem, 6vw, 4rem);
+            box-shadow: 0 10px 40px var(--card-shadow);
+            max-width: calc(1200px - 4rem);
+            border: 1px solid rgba(0, 78, 137, 0.08);
+        }
+        
+        [data-theme="dark"] #about {
+            border-color: rgba(255, 255, 255, 0.05);
+        }
+        
+        .about-content {
+            display: block;
+        }
+        
+        .about-text {
+            font-size: clamp(1rem, 2vw, 1.1rem);
+            line-height: 1.8;
+            color: var(--text-secondary);
+        }
+        
+        .about-text p {
+            margin-bottom: 1.5rem;
+        }
+        
+        /* Interactive Stats Counter */
+        .stats-grid {
+            display: grid;
+            grid-template-columns: 1fr;
+            gap: 1.5rem;
+            margin-top: 2rem;
+        }
+        
+        @media (min-width: 480px) {
+            .stats-grid {
+                grid-template-columns: repeat(2, 1fr);
+            }
+        }
+        
+        .stat-card {
+            background: linear-gradient(135deg, var(--primary), var(--secondary));
+            padding: 2rem;
+            border-radius: 15px;
+            text-align: center;
+            color: white;
+            transition: all 0.3s ease;
+            cursor: pointer;
+            min-height: 120px;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            -webkit-tap-highlight-color: transparent;
+        }
+        
+        .stat-card:hover {
+            transform: translateY(-5px) scale(1.02);
+            box-shadow: 0 10px 30px rgba(255, 107, 53, 0.3);
+        }
+        
+        .stat-card:active {
+            transform: translateY(-2px) scale(1);
+        }
+        
+        .stat-number {
+            font-family: 'Bebas Neue', sans-serif;
+            font-size: clamp(2.5rem, 5vw, 3.5rem);
+            line-height: 1;
+            margin-bottom: 0.5rem;
+        }
+        
+        .stat-label {
+            font-size: clamp(0.9rem, 2vw, 1rem);
+            opacity: 0.95;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+        }
+        
+        /* About Section Carousel */
+        .about-carousel-container {
+            position: relative;
+            overflow: hidden;
+            border-radius: 15px;
+        }
+        
+        .about-carousel {
+            display: flex;
+            transition: transform 0.5s cubic-bezier(0.4, 0, 0.2, 1);
+            width: 100%;
+        }
+        
+        .carousel-slide-about {
+            min-width: 100%;
+            width: 100%;
+            padding: 2rem 0;
+            flex-shrink: 0;
+            box-sizing: border-box;
+        }
+        
+        /* Slide 1: About content layout */
+        .carousel-slide-about .about-content {
+            display: grid;
+            grid-template-columns: 1fr;
+            gap: 3rem;
+            align-items: center;
+            width: 100%;
+        }
+        
+        @media (min-width: 768px) {
+            .carousel-slide-about .about-content {
+                grid-template-columns: 1fr 1fr;
+            }
+        }
+        
+        .about-carousel-nav {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            gap: 2rem;
+            margin-top: 2.5rem;
+        }
+        
+        /* Board Members Grid */
+        .board-members-grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 1.5rem;
+        }
+        
+        @media (min-width: 768px) {
+            .board-members-grid {
+                grid-template-columns: repeat(3, 1fr);
+            }
+        }
+        
+        .board-member-card {
+            background: linear-gradient(135deg, var(--green), var(--secondary));
+            padding: 1.5rem;
+            border-radius: 15px;
+            text-align: center;
+            color: white;
+            transition: all 0.3s ease;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 0.75rem;
+        }
+        
+        .board-member-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 10px 30px rgba(45, 80, 22, 0.4);
+        }
+        
+        .board-member-icon {
+            width: 70px;
+            height: 70px;
+            background: rgba(255, 255, 255, 0.2);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 2rem;
+        }
+        
+        .board-member-name {
+            font-family: 'Bebas Neue', sans-serif;
+            font-size: 1.4rem;
+            letter-spacing: 0.02em;
+        }
+        
+        .board-member-role {
+            font-size: 0.85rem;
+            opacity: 0.9;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+            background: rgba(255, 255, 255, 0.15);
+            padding: 0.4rem 0.8rem;
+            border-radius: 20px;
+        }
+        
+        .board-member-card.founder .board-member-icon {
+            background: linear-gradient(135deg, var(--primary), var(--accent));
+        }
+        
+        .board-member-card.founder {
+            background: linear-gradient(135deg, var(--primary), var(--secondary));
+        }
+        
+        .board-slide-header {
+            text-align: center;
+            margin-bottom: 2rem;
+        }
+        
+        .board-slide-title {
+            font-family: 'Bebas Neue', sans-serif;
+            font-size: clamp(1.8rem, 4vw, 2.5rem);
+            color: var(--primary);
+            margin-bottom: 0.5rem;
+        }
+        
+        .board-slide-subtitle {
+            font-size: 1rem;
+            color: var(--text-tertiary);
+            font-weight: 600;
+        }
+        
+        /* Courses Carousel Section */
+        #courses {
+            background: var(--bg-secondary);
+            border-radius: 20px;
+            margin: 2rem auto;
+            padding: clamp(2rem, 6vw, 4rem);
+            max-width: calc(1200px - 4rem);
+            border: 1px solid rgba(0, 78, 137, 0.08);
+        }
+        
+        [data-theme="dark"] #courses {
+            border-color: rgba(255, 255, 255, 0.05);
+        }
+        
+        .courses-carousel-container {
+            position: relative;
+            overflow: hidden;
+            border-radius: 15px;
+        }
+        
+        .courses-carousel {
+            display: flex;
+            transition: transform 0.5s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+        
+        .carousel-slide-courses {
+            min-width: 100%;
+            padding: 2rem 0;
+            flex-shrink: 0;
+        }
+        
+        .slide-header {
+            text-align: center;
+            margin-bottom: 2.5rem;
+        }
+        
+        .slide-title {
+            font-family: 'Bebas Neue', sans-serif;
+            font-size: clamp(2rem, 5vw, 2.8rem);
+            color: var(--primary);
+            margin-bottom: 0.5rem;
+        }
+        
+        .slide-subtitle {
+            font-size: 1rem;
+            color: var(--text-tertiary);
+            font-weight: 600;
+        }
+        
+        .courses-grid {
+            display: grid;
+            gap: 1.5rem;
+            grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+        }
+        
+        @media (max-width: 640px) {
+            .courses-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+        
+        .course-card {
+            background: var(--bg-primary);
+            border-radius: 15px;
+            overflow: hidden;
+            border: 2px solid var(--border-color);
+            transition: all 0.3s ease;
+        }
+        
+        .course-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 10px 30px var(--card-shadow-hover);
+            border-color: var(--primary);
+        }
+        
+        .course-image {
+            width: 100%;
+            height: 180px;
+            background: linear-gradient(135deg, var(--secondary), var(--green));
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .course-image img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            transition: transform 0.3s ease;
+        }
+        
+        .course-card:hover .course-image img {
+            transform: scale(1.05);
+        }
+        
+        .course-image.no-image::before {
+            content: '🥏';
+            position: absolute;
+            font-size: 4rem;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            opacity: 0.3;
+        }
+        
+        .course-content {
+            padding: 1.5rem;
+        }
+        
+        .course-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+            gap: 1rem;
+            margin-bottom: 1rem;
+        }
+        
+        .course-name {
+            font-family: 'Bebas Neue', sans-serif;
+            font-size: 1.5rem;
+            color: var(--text-primary);
+            flex: 1;
+        }
+        
+        .difficulty-badge {
+            padding: 0.4rem 0.8rem;
+            border-radius: 20px;
+            font-size: 0.75rem;
+            font-weight: 700;
+            text-transform: uppercase;
+            white-space: nowrap;
+        }
+        
+        .difficulty-beginner {
+            background: linear-gradient(135deg, var(--green), #4a7c23);
+            color: white;
+        }
+        
+        .difficulty-intermediate {
+            background: linear-gradient(135deg, var(--accent), #e5a600);
+            color: var(--dark);
+        }
+        
+        .difficulty-advanced {
+            background: linear-gradient(135deg, var(--primary), #cc4a1a);
+            color: white;
+        }
+        
+        .course-location {
+            font-size: 0.85rem;
+            color: var(--text-muted);
+            margin-bottom: 1rem;
+        }
+        
+        .course-info {
+            display: flex;
+            gap: 1.5rem;
+            margin: 1.5rem 0;
+            padding: 1rem;
+            background: var(--bg-tertiary);
+            border-radius: 10px;
+        }
+        
+        .info-item {
+            flex: 1;
+            text-align: center;
+        }
+        
+        .info-label {
+            font-size: 0.75rem;
+            color: var(--text-muted);
+            text-transform: uppercase;
+            margin-bottom: 0.3rem;
+        }
+        
+        .info-value {
+            font-family: 'Bebas Neue', sans-serif;
+            font-size: 1.4rem;
+            color: var(--primary);
+        }
+        
+        .course-description {
+            font-size: 0.95rem;
+            line-height: 1.6;
+            color: var(--text-tertiary);
+        }
+        
+        .courses-carousel-nav {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            gap: 2rem;
+            margin-top: 2.5rem;
+        }
+        
+        .carousel-btn {
+            background: var(--primary);
+            color: white;
+            border: none;
+            width: 50px;
+            height: 50px;
+            border-radius: 50%;
+            cursor: pointer;
+            font-size: 1.5rem;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: all 0.3s ease;
+        }
+        
+        .carousel-btn:hover {
+            background: var(--secondary);
+            transform: scale(1.1);
+        }
+        
+        .carousel-btn:disabled {
+            opacity: 0.3;
+            cursor: not-allowed;
+        }
+        
+        .carousel-indicators {
+            display: flex;
+            gap: 0.8rem;
+            align-items: center;
+        }
+        
+        .carousel-indicator {
+            width: 12px;
+            height: 12px;
+            border-radius: 50%;
+            background: var(--text-muted);
+            border: none;
+            cursor: pointer;
+            opacity: 0.4;
+            transition: all 0.3s ease;
+        }
+        
+        .carousel-indicator.active {
+            background: var(--primary);
+            opacity: 1;
+            transform: scale(1.3);
+        }
+        
+        /* Course Modal */
+        .course-modal-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(0, 0, 0, 0.7);
+            backdrop-filter: blur(5px);
+            z-index: 2000;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            opacity: 0;
+            visibility: hidden;
+            transition: all 0.3s ease;
+            padding: 1rem;
+        }
+        
+        .course-modal-overlay.active {
+            opacity: 1;
+            visibility: visible;
+        }
+        
+        .course-modal {
+            background: var(--bg-secondary);
+            border-radius: 20px;
+            max-width: 400px;
+            width: 100%;
+            padding: 2rem;
+            transform: scale(0.9) translateY(20px);
+            transition: all 0.3s ease;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+        }
+        
+        .course-modal-overlay.active .course-modal {
+            transform: scale(1) translateY(0);
+        }
+        
+        .course-modal-header {
+            text-align: center;
+            margin-bottom: 1.5rem;
+        }
+        
+        .course-modal-title {
+            font-family: 'Bebas Neue', sans-serif;
+            font-size: 1.8rem;
+            color: var(--text-primary);
+            margin-bottom: 0.25rem;
+        }
+        
+        .course-modal-location {
+            font-size: 0.9rem;
+            color: var(--text-muted);
+        }
+        
+        .course-modal-options {
+            display: flex;
+            flex-direction: column;
+            gap: 1rem;
+        }
+        
+        .course-modal-btn {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+            padding: 1rem 1.25rem;
+            background: var(--bg-primary);
+            border: 2px solid var(--border-color);
+            border-radius: 12px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            text-decoration: none;
+            color: var(--text-primary);
+            -webkit-tap-highlight-color: transparent;
+        }
+        
+        .course-modal-btn:hover {
+            border-color: var(--primary);
+            transform: translateX(5px);
+            box-shadow: 0 5px 15px var(--card-shadow);
+        }
+        
+        .course-modal-btn:active {
+            transform: translateX(2px);
+        }
+        
+        .course-modal-btn-icon {
+            width: 44px;
+            height: 44px;
+            min-width: 44px;
+            border-radius: 10px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.4rem;
+        }
+        
+        .course-modal-btn-icon.udisc {
+            background: linear-gradient(135deg, #FF6B00, #FF9500);
+        }
+        
+        .course-modal-btn-icon.directions {
+            background: linear-gradient(135deg, #4285F4, #34A853);
+        }
+        
+        .course-modal-btn-icon.youtube {
+            background: linear-gradient(135deg, #FF0000, #CC0000);
+        }
+        
+        .course-modal-btn-text {
+            flex: 1;
+        }
+        
+        .course-modal-btn-title {
+            font-weight: 700;
+            font-size: 1rem;
+            margin-bottom: 0.15rem;
+        }
+        
+        .course-modal-btn-subtitle {
+            font-size: 0.8rem;
+            color: var(--text-muted);
+        }
+        
+        .course-modal-btn-arrow {
+            font-size: 1.2rem;
+            color: var(--text-muted);
+            transition: transform 0.3s ease;
+        }
+        
+        .course-modal-btn:hover .course-modal-btn-arrow {
+            transform: translateX(5px);
+            color: var(--primary);
+        }
+        
+        .course-modal-close {
+            display: block;
+            width: 100%;
+            padding: 1rem;
+            margin-top: 1rem;
+            background: transparent;
+            border: 2px solid var(--text-muted);
+            border-radius: 12px;
+            color: var(--text-muted);
+            font-size: 1rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            -webkit-tap-highlight-color: transparent;
+        }
+        
+        .course-modal-close:hover {
+            border-color: var(--primary);
+            color: var(--primary);
+        }
+        
+        .course-modal-btn.disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+            pointer-events: none;
+        }
+        
+        .course-modal-btn.disabled .course-modal-btn-subtitle {
+            color: var(--text-muted);
+        }
+        
+        /* Events Section - Interactive Cards */
+        #events {
+            background: var(--bg-secondary);
+            border-radius: 20px;
+            margin: 2rem auto;
+            padding: clamp(2rem, 6vw, 4rem);
+            max-width: calc(1200px - 4rem);
+            border: 1px solid rgba(0, 78, 137, 0.08);
+        }
+        
+        [data-theme="dark"] #events {
+            border-color: rgba(255, 255, 255, 0.05);
+        }
+        
+        /* Tournament Feed Styles */
+        .tournament-feed {
+            margin-top: 3rem;
+            padding-top: 2rem;
+            border-top: 2px solid var(--border-color);
+        }
+        
+        .tournament-feed-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            flex-wrap: wrap;
+            gap: 1rem;
+            margin-bottom: 1.5rem;
+        }
+        
+        .tournament-feed-title {
+            font-family: 'Bebas Neue', sans-serif;
+            font-size: clamp(1.5rem, 4vw, 1.8rem);
+            color: var(--text-primary);
+            letter-spacing: 0.03em;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+        
+        .tournament-feed-title .icon {
+            font-size: 1.5rem;
+        }
+        
+        .tournament-feed-subtitle {
+            font-size: 0.95rem;
+            color: var(--text-muted);
+            margin-top: 0.25rem;
+        }
+        
+        .tournament-feed-link {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+            padding: 0.6rem 1.2rem;
+            background: linear-gradient(135deg, var(--primary), var(--secondary));
+            color: white;
+            text-decoration: none;
+            border-radius: 25px;
+
+            font-weight: 600;
+            font-size: 0.9rem;
+            transition: all 0.3s ease;
+            -webkit-tap-highlight-color: transparent;
+        }
+        
+        .tournament-feed-link:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(255, 107, 53, 0.3);
+        }
+        
+        .tournament-feed-link:active {
+            transform: translateY(0);
+        }
+        
+        .tournament-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+            gap: 1.25rem;
+        }
+        
+        @media (max-width: 640px) {
+            .tournament-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+        
+        .tournament-card {
+            background: var(--bg-primary);
+            border-radius: 15px;
+            overflow: hidden;
+            border: 1px solid var(--border-color);
+            transition: all 0.3s ease;
+            cursor: pointer;
+            display: flex;
+            flex-direction: column;
+            -webkit-tap-highlight-color: transparent;
+        }
+        
+        .tournament-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 10px 30px var(--card-shadow-hover);
+            border-color: var(--primary);
+        }
+        
+        .tournament-card:active {
+            transform: translateY(-2px);
+        }
+        
+        .tournament-card-header {
+            display: flex;
+            gap: 1rem;
+            padding: 1.25rem;
+            align-items: flex-start;
+        }
+        
+        .tournament-date-badge {
+            flex-shrink: 0;
+            width: 65px;
+            min-width: 65px;
+            background: linear-gradient(135deg, var(--primary), var(--secondary));
+            border-radius: 10px;
+            padding: 0.75rem 0.5rem;
+            text-align: center;
+            color: white;
+        }
+        
+        .tournament-date-badge .day {
+            font-family: 'Bebas Neue', sans-serif;
+            font-size: 1.8rem;
+            line-height: 1;
+        }
+        
+        .tournament-date-badge .month {
+            font-size: 0.8rem;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+            margin-top: 0.15rem;
+        }
+        
+        .tournament-date-badge .year {
+            font-size: 0.7rem;
+            opacity: 0.8;
+            margin-top: 0.1rem;
+        }
+        
+        .tournament-details {
+            flex: 1;
+            min-width: 0;
+        }
+        
+        .tournament-name {
+            font-family: 'Bebas Neue', sans-serif;
+            font-size: 1.2rem;
+            color: var(--text-primary);
+            letter-spacing: 0.02em;
+            line-height: 1.2;
+            margin-bottom: 0.5rem;
+        }
+        
+        .tournament-location {
+            font-size: 0.9rem;
+            color: var(--text-tertiary);
+            display: flex;
+            align-items: center;
+            gap: 0.3rem;
+        }
+        
+        .tournament-card-footer {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            flex-wrap: wrap;
+            gap: 0.75rem;
+            padding: 0.75rem 1.25rem;
+            background: var(--bg-tertiary);
+            border-top: 1px solid var(--border-color);
+        }
+        
+        .tournament-tier {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.3rem;
+            padding: 0.3rem 0.75rem;
+            border-radius: 20px;
+            font-size: 0.75rem;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 0.03em;
+        }
+        
+        .tier-a { background: #FFD700; color: #1A1A2E; }
+        .tier-b { background: #C0C0C0; color: #1A1A2E; }
+        .tier-c { background: #CD7F32; color: white; }
+        .tier-xc { background: var(--secondary); color: white; }
+        .tier-league { background: var(--green); color: white; }
+        .tier-other { background: var(--text-muted); color: white; }
+        
+        .tournament-distance {
+            font-size: 0.85rem;
+            color: var(--text-muted);
+            display: flex;
+            align-items: center;
+            gap: 0.3rem;
+        }
+        
+        .tournament-spots {
+            font-size: 0.85rem;
+            color: var(--primary);
+            font-weight: 600;
+        }
+        
+        .tournament-card-link {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 0.5rem;
+            padding: 0.75rem;
+            background: transparent;
+            color: var(--primary);
+            text-decoration: none;
+            font-weight: 600;
+            font-size: 0.9rem;
+            border-top: 1px solid var(--border-color);
+            transition: all 0.2s ease;
+        }
+        
+        .tournament-card-link:hover {
+            background: var(--primary);
+            color: white;
+        }
+        
+        .tournament-loading {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            padding: 3rem;
+            color: var(--text-muted);
+        }
+        
+        .tournament-loading .spinner {
+            width: 40px;
+            height: 40px;
+            border: 3px solid var(--border-color);
+            border-top-color: var(--primary);
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+            margin-bottom: 1rem;
+        }
+        
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+        
+        .no-tournaments {
+            text-align: center;
+            padding: 2rem;
+            color: var(--text-muted);
+        }
+        
+        .filter-tabs {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 0.5rem;
+            margin-bottom: 1.5rem;
+        }
+        
+        .filter-tab {
+            padding: 0.5rem 1rem;
+            border: 2px solid var(--border-color);
+            background: transparent;
+            color: var(--text-tertiary);
+            border-radius: 25px;
+            font-size: 0.85rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            -webkit-tap-highlight-color: transparent;
+        }
+        
+        .filter-tab:hover {
+            border-color: var(--primary);
+            color: var(--primary);
+        }
+        
+        .filter-tab.active {
+            background: var(--primary);
+            border-color: var(--primary);
+            color: white;
+        }
+        
+        .radius-note {
+            font-size: 0.85rem;
+            color: var(--text-muted);
+            margin-bottom: 1rem;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .event-list {
+            display: grid;
+            gap: 1.5rem;
+        }
+        
+        .event-item {
+            display: flex;
+            gap: 1.5rem;
+            padding: 1.5rem;
+            background: var(--bg-primary);
+            border-radius: 15px;
+            border-left: 5px solid var(--primary);
+            transition: all 0.3s ease;
+            opacity: 0;
+            transform: translateX(-30px);
+            cursor: pointer;
+            min-height: 80px;
+            -webkit-tap-highlight-color: transparent;
+        }
+        
+        .event-item.visible {
+            opacity: 1;
+            transform: translateX(0);
+        }
+        
+        .event-item:hover {
+            transform: translateX(10px);
+            box-shadow: 0 5px 20px var(--card-shadow);
+            border-left-width: 8px;
+        }
+        
+        .event-item:active {
+            transform: translateX(5px);
+        }
+        
+        .event-date {
+            flex-shrink: 0;
+            width: 80px;
+            height: 80px;
+            min-width: 80px;
+            background: linear-gradient(135deg, var(--primary), var(--secondary));
+            border-radius: 12px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            transition: all 0.3s ease;
+        }
+        
+        .event-item:hover .event-date {
+            transform: rotate(5deg) scale(1.05);
+        }
+        
+        .event-day {
+            font-family: 'Bebas Neue', sans-serif;
+            font-size: 2rem;
+            line-height: 1;
+        }
+        
+        .event-month {
+            font-size: 0.9rem;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+            margin-top: 0.2rem;
+        }
+        
+        .event-info {
+            flex: 1;
+            min-width: 0;
+        }
+        
+        .event-title {
+            font-family: 'Bebas Neue', sans-serif;
+            font-size: clamp(1.3rem, 4vw, 1.6rem);
+            color: var(--text-primary);
+            margin-bottom: 0.5rem;
+            letter-spacing: 0.03em;
+        }
+        
+        .event-description {
+            font-size: clamp(0.9rem, 2vw, 1rem);
+            line-height: 1.6;
+            color: var(--text-tertiary);
+        }
+        
+        @media (max-width: 480px) {
+            .event-item {
+                flex-direction: column;
+                gap: 1rem;
+            }
+            
+            .event-date {
+                width: 100%;
+                height: 60px;
+                flex-direction: row;
+                gap: 1rem;
+            }
+            
+            .event-day {
+                font-size: 2.5rem;
+            }
+            
+            .event-month {
+                font-size: 1rem;
+            }
+        }
+        
+        /* Membership Section - Interactive Pricing */
+        #membership {
+            background: linear-gradient(135deg, var(--secondary) 0%, var(--green) 100%);
+            color: white;
+            text-align: center;
+            position: relative;
+            overflow: hidden;
+        }
+        
+        #membership::before {
+            content: '';
+            position: absolute;
+            inset: 0;
+            background-image: 
+                repeating-linear-gradient(45deg, transparent, transparent 35px, rgba(255,255,255,.03) 35px, rgba(255,255,255,.03) 70px);
+        }
+        
+        .membership-content {
+            position: relative;
+            z-index: 1;
+        }
+        
+        .membership-perks {
+            display: grid;
+            grid-template-columns: 1fr;
+            gap: 1.5rem;
+            margin: 3rem 0;
+            max-width: 900px;
+            margin-left: auto;
+            margin-right: auto;
+        }
+        
+        @media (min-width: 640px) {
+            .membership-perks {
+                grid-template-columns: repeat(2, 1fr);
+            }
+        }
+        
+        @media (min-width: 1024px) {
+            .membership-perks {
+                grid-template-columns: repeat(4, 1fr);
+            }
+        }
+        
+        .perk {
+            background: rgba(255, 255, 255, 0.1);
+            backdrop-filter: blur(10px);
+            padding: 2rem 1.5rem;
+            border-radius: 15px;
+            border: 2px solid rgba(255, 255, 255, 0.2);
+            transition: all 0.4s ease;
+            opacity: 0;
+            transform: translateY(30px);
+            cursor: pointer;
+            min-height: 160px;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            -webkit-tap-highlight-color: transparent;
+        }
+        
+        .perk.visible {
+            opacity: 1;
+            transform: translateY(0);
+        }
+        
+        .perk:hover {
+            background: rgba(255, 255, 255, 0.2);
+            transform: translateY(-10px) scale(1.05);
+            border-color: var(--accent);
+        }
+        
+        .perk:active {
+            transform: translateY(-5px) scale(1.02);
+        }
+        
+        .perk-icon {
+            font-size: 3rem;
+            margin-bottom: 1rem;
+            transition: transform 0.3s ease;
+        }
+        
+        .perk:hover .perk-icon {
+            transform: scale(1.2) rotate(10deg);
+        }
+        
+        .perk-title {
+            font-family: 'Bebas Neue', sans-serif;
+            font-size: 1.3rem;
+            margin-bottom: 0.5rem;
+            letter-spacing: 0.03em;
+        }
+        
+        .perk p {
+            font-size: 0.95rem;
+            opacity: 0.9;
+        }
+        
+        .price {
+            font-family: 'Bebas Neue', sans-serif;
+            font-size: clamp(3rem, 8vw, 4rem);
+            margin: 2rem 0;
+            letter-spacing: 0.05em;
+            color: var(--accent);
+            text-shadow: 2px 2px 10px rgba(0, 0, 0, 0.2);
+            animation: pulse 2s ease-in-out infinite;
+        }
+        
+        @keyframes pulse {
+            0%, 100% {
+                transform: scale(1);
+            }
+            50% {
+                transform: scale(1.05);
+            }
+        }
+        
+        /* Contact Section - Enhanced Touch Targets */
+        #contact {
+            background: var(--bg-primary);
+        }
+        
+        .contact-info {
+            display: grid;
+            grid-template-columns: 1fr;
+            gap: 2rem;
+            max-width: 900px;
+            margin: 0 auto;
+        }
+        
+        @media (min-width: 768px) {
+            .contact-info {
+                grid-template-columns: repeat(3, 1fr);
+            }
+        }
+        
+        .contact-box {
+            background: var(--bg-secondary);
+            padding: 2.5rem 2rem;
+            border-radius: 20px;
+            text-align: center;
+            box-shadow: 0 5px 20px var(--card-shadow);
+            transition: all 0.3s ease;
+            opacity: 0;
+            transform: scale(0.9);
+            cursor: pointer;
+            min-height: 180px;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            -webkit-tap-highlight-color: transparent;
+        }
+        
+        .contact-box.visible {
+            opacity: 1;
+            transform: scale(1);
+        }
+        
+        .contact-box:hover {
+            transform: translateY(-10px) scale(1.02);
+            box-shadow: 0 10px 30px var(--card-shadow-hover);
+        }
+        
+        .contact-box:active {
+            transform: translateY(-5px) scale(1);
+        }
+        
+        .contact-icon {
+            font-size: 3rem;
+            margin-bottom: 1rem;
+            transition: transform 0.3s ease;
+        }
+        
+        .contact-box:hover .contact-icon {
+            transform: scale(1.2) rotate(-10deg);
+        }
+        
+        .contact-label {
+            font-family: 'Bebas Neue', sans-serif;
+            font-size: 1.4rem;
+            color: var(--text-primary);
+            margin-bottom: 0.5rem;
+            letter-spacing: 0.03em;
+        }
+        
+        .contact-detail {
+            font-size: 1rem;
+            color: var(--text-tertiary);
+        }
+        
+        .contact-detail a {
+            color: var(--primary);
+            text-decoration: none;
+            transition: color 0.3s ease;
+        }
+        
+        .contact-detail a:hover {
+            color: var(--secondary);
+            text-decoration: underline;
+        }
+        
+        /* Footer */
+        footer {
+            background: linear-gradient(135deg, var(--dark) 0%, #0d1a0d 100%);
+            color: white;
+            text-align: center;
+            padding: 2.5rem 2rem;
+            font-size: 0.95rem;
+            border-top: 3px solid var(--accent);
+        }
+        
+        [data-theme="dark"] footer {
+            background: linear-gradient(135deg, var(--bg-secondary) 0%, #0a0a14 100%);
+        }
+        
+        /* Utility Classes */
+        .fade-in {
+            opacity: 0;
+            transform: translateY(20px);
+            transition: all 0.6s ease;
+        }
+        
+        .fade-in.visible {
+            opacity: 1;
+            transform: translateY(0);
+        }
+        
+        /* Loading Animation */
+        @keyframes shimmer {
+            0% {
+                background-position: -1000px 0;
+            }
+            100% {
+                background-position: 1000px 0;
+            }
+        }
+        
+        /* Accessibility Improvements */
+        @media (prefers-reduced-motion: reduce) {
+            *,
+            *::before,
+            *::after {
+                animation-duration: 0.01ms !important;
+                animation-iteration-count: 1 !important;
+                transition-duration: 0.01ms !important;
+            }
+        }
+        
+        /* Print Styles */
+        @media print {
+            header,
+            .carousel-arrow,
+            .carousel-controls,
+            .scroll-indicator,
+            footer {
+                display: none;
+            }
+            
+            section {
+                page-break-inside: avoid;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- Header Navigation -->
+    <header>
+        <nav>
+            <a href="#" class="logo">
+                <img src="img/logo.png" alt="Greenville DGC Logo" class="logo-image">
+            </a>
+            <div class="nav-right">
+                <button class="menu-toggle" aria-label="Toggle menu">☰</button>
+                <ul class="nav-links">
+                    <li><a href="#about">About</a></li>
+                    <li><a href="#courses">Courses</a></li>
+                    <li><a href="#events">Events</a></li>
+					<li><a href="gvdg-blog.html">Blog</a></li>
+					<li><a href="gvdg-members.html">Members</a></li>
+					<li><a href="#membership">Join</a></li>
+                    <li><a href="#contact">Contact</a></li>
+                </ul>
+                <button class="theme-toggle" aria-label="Toggle dark mode">
+                    <span class="theme-icon">🌙</span>
+                </button>
+            </div>
+        </nav>
+    </header>
+
+    <!-- Hero Section with Carousel -->
+    <section class="hero">
+        <div class="hero-bg-pattern"></div>
+        <div class="carousel">
+            <div class="carousel-slide active"></div>
+            <div class="carousel-slide"></div>
+            <div class="carousel-slide"></div>
+            <div class="carousel-slide"></div>
+            <div class="carousel-slide"></div>
+        </div>
+        
+        <button class="carousel-arrow carousel-prev" aria-label="Previous slide">‹</button>
+        <button class="carousel-arrow carousel-next" aria-label="Next slide">›</button>
+        
+        <div class="carousel-controls">
+            <button class="carousel-dot active" aria-label="Slide 1"></button>
+            <button class="carousel-dot" aria-label="Slide 2"></button>
+            <button class="carousel-dot" aria-label="Slide 3"></button>
+            <button class="carousel-dot" aria-label="Slide 4"></button>
+            <button class="carousel-dot" aria-label="Slide 5"></button>
+        </div>
+        
+        <div class="hero-content">
+            <h1 class="hero-title">Greenville Disc Golf Club</h1>
+            <p class="hero-subtitle">Eastern North Carolina's Premier Disc Golf Community</p>
+            <a href="#membership" class="cta-button">Join the Club</a>
+        </div>
+        
+        <div class="scroll-indicator"></div>
+    </section>
+
+    <!-- About Section with Interactive Stats -->
+    <section id="about">
+        <h2 class="section-title fade-in">About Our Club</h2>
+        
+        <div class="about-carousel-container">
+            <div class="about-carousel">
+                <!-- Slide 1: About Content -->
+                <div class="carousel-slide-about">
+                    <div class="about-content">
+                        <div class="about-text">
+                            <p>Greenville Disc Golf (GVDG) was founded in 2004 when local disc golf enthusiasts came together to prove there was a community passionate about bringing the sport to Eastern North Carolina. What started as a grassroots effort to build a single course has grown into one of the region's most active disc golf organizations.</p>
+                            <p>For over two decades, we've been hosting weekly doubles, monthly tournaments, and our signature annual event—the Down East Players Cup, a PDGA A-tier tournament that draws players from across the region. We're proud to have helped establish Greenville as the 12th best disc golf destination in North Carolina.</p>
+                            <p>Beyond the course, GVDG is committed to giving back. Our scholarship program supports graduating seniors in Pitt County, funded through events like our annual Scholarship Shootout. Whether you're throwing your first disc or competing at the pro level, you'll find your place in our community.</p>
+                        </div>
+                        
+                        <div class="stats-grid">
+                            <div class="stat-card">
+                                <div class="stat-number" data-count="21">0</div>
+                                <div class="stat-label">Years Strong</div>
+                            </div>
+                            <div class="stat-card">
+                                <div class="stat-number" data-count="5">0</div>
+                                <div class="stat-label">Local Courses</div>
+                            </div>
+                            <div class="stat-card">
+                                <div class="stat-number" data-count="12">0</div>
+                                <div class="stat-label">NC Ranking</div>
+                            </div>
+                            <div class="stat-card">
+                                <div class="stat-number" data-count="7">0</div>
+                                <div class="stat-label">Active Leagues</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Slide 2: Board Members -->
+                <div class="carousel-slide-about">
+                    <div class="board-slide-header">
+                        <h3 class="board-slide-title">Meet Our Board</h3>
+                        <p class="board-slide-subtitle">The people who keep GVDG running</p>
+                    </div>
+                    
+                    <div class="board-members-grid">
+                        <div class="board-member-card founder">
+                            <div class="board-member-icon">👑</div>
+                            <div class="board-member-name">Max Crotts</div>
+                            <div class="board-member-role">Founder / President</div>
+                        </div>
+                        
+                        <div class="board-member-card">
+                            <div class="board-member-icon">💰</div>
+                            <div class="board-member-name">Adam Walter</div>
+                            <div class="board-member-role">Treasurer</div>
+                        </div>
+                        
+                        <div class="board-member-card">
+                            <div class="board-member-icon">🥏</div>
+                            <div class="board-member-name">Jarrett Wallace</div>
+                            <div class="board-member-role">Club Officer</div>
+                        </div>
+                        
+                        <div class="board-member-card">
+                            <div class="board-member-icon">🥏</div>
+                            <div class="board-member-name">Jeff Stelly</div>
+                            <div class="board-member-role">Club Officer</div>
+                        </div>
+                        
+                        <div class="board-member-card">
+                            <div class="board-member-icon">🥏</div>
+                            <div class="board-member-name">TJ Braley</div>
+                            <div class="board-member-role">Club Officer</div>
+                        </div>
+                        
+                        <div class="board-member-card">
+                            <div class="board-member-icon">🥏</div>
+                            <div class="board-member-name">Alex Schwarga</div>
+                            <div class="board-member-role">Club Officer</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <div class="about-carousel-nav">
+            <button class="carousel-btn" id="aboutPrevBtn">‹</button>
+            <div class="carousel-indicators">
+                <button class="carousel-indicator active" data-slide="0"></button>
+                <button class="carousel-indicator" data-slide="1"></button>
+            </div>
+            <button class="carousel-btn" id="aboutNextBtn">›</button>
+        </div>
+    </section>
+
+    <!-- Courses Carousel Section -->
+    <section id="courses">
+        <h2 class="section-title">Courses</h2>
+        
+        <div class="courses-carousel-container">
+            <div class="courses-carousel">
+                <!-- Slide 1 -->
+                <div class="carousel-slide-courses">
+                    <div class="slide-header">
+                        <h3 class="slide-title">Our Courses</h3>
+                        <p class="slide-subtitle">5 Courses in Greenville, NC</p>
+                    </div>
+                    
+                    <div class="courses-grid">
+                        <div class="course-card" data-course="ECU North Rec Complex" data-location="Greenville, NC" data-udisc="https://udisc.com/courses/ecu-north-recreational-complex-HbME" data-coords="35.631092,-77.319923" data-youtube="">
+                            <div class="course-image">
+                                <img src="https://d22ksth68ujgu2.cloudfront.net/b7fd828f4c6bf4fe89cd95a2d07e4cfc_m_IMG_6470.jpg" alt="ECU North Recreational Complex" loading="lazy">
+                            </div>
+                            <div class="course-content">
+                                <div class="course-header">
+                                    <h3 class="course-name">ECU North Rec Complex</h3>
+                                    <span class="difficulty-badge difficulty-intermediate">Moderate - Hard</span>
+                                </div>
+                                <div class="course-location">📍 Greenville, NC</div>
+                                <div class="course-info">
+                                    <div class="info-item">
+                                        <div class="info-label">Holes</div>
+                                        <div class="info-value">23</div>
+                                    </div>
+                                    <div class="info-item">
+                                        <div class="info-label">Rating</div>
+                                        <div class="info-value">4.4★</div>
+                                    </div>
+                                    <div class="info-item">
+                                        <div class="info-label">Time</div>
+                                        <div class="info-value">~2 hrs</div>
+                                    </div>
+                                </div>
+                                <p class="course-description">Well-maintained course with manicured fairways and great signage.</p>
+                            </div>
+                        </div>
+                        
+                        <div class="course-card" data-course="West Meadowbrook Park" data-location="Greenville, NC" data-udisc="https://udisc.com/courses/west-meadowbrook-park-40Aw" data-coords="35.6264,-77.375" data-youtube="">
+                            <div class="course-image">
+                                <img src="https://d22ksth68ujgu2.cloudfront.net/a280319675d856e30869b9bca4eaee00_m_40698704_Unknown.jpg" alt="West Meadowbrook Park" loading="lazy">
+                            </div>
+                            <div class="course-content">
+                                <div class="course-header">
+                                    <h3 class="course-name">West Meadowbrook Park</h3>
+                                    <span class="difficulty-badge difficulty-beginner">Easy - Hard</span>
+                                </div>
+                                <div class="course-location">📍 Greenville, NC</div>
+                                <div class="course-info">
+                                    <div class="info-item">
+                                        <div class="info-label">Holes</div>
+                                        <div class="info-value">18</div>
+                                    </div>
+                                    <div class="info-item">
+                                        <div class="info-label">Rating</div>
+                                        <div class="info-value">4.3★</div>
+                                    </div>
+                                    <div class="info-item">
+                                        <div class="info-label">Time</div>
+                                        <div class="info-value">~1 hr</div>
+                                    </div>
+                                </div>
+                                <p class="course-description">Five layouts available! Great mix of open and wooded shots.</p>
+                            </div>
+                        </div>
+                        
+                        <div class="course-card" data-course="Covenant Church" data-location="Winterville, NC" data-udisc="https://udisc.com/courses/covenant-church-Kbtz" data-coords="35.55785,-77.360886" data-youtube="">
+                            <div class="course-image">
+                                <img src="https://d22ksth68ujgu2.cloudfront.net/8342d5e6d680264501f3f46c96b61755_m_IMG_1449.jpg" alt="Covenant Church" loading="lazy">
+                            </div>
+                            <div class="course-content">
+                                <div class="course-header">
+                                    <h3 class="course-name">Covenant Church</h3>
+                                    <span class="difficulty-badge difficulty-intermediate">Moderate</span>
+                                </div>
+                                <div class="course-location">📍 Winterville, NC</div>
+                                <div class="course-info">
+                                    <div class="info-item">
+                                        <div class="info-label">Holes</div>
+                                        <div class="info-value">18</div>
+                                    </div>
+                                    <div class="info-item">
+                                        <div class="info-label">Rating</div>
+                                        <div class="info-value">4.3★</div>
+                                    </div>
+                                    <div class="info-item">
+                                        <div class="info-label">Time</div>
+                                        <div class="info-value">~1 hr</div>
+                                    </div>
+                                </div>
+                                <p class="course-description">Challenging wooded course with water holes and tight lines.</p>
+                            </div>
+                        </div>
+                        
+                        <div class="course-card" data-course="The Oakwood Eagles' Nest" data-location="Greenville, NC" data-udisc="https://udisc.com/courses/the-oakwood-eagles-nest-TGSv" data-coords="35.621615,-77.448291" data-youtube="">
+                            <div class="course-image no-image"></div>
+                            <div class="course-content">
+                                <div class="course-header">
+                                    <h3 class="course-name">The Oakwood Eagles' Nest</h3>
+                                    <span class="difficulty-badge difficulty-intermediate">Moderate</span>
+                                </div>
+                                <div class="course-location">📍 Greenville, NC</div>
+                                <div class="course-info">
+                                    <div class="info-item">
+                                        <div class="info-label">Holes</div>
+                                        <div class="info-value">18</div>
+                                    </div>
+                                    <div class="info-item">
+                                        <div class="info-label">Rating</div>
+                                        <div class="info-value">4.0★</div>
+                                    </div>
+                                    <div class="info-item">
+                                        <div class="info-label">Time</div>
+                                        <div class="info-value">~1.5 hrs</div>
+                                    </div>
+                                </div>
+                                <p class="course-description">School campus course with cart-friendly paths.</p>
+                            </div>
+                        </div>
+                        
+                        <div class="course-card" data-course="Third Street Disc Golf" data-location="Greenville, NC" data-udisc="https://udisc.com/courses/third-street-disc-golf-EC96" data-coords="35.5931,-77.3847" data-youtube="">
+                            <div class="course-image">
+                                <img src="https://d22ksth68ujgu2.cloudfront.net/658645982c2779bbc89dbe41fa1de4c7_m_IMG_6254.jpg" alt="Third Street Disc Golf" loading="lazy">
+                            </div>
+                            <div class="course-content">
+                                <div class="course-header">
+                                    <h3 class="course-name">Third Street Disc Golf</h3>
+                                    <span class="difficulty-badge difficulty-intermediate">Moderate</span>
+                                </div>
+                                <div class="course-location">📍 Greenville, NC</div>
+                                <div class="course-info">
+                                    <div class="info-item">
+                                        <div class="info-label">Holes</div>
+                                        <div class="info-value">9</div>
+                                    </div>
+                                    <div class="info-item">
+                                        <div class="info-label">Rating</div>
+                                        <div class="info-value">3.7★</div>
+                                    </div>
+                                    <div class="info-item">
+                                        <div class="info-label">Time</div>
+                                        <div class="info-value">~30 min</div>
+                                    </div>
+                                </div>
+                                <p class="course-description">Quick 9-hole course perfect for a fast round.</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Slide 2 -->
+                <div class="carousel-slide-courses">
+                    <div class="slide-header">
+                        <h3 class="slide-title">Nearby Courses</h3>
+                        <p class="slide-subtitle">Within 60 Miles of Greenville</p>
+                    </div>
+                    
+                    <div class="courses-grid">
+                        <div class="course-card" data-course="Farmville DiscGolfPark" data-location="Farmville, NC" data-udisc="https://udisc.com/courses/farmville-disc-golf-park-YCBv" data-coords="35.604686,-77.576533" data-youtube="">
+                            <div class="course-image">
+                                <img src="https://d22ksth68ujgu2.cloudfront.net/decd19215d15e33dad293d8b394eaca8_m_IMG_5046.jpg" alt="Farmville DiscGolfPark" loading="lazy">
+                            </div>
+                            <div class="course-content">
+                                <div class="course-header">
+                                    <h3 class="course-name">Farmville DiscGolfPark</h3>
+                                    <span class="difficulty-badge difficulty-intermediate">Moderate</span>
+                                </div>
+                                <div class="course-location">📍 Farmville, NC • 15 min</div>
+                                <div class="course-info">
+                                    <div class="info-item">
+                                        <div class="info-label">Holes</div>
+                                        <div class="info-value">18</div>
+                                    </div>
+                                    <div class="info-item">
+                                        <div class="info-label">Rating</div>
+                                        <div class="info-value">4.3★</div>
+                                    </div>
+                                    <div class="info-item">
+                                        <div class="info-label">Time</div>
+                                        <div class="info-value">~1.5 hrs</div>
+                                    </div>
+                                </div>
+                                <p class="course-description">Former farmland with woods, Blue and Red tee pads available.</p>
+                            </div>
+                        </div>
+                        
+                        <div class="course-card" data-course="Ayden Park" data-location="Ayden, NC" data-udisc="https://udisc.com/courses/ayden-park-HoPq" data-coords="35.489203,-77.426836" data-youtube="">
+                            <div class="course-image">
+                                <img src="https://d22ksth68ujgu2.cloudfront.net/6e443673f3aae14b699bfbef1c94b75a_m_IMG_2887.jpg" alt="Ayden Park" loading="lazy">
+                            </div>
+                            <div class="course-content">
+                                <div class="course-header">
+                                    <h3 class="course-name">Ayden Park</h3>
+                                    <span class="difficulty-badge difficulty-intermediate">Moderate</span>
+                                </div>
+                                <div class="course-location">📍 Ayden, NC • 20 min</div>
+                                <div class="course-info">
+                                    <div class="info-item">
+                                        <div class="info-label">Holes</div>
+                                        <div class="info-value">18</div>
+                                    </div>
+                                    <div class="info-item">
+                                        <div class="info-label">Rating</div>
+                                        <div class="info-value">3.5★</div>
+                                    </div>
+                                    <div class="info-item">
+                                        <div class="info-label">Time</div>
+                                        <div class="info-value">~2 hrs</div>
+                                    </div>
+                                </div>
+                                <p class="course-description">Fun beginner-friendly open course in a public park.</p>
+                            </div>
+                        </div>
+                        
+                        <div class="course-card" data-course="Barnet Park" data-location="Kinston, NC" data-udisc="https://udisc.com/courses/barnet-park-kDCh" data-coords="35.278801,-77.640503" data-youtube="">
+                            <div class="course-image">
+                                <img src="https://d22ksth68ujgu2.cloudfront.net/ce27baa0cd58600da35e54beb76128c1_m_IMG_2170.jpg" alt="Barnet Park" loading="lazy">
+                            </div>
+                            <div class="course-content">
+                                <div class="course-header">
+                                    <h3 class="course-name">Barnet Park</h3>
+                                    <span class="difficulty-badge difficulty-advanced">Moderate - Very Hard</span>
+                                </div>
+                                <div class="course-location">📍 Kinston, NC • 30 min</div>
+                                <div class="course-info">
+                                    <div class="info-item">
+                                        <div class="info-label">Holes</div>
+                                        <div class="info-value">18</div>
+                                    </div>
+                                    <div class="info-item">
+                                        <div class="info-label">Rating</div>
+                                        <div class="info-value">4.1★</div>
+                                    </div>
+                                    <div class="info-item">
+                                        <div class="info-label">Time</div>
+                                        <div class="info-value">~1.5 hrs</div>
+                                    </div>
+                                </div>
+                                <p class="course-description">Classic eastern NC wooded course with technical shots.</p>
+                            </div>
+                        </div>
+                        
+                        <div class="course-card" data-course="Beaufort County CC" data-location="Washington, NC" data-udisc="https://udisc.com/courses/beaufort-county-community-college-ijIj" data-coords="35.5549,-77.0152" data-youtube="">
+                            <div class="course-image no-image"></div>
+                            <div class="course-content">
+                                <div class="course-header">
+                                    <h3 class="course-name">Beaufort County CC</h3>
+                                    <span class="difficulty-badge difficulty-intermediate">Moderate</span>
+                                </div>
+                                <div class="course-location">📍 Washington, NC • 25 min</div>
+                                <div class="course-info">
+                                    <div class="info-item">
+                                        <div class="info-label">Holes</div>
+                                        <div class="info-value">18</div>
+                                    </div>
+                                    <div class="info-item">
+                                        <div class="info-label">Rating</div>
+                                        <div class="info-value">3.8★</div>
+                                    </div>
+                                    <div class="info-item">
+                                        <div class="info-label">Time</div>
+                                        <div class="info-value">~2 hrs</div>
+                                    </div>
+                                </div>
+                                <p class="course-description">College campus course with elevation and water hazards.</p>
+                            </div>
+                        </div>
+                        
+                        <div class="course-card" data-course="Farm Life Disc Golf" data-location="Williamston, NC" data-udisc="https://udisc.com/courses/farm-life-disc-golf-3IvE" data-coords="35.7416,-76.985603" data-youtube="">
+                            <div class="course-image no-image"></div>
+                            <div class="course-content">
+                                <div class="course-header">
+                                    <h3 class="course-name">Farm Life Disc Golf</h3>
+                                    <span class="difficulty-badge difficulty-intermediate">Moderate</span>
+                                </div>
+                                <div class="course-location">📍 Williamston, NC • 30 min</div>
+                                <div class="course-info">
+                                    <div class="info-item">
+                                        <div class="info-label">Holes</div>
+                                        <div class="info-value">18</div>
+
+                                    </div>
+                                    <div class="info-item">
+                                        <div class="info-label">Rating</div>
+                                        <div class="info-value">4.5★</div>
+                                    </div>
+                                    <div class="info-item">
+                                        <div class="info-label">Time</div>
+                                        <div class="info-value">~2 hrs</div>
+                                    </div>
+                                </div>
+                                <p class="course-description">Highly-rated scenic private course worth the drive.</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Slide 3 -->
+                <div class="carousel-slide-courses">
+                    <div class="slide-header">
+                        <h3 class="slide-title">Worth The Drive</h3>
+                        <p class="slide-subtitle">Top-Rated Courses Within 60 Miles</p>
+                    </div>
+                    
+                    <div class="courses-grid">
+                        <div class="course-card" data-course="Glenburnie Park" data-location="New Bern, NC" data-udisc="https://udisc.com/courses/glenburnie-park-Rsnq" data-coords="35.138901,-77.061699" data-youtube="">
+                            <div class="course-image no-image"></div>
+                            <div class="course-content">
+                                <div class="course-header">
+                                    <h3 class="course-name">Glenburnie Park</h3>
+                                    <span class="difficulty-badge difficulty-advanced">Moderate - Hard</span>
+                                </div>
+                                <div class="course-location">📍 New Bern, NC • 45 min</div>
+                                <div class="course-info">
+                                    <div class="info-item">
+                                        <div class="info-label">Holes</div>
+                                        <div class="info-value">18</div>
+                                    </div>
+                                    <div class="info-item">
+                                        <div class="info-label">Rating</div>
+                                        <div class="info-value">4.6★</div>
+                                    </div>
+                                    <div class="info-item">
+                                        <div class="info-label">Time</div>
+                                        <div class="info-value">~2 hrs</div>
+                                    </div>
+                                </div>
+                                <p class="course-description">One of the best in Eastern NC with river views and elevation.</p>
+                            </div>
+                        </div>
+                        
+                        <div class="course-card" data-course="Creekside Park" data-location="New Bern, NC" data-udisc="https://udisc.com/courses/creekside-park-GaFZ" data-coords="35.061508,-77.044464" data-youtube="">
+                            <div class="course-image no-image"></div>
+                            <div class="course-content">
+                                <div class="course-header">
+                                    <h3 class="course-name">Creekside Park</h3>
+                                    <span class="difficulty-badge difficulty-advanced">Moderate - Hard</span>
+                                </div>
+
+                                <div class="course-location">📍 New Bern, NC • 50 min</div>
+                                <div class="course-info">
+                                    <div class="info-item">
+                                        <div class="info-label">Holes</div>
+                                        <div class="info-value">18</div>
+                                    </div>
+                                    <div class="info-item">
+                                        <div class="info-label">Rating</div>
+                                        <div class="info-value">4.3★</div>
+                                    </div>
+                                    <div class="info-item">
+                                        <div class="info-label">Time</div>
+                                        <div class="info-value">~2 hrs</div>
+                                    </div>
+                                </div>
+                                <p class="course-description">Technical wooded course with excellent amenities.</p>
+                            </div>
+                        </div>
+                        
+                        <div class="course-card" data-course="Sunset Park DGC" data-location="Rocky Mount, NC" data-udisc="https://udisc.com/courses/sunset-park-dgc-Z1wS" data-coords="35.953166,-77.813380" data-youtube="">
+                            <div class="course-image no-image"></div>
+                            <div class="course-content">
+                                <div class="course-header">
+                                    <h3 class="course-name">Sunset Park DGC</h3>
+                                    <span class="difficulty-badge difficulty-advanced">Moderate - Hard</span>
+                                </div>
+                                <div class="course-location">📍 Rocky Mount, NC • 50 min</div>
+                                <div class="course-info">
+                                    <div class="info-item">
+                                        <div class="info-label">Holes</div>
+                                        <div class="info-value">18</div>
+                                    </div>
+                                    <div class="info-item">
+                                        <div class="info-label">Rating</div>
+                                        <div class="info-value">4.1★</div>
+                                    </div>
+                                    <div class="info-item">
+                                        <div class="info-label">Time</div>
+                                        <div class="info-value">~2 hrs</div>
+                                    </div>
+                                </div>
+                                <p class="course-description">Well-established course in a beautiful park setting.</p>
+                            </div>
+                        </div>
+                        
+                        <div class="course-card" data-course="Battle Park DGC" data-location="Rocky Mount, NC" data-udisc="https://udisc.com/courses/battle-park-dgc-XD3h" data-coords="35.961804,-77.804932" data-youtube="">
+                            <div class="course-image no-image"></div>
+                            <div class="course-content">
+                                <div class="course-header">
+                                    <h3 class="course-name">Battle Park DGC</h3>
+                                    <span class="difficulty-badge difficulty-advanced">Hard</span>
+                                </div>
+                                <div class="course-location">📍 Rocky Mount, NC • 50 min</div>
+                                <div class="course-info">
+                                    <div class="info-item">
+                                        <div class="info-label">Holes</div>
+                                        <div class="info-value">18</div>
+                                    </div>
+                                    <div class="info-item">
+                                        <div class="info-label">Rating</div>
+                                        <div class="info-value">4.0★</div>
+                                    </div>
+                                    <div class="info-item">
+                                        <div class="info-label">Time</div>
+                                        <div class="info-value">~2 hrs</div>
+                                    </div>
+                                </div>
+                                <p class="course-description">Newest Rocky Mount course with woods and river in play.</p>
+                            </div>
+                        </div>
+                        
+                        <div class="course-card" data-course="Richlands-Steed Park" data-location="Richlands, NC" data-udisc="https://udisc.com/courses/richlands-steed-park-MaGt" data-coords="34.897999,-77.522202" data-youtube="">
+                            <div class="course-image no-image"></div>
+                            <div class="course-content">
+                                <div class="course-header">
+                                    <h3 class="course-name">Richlands-Steed Park</h3>
+                                    <span class="difficulty-badge difficulty-beginner">Beginner Friendly</span>
+                                </div>
+                                <div class="course-location">📍 Richlands, NC • 55 min</div>
+                                <div class="course-info">
+                                    <div class="info-item">
+                                        <div class="info-label">Holes</div>
+                                        <div class="info-value">21</div>
+                                    </div>
+                                    <div class="info-item">
+                                        <div class="info-label">Rating</div>
+                                        <div class="info-value">4.3★</div>
+                                    </div>
+                                    <div class="info-item">
+                                        <div class="info-label">Time</div>
+                                        <div class="info-value">~1.5 hrs</div>
+                                    </div>
+                                </div>
+                                <p class="course-description">Great beginner course, well-maintained with open fairways.</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <div class="courses-carousel-nav">
+            <button class="carousel-btn" id="coursesPrevBtn">‹</button>
+            <div class="carousel-indicators">
+                <button class="carousel-indicator active" data-slide="0"></button>
+                <button class="carousel-indicator" data-slide="1"></button>
+                <button class="carousel-indicator" data-slide="2"></button>
+            </div>
+            <button class="carousel-btn" id="coursesNextBtn">›</button>
+        </div>
+    </section>
+
+    <!-- Events Section -->
+    <section id="events">
+        <h2 class="section-title fade-in">Upcoming Events</h2>
+        <div class="event-list">
+            <div class="event-item fade-in">
+                <div class="event-date">
+                    <div class="event-day">28</div>
+                    <div class="event-month">Dec</div>
+                </div>
+                <div class="event-info">
+                    <h3 class="event-title">Weekly Doubles</h3>
+                    <p class="event-description">Join us every Saturday at 10 AM for our weekly doubles tournament at River Park North. Random draw partners, all skill levels welcome. $5 entry includes ace pot contribution.</p>
+                </div>
+            </div>
+            
+            <div class="event-item fade-in">
+                <div class="event-date">
+                    <div class="event-day">15</div>
+                    <div class="event-month">Jan</div>
+                </div>
+                <div class="event-info">
+                    <h3 class="event-title">New Year Ice Bowl</h3>
+                    <p class="event-description">Our annual charity event supporting local food banks. Brave the cold for a great cause! Registration opens December 1st. All proceeds donated.</p>
+                </div>
+            </div>
+            
+            <div class="event-item fade-in">
+                <div class="event-date">
+                    <div class="event-day">10</div>
+                    <div class="event-month">Feb</div>
+                </div>
+                <div class="event-info">
+                    <h3 class="event-title">Beginner's Clinic</h3>
+                    <p class="event-description">Free clinic for new players covering basics: throwing techniques, rules, and etiquette. Loaner discs available. Bring a friend and discover disc golf!</p>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Tournament Feed from Disc Golf Scene -->
+        <div class="tournament-feed" id="tournamentFeed">
+            <div class="tournament-feed-header">
+                <div>
+                    <h3 class="tournament-feed-title">
+                        <span class="icon">🏆</span>
+                        Area Tournaments
+                    </h3>
+                    <p class="tournament-feed-subtitle">PDGA sanctioned events within 60 miles of Greenville, NC</p>
+                </div>
+                <a href="https://www.discgolfscene.com/tournaments/North_Carolina" target="_blank" rel="noopener noreferrer" class="tournament-feed-link">
+                    View All on DGS →
+                </a>
+            </div>
+            
+            <div class="filter-tabs" id="tournamentFilters">
+                <button class="filter-tab active" data-filter="all">All Events</button>
+                <button class="filter-tab" data-filter="gvdg">GVDG Events</button>
+                <button class="filter-tab" data-filter="pdga">PDGA Sanctioned</button>
+            </div>
+            
+            <p class="radius-note">📍 Showing tournaments at courses within ~60 miles of Greenville</p>
+            
+            <div class="tournament-grid" id="tournamentGrid">
+                <!-- Tournaments will be populated here -->
+            </div>
+        </div>
+    </section>
+
+    <!-- Membership Section -->
+    <section id="membership">
+        <div class="membership-content">
+            <h2 class="section-title">Become a Member</h2>
+            <p style="font-size: 1.2rem; margin: 1.5rem 0; opacity: 0.95;">Join our growing community and enjoy exclusive benefits</p>
+            
+            <div class="membership-perks">
+                <div class="perk fade-in">
+                    <div class="perk-icon">🏆</div>
+                    <div class="perk-title">Tournament Access</div>
+                    <p>Member-only events and discounts</p>
+                </div>
+                <div class="perk fade-in">
+                    <div class="perk-icon">💬</div>
+                    <div class="perk-title">Community</div>
+                    <p>Private Discord and social events</p>
+                </div>
+                <div class="perk fade-in">
+                    <div class="perk-icon">🎯</div>
+                    <div class="perk-title">Course Maintenance</div>
+                    <p>Help improve our local courses</p>
+                </div>
+                <div class="perk fade-in">
+                    <div class="perk-icon">📊</div>
+                    <div class="perk-title">Skill Development</div>
+                    <p>Clinics and coaching sessions</p>
+                </div>
+            </div>
+            
+            <div class="price">$30 / Year</div>
+            <a href="#contact" class="cta-button">Get Started Today</a>
+        </div>
+    </section>
+
+    <!-- Contact Section -->
+    <section id="contact">
+        <h2 class="section-title fade-in">Get in Touch</h2>
+        <div class="contact-info">
+            <div class="contact-box fade-in">
+                <div class="contact-icon">📧</div>
+                <div class="contact-label">Email Us</div>
+                <div class="contact-detail"><a href="/cdn-cgi/l/email-protection#432a2d252c03243126262d352a2f2f262724206d202c2e"><span class="__cf_email__" data-cfemail="ed84838b82ad8a9f8888839b84818188898a8ec38e8280">[email&#160;protected]</span></a></div>
+            </div>
+            <div class="contact-box fade-in">
+                <div class="contact-icon">📱</div>
+                <div class="contact-label">Follow Us</div>
+                <div class="contact-detail">@GreenvilleDGC on Facebook & Instagram</div>
+            </div>
+            <div class="contact-box fade-in">
+                <div class="contact-icon">📍</div>
+                <div class="contact-label">Location</div>
+                <div class="contact-detail">Greenville, North Carolina</div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Footer -->
+    <footer>
+        <p>&copy; 2024 Greenville Disc Golf Club. All rights reserved. | Greenville, NC</p>
+    </footer>
+
+    <script data-cfasync="false" src="/cdn-cgi/scripts/5c5dd728/cloudflare-static/email-decode.min.js"></script><script>
+        // Dark mode toggle
+        const themeToggle = document.querySelector('.theme-toggle');
+        const themeIcon = document.querySelector('.theme-icon');
+        const html = document.documentElement;
+        
+        // Check for saved theme preference or default to light mode
+        const currentTheme = localStorage.getItem('theme') || 'light';
+        html.setAttribute('data-theme', currentTheme);
+        themeIcon.textContent = currentTheme === 'dark' ? '☀️' : '🌙';
+        
+        themeToggle.addEventListener('click', () => {
+            const currentTheme = html.getAttribute('data-theme');
+            const newTheme = currentTheme === 'dark' ? 'light' : 'dark';
+            
+            html.setAttribute('data-theme', newTheme);
+            localStorage.setItem('theme', newTheme);
+            themeIcon.textContent = newTheme === 'dark' ? '☀️' : '🌙';
+        });
+        
+        // Enhanced Carousel with Touch Support
+        let currentSlide = 0;
+        const slides = document.querySelectorAll('.carousel-slide');
+        const dots = document.querySelectorAll('.carousel-dot');
+        const prevBtn = document.querySelector('.carousel-prev');
+        const nextBtn = document.querySelector('.carousel-next');
+        
+        // Touch events
+        let touchStartX = 0;
+        let touchEndX = 0;
+        const hero = document.querySelector('.hero');
+        
+        hero.addEventListener('touchstart', (e) => {
+            touchStartX = e.changedTouches[0].screenX;
+        }, { passive: true });
+        
+        hero.addEventListener('touchend', (e) => {
+            touchEndX = e.changedTouches[0].screenX;
+            handleSwipe();
+        }, { passive: true });
+        
+        function handleSwipe() {
+            const swipeThreshold = 50;
+            const diff = touchStartX - touchEndX;
+            
+            if (Math.abs(diff) > swipeThreshold) {
+                if (diff > 0) {
+                    nextSlide();
+                } else {
+                    prevSlide();
+                }
+            }
+        }
+        
+        function showSlide(index) {
+            if (index >= slides.length) currentSlide = 0;
+            else if (index < 0) currentSlide = slides.length - 1;
+            else currentSlide = index;
+            
+            slides.forEach((slide, i) => {
+                slide.classList.toggle('active', i === currentSlide);
+            });
+            
+            dots.forEach((dot, i) => {
+                dot.classList.toggle('active', i === currentSlide);
+            });
+        }
+        
+        function nextSlide() {
+            showSlide(currentSlide + 1);
+        }
+        
+        function prevSlide() {
+            showSlide(currentSlide - 1);
+        }
+        
+        nextBtn.addEventListener('click', nextSlide);
+        prevBtn.addEventListener('click', prevSlide);
+        
+        dots.forEach((dot, index) => {
+            dot.addEventListener('click', () => showSlide(index));
+        });
+        
+        // Auto-advance carousel
+        let autoSlide = setInterval(nextSlide, 5000);
+        
+        hero.addEventListener('mouseenter', () => {
+            clearInterval(autoSlide);
+        });
+        
+        hero.addEventListener('mouseleave', () => {
+            autoSlide = setInterval(nextSlide, 5000);
+        });
+        
+        
+        // About Carousel
+        (function() {
+            const carousel = document.querySelector('.about-carousel');
+            const slides = document.querySelectorAll('.carousel-slide-about');
+            const indicators = document.querySelectorAll('.about-carousel-nav .carousel-indicator');
+            const prevBtn = document.getElementById('aboutPrevBtn');
+            const nextBtn = document.getElementById('aboutNextBtn');
+            const container = document.querySelector('.about-carousel-container');
+            
+            if (!carousel || slides.length === 0) return;
+            
+            let currentSlide = 0;
+            
+            function updateCarousel() {
+                carousel.style.transform = `translateX(-${currentSlide * 100}%)`;
+                
+                indicators.forEach((ind, i) => {
+                    ind.classList.toggle('active', i === currentSlide);
+                });
+                
+                if (prevBtn) prevBtn.disabled = currentSlide === 0;
+                if (nextBtn) nextBtn.disabled = currentSlide === slides.length - 1;
+            }
+            
+            function goToSlide(index) {
+                currentSlide = Math.max(0, Math.min(index, slides.length - 1));
+                updateCarousel();
+            }
+            
+            if (prevBtn) {
+                prevBtn.addEventListener('click', () => goToSlide(currentSlide - 1));
+            }
+            
+            if (nextBtn) {
+                nextBtn.addEventListener('click', () => goToSlide(currentSlide + 1));
+            }
+            
+            indicators.forEach((ind) => {
+                ind.addEventListener('click', () => {
+                    const slideIndex = parseInt(ind.getAttribute('data-slide'));
+                    if (!isNaN(slideIndex)) goToSlide(slideIndex);
+                });
+            });
+            
+            // Touch support
+            if (container) {
+                let touchStartX = 0;
+                
+                container.addEventListener('touchstart', (e) => {
+                    touchStartX = e.changedTouches[0].screenX;
+                }, { passive: true });
+                
+                container.addEventListener('touchend', (e) => {
+                    const touchEndX = e.changedTouches[0].screenX;
+                    const diff = touchStartX - touchEndX;
+                    if (Math.abs(diff) > 50) {
+                        goToSlide(currentSlide + (diff > 0 ? 1 : -1));
+                    }
+                }, { passive: true });
+            }
+            
+            updateCarousel();
+        })();
+        
+        // Courses Carousel
+        (function() {
+            const carousel = document.querySelector('.courses-carousel');
+            const slides = document.querySelectorAll('.carousel-slide-courses');
+            const indicators = document.querySelectorAll('.courses-carousel-nav .carousel-indicator');
+            const prevBtn = document.getElementById('coursesPrevBtn');
+            const nextBtn = document.getElementById('coursesNextBtn');
+            const container = document.querySelector('.courses-carousel-container');
+            
+            if (!carousel || slides.length === 0) return;
+            
+            let currentSlide = 0;
+            
+            function updateCarousel() {
+                carousel.style.transform = `translateX(-${currentSlide * 100}%)`;
+                
+                indicators.forEach((ind, i) => {
+                    ind.classList.toggle('active', i === currentSlide);
+                });
+                
+                if (prevBtn) prevBtn.disabled = currentSlide === 0;
+                if (nextBtn) nextBtn.disabled = currentSlide === slides.length - 1;
+            }
+            
+            function goToSlide(index) {
+                currentSlide = Math.max(0, Math.min(index, slides.length - 1));
+                updateCarousel();
+            }
+            
+            if (prevBtn) {
+                prevBtn.addEventListener('click', () => goToSlide(currentSlide - 1));
+            }
+            
+            if (nextBtn) {
+                nextBtn.addEventListener('click', () => goToSlide(currentSlide + 1));
+            }
+            
+            indicators.forEach((ind) => {
+                ind.addEventListener('click', () => {
+                    const slideIndex = parseInt(ind.getAttribute('data-slide'));
+                    if (!isNaN(slideIndex)) goToSlide(slideIndex);
+                });
+            });
+            
+            // Touch support
+            if (container) {
+                let touchStartX = 0;
+                
+                container.addEventListener('touchstart', (e) => {
+                    touchStartX = e.changedTouches[0].screenX;
+                }, { passive: true });
+                
+                container.addEventListener('touchend', (e) => {
+                    const touchEndX = e.changedTouches[0].screenX;
+                    const diff = touchStartX - touchEndX;
+                    if (Math.abs(diff) > 50) {
+                        goToSlide(currentSlide + (diff > 0 ? 1 : -1));
+                    }
+                }, { passive: true });
+            }
+            
+            updateCarousel();
+        })();
+        // Mobile menu toggle
+        const menuToggle = document.querySelector('.menu-toggle');
+        const navLinks = document.querySelector('.nav-links');
+        
+        menuToggle.addEventListener('click', () => {
+            navLinks.classList.toggle('active');
+            menuToggle.textContent = navLinks.classList.contains('active') ? '✕' : '☰';
+        });
+        
+        // Close mobile menu when clicking a link
+        document.querySelectorAll('.nav-links a').forEach(link => {
+            link.addEventListener('click', () => {
+                navLinks.classList.remove('active');
+                menuToggle.textContent = '☰';
+            });
+        });
+        
+        // Header scroll effect
+        const header = document.querySelector('header');
+        window.addEventListener('scroll', () => {
+            if (window.scrollY > 100) {
+                header.classList.add('scrolled');
+            } else {
+                header.classList.remove('scrolled');
+            }
+        });
+        
+        // Enhanced scroll animations with stagger
+        const observerOptions = {
+            threshold: 0.1,
+            rootMargin: '0px 0px -50px 0px'
+        };
+
+        const observer = new IntersectionObserver((entries) => {
+            entries.forEach((entry, index) => {
+                if (entry.isIntersecting) {
+                    // Stagger animation for items in the same container
+                    const delay = entry.target.dataset.delay || 0;
+                    setTimeout(() => {
+                        entry.target.classList.add('visible');
+                    }, delay);
+                }
+            });
+        }, observerOptions);
+
+        // Apply staggered delays to grid items
+        document.querySelectorAll('.event-item').forEach((item, index) => {
+            item.dataset.delay = index * 150;
+            observer.observe(item);
+        });
+        
+        document.querySelectorAll('.stat-card').forEach((card, index) => {
+            card.dataset.delay = index * 100;
+            observer.observe(card);
+        });
+        
+        document.querySelectorAll('.perk').forEach((perk, index) => {
+            perk.dataset.delay = index * 100;
+            observer.observe(perk);
+        });
+        
+
+        document.querySelectorAll('.contact-box').forEach((box, index) => {
+            box.dataset.delay = index * 150;
+            observer.observe(box);
+        });
+
+        document.querySelectorAll('.fade-in, .section-title').forEach(el => {
+            observer.observe(el);
+        });
+        
+        // Animated counters for stats
+        function animateCounter(element) {
+            if (!element) return;
+            const target = parseInt(element.dataset.count);
+            if (isNaN(target)) return;
+            
+            const duration = 2000;
+            const startTime = performance.now();
+            
+            const updateCounter = (currentTime) => {
+                const elapsed = currentTime - startTime;
+                const progress = Math.min(elapsed / duration, 1);
+                element.textContent = Math.floor(progress * target);
+                
+                if (progress < 1) {
+                    requestAnimationFrame(updateCounter);
+                } else {
+                    element.textContent = target;
+                }
+            };
+            
+            requestAnimationFrame(updateCounter);
+        }
+        
+        // Observe stat cards and trigger counter animation
+        const statsObserver = new IntersectionObserver((entries) => {
+            entries.forEach(entry => {
+                if (entry.isIntersecting && !entry.target.dataset.animated) {
+                    const counter = entry.target.querySelector('.stat-number');
+                    if (counter) {
+                        animateCounter(counter);
+                        entry.target.dataset.animated = 'true';
+                    }
+                }
+            });
+        }, { threshold: 0.3 });
+        
+        document.querySelectorAll('.stat-card').forEach(card => {
+            statsObserver.observe(card);
+        });
+        
+        // Trigger animation for already visible cards
+        setTimeout(() => {
+            document.querySelectorAll('.stat-card').forEach(card => {
+                const rect = card.getBoundingClientRect();
+                if (rect.top < window.innerHeight && rect.bottom > 0 && !card.dataset.animated) {
+                    const counter = card.querySelector('.stat-number');
+                    if (counter) {
+                        animateCounter(counter);
+                        card.dataset.animated = 'true';
+                    }
+                }
+            });
+        }, 500);
+
+        // Smooth scrolling with offset for fixed header
+        document.querySelectorAll('a[href^="#"]').forEach(anchor => {
+            anchor.addEventListener('click', function (e) {
+                e.preventDefault();
+                const target = document.querySelector(this.getAttribute('href'));
+                if (target) {
+                    const headerOffset = 80;
+                    const elementPosition = target.getBoundingClientRect().top;
+                    const offsetPosition = elementPosition + window.pageYOffset - headerOffset;
+
+                    window.scrollTo({
+                        top: offsetPosition,
+                        behavior: 'smooth'
+                    });
+                }
+            });
+        });
+        
+        // Prevent text selection on rapid mobile taps
+        let lastTap = 0;
+        document.addEventListener('touchend', (e) => {
+            const currentTime = new Date().getTime();
+            const tapLength = currentTime - lastTap;
+            if (tapLength < 500 && tapLength > 0) {
+                e.preventDefault();
+            }
+            lastTap = currentTime;
+        });
+        
+        // Course Modal Functionality
+        (function() {
+            // Create modal HTML
+            const modalHTML = `
+                <div class="course-modal-overlay" id="courseModal">
+                    <div class="course-modal">
+                        <div class="course-modal-header">
+                            <h3 class="course-modal-title" id="modalCourseName"></h3>
+                            <p class="course-modal-location" id="modalCourseLocation"></p>
+                        </div>
+                        <div class="course-modal-options">
+                            <a href="#" class="course-modal-btn" id="modalUdisc" target="_blank" rel="noopener noreferrer">
+                                <div class="course-modal-btn-icon udisc">
+                                    <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                                        <circle cx="12" cy="12" r="10" fill="white"/>
+                                        <circle cx="12" cy="12" r="7" fill="#FF6B00"/>
+                                        <circle cx="12" cy="12" r="3" fill="white"/>
+                                        <path d="M12 2C12 2 12 8 12 12" stroke="white" stroke-width="1.5" stroke-linecap="round"/>
+                                    </svg>
+                                </div>
+                                <div class="course-modal-btn-text">
+                                    <div class="course-modal-btn-title">View on UDisc</div>
+                                    <div class="course-modal-btn-subtitle">Course info, layouts & reviews</div>
+                                </div>
+                                <span class="course-modal-btn-arrow">→</span>
+                            </a>
+                            <a href="#" class="course-modal-btn" id="modalDirections" target="_blank" rel="noopener noreferrer">
+                                <div class="course-modal-btn-icon directions">📍</div>
+                                <div class="course-modal-btn-text">
+                                    <div class="course-modal-btn-title">Get Directions</div>
+                                    <div class="course-modal-btn-subtitle">Open in Google Maps</div>
+                                </div>
+                                <span class="course-modal-btn-arrow">→</span>
+                            </a>
+                            <a href="#" class="course-modal-btn" id="modalYoutube" target="_blank" rel="noopener noreferrer">
+                                <div class="course-modal-btn-icon youtube">▶</div>
+                                <div class="course-modal-btn-text">
+                                    <div class="course-modal-btn-title">Course Preview</div>
+                                    <div class="course-modal-btn-subtitle">Watch on YouTube</div>
+                                </div>
+                                <span class="course-modal-btn-arrow">→</span>
+                            </a>
+                        </div>
+                        <button class="course-modal-close" id="modalClose">Close</button>
+                    </div>
+                </div>
+            `;
+            
+            // Inject modal into page
+            document.body.insertAdjacentHTML('beforeend', modalHTML);
+            
+            const modal = document.getElementById('courseModal');
+            const modalCourseName = document.getElementById('modalCourseName');
+            const modalCourseLocation = document.getElementById('modalCourseLocation');
+            const modalUdisc = document.getElementById('modalUdisc');
+            const modalDirections = document.getElementById('modalDirections');
+            const modalYoutube = document.getElementById('modalYoutube');
+            const modalClose = document.getElementById('modalClose');
+            
+            // Open modal function
+            function openModal(courseData) {
+                modalCourseName.textContent = courseData.course;
+                modalCourseLocation.textContent = '📍 ' + courseData.location;
+                
+                // Set UDisc link
+                if (courseData.udisc) {
+                    modalUdisc.href = courseData.udisc;
+                    modalUdisc.classList.remove('disabled');
+                } else {
+                    modalUdisc.href = '#';
+                    modalUdisc.classList.add('disabled');
+                }
+                
+                // Set directions link
+                if (courseData.coords) {
+                    const [lat, lng] = courseData.coords.split(',');
+                    modalDirections.href = `https://www.google.com/maps/dir/?api=1&destination=${lat},${lng}`;
+                    modalDirections.classList.remove('disabled');
+                } else {
+                    modalDirections.href = '#';
+                    modalDirections.classList.add('disabled');
+                }
+                
+                // Set YouTube link
+                if (courseData.youtube && courseData.youtube.trim() !== '') {
+                    modalYoutube.href = courseData.youtube;
+                    modalYoutube.classList.remove('disabled');
+                    modalYoutube.querySelector('.course-modal-btn-subtitle').textContent = 'Watch on YouTube';
+                } else {
+                    modalYoutube.href = '#';
+                    modalYoutube.classList.add('disabled');
+                    modalYoutube.querySelector('.course-modal-btn-subtitle').textContent = 'Coming soon';
+                }
+                
+                modal.classList.add('active');
+                document.body.style.overflow = 'hidden';
+            }
+            
+            // Close modal function
+            function closeModal() {
+                modal.classList.remove('active');
+                document.body.style.overflow = '';
+            }
+            
+            // Add click handlers to course cards
+            document.querySelectorAll('.course-card[data-course]').forEach(card => {
+                card.style.cursor = 'pointer';
+                card.addEventListener('click', function(e) {
+                    e.preventDefault();
+                    const courseData = {
+                        course: this.dataset.course,
+                        location: this.dataset.location,
+                        udisc: this.dataset.udisc,
+                        coords: this.dataset.coords,
+                        youtube: this.dataset.youtube
+                    };
+                    openModal(courseData);
+                });
+            });
+            
+            // Close modal handlers
+            modalClose.addEventListener('click', closeModal);
+            
+            modal.addEventListener('click', function(e) {
+                if (e.target === modal) {
+                    closeModal();
+                }
+            });
+            
+            document.addEventListener('keydown', function(e) {
+                if (e.key === 'Escape' && modal.classList.contains('active')) {
+                    closeModal();
+                }
+            });
+            
+            // Prevent disabled buttons from navigating
+            document.querySelectorAll('.course-modal-btn.disabled').forEach(btn => {
+                btn.addEventListener('click', function(e) {
+                    e.preventDefault();
+                });
+            });
+        })();
+        
+        // ============================================
+        // Tournament Feed from Disc Golf Scene
+        // Loads from tournaments.json (updated by GitHub Actions)
+        // Falls back to static data if fetch fails
+        // ============================================
+        (function() {
+            // Configuration
+            const CONFIG = {
+                // URL to your tournaments.json file
+                // Fetches from your GitHub scraper repository
+                jsonUrl: 'https://raw.githubusercontent.com/mostlysober252/GVDG-DGS-Scraper-2.0/main/tournaments.json',
+                
+                // How long to cache data in localStorage (in hours)
+                cacheHours: 6
+            };
+            
+            // Fallback static data (used if fetch fails)
+            const FALLBACK_TOURNAMENTS = [
+                {
+                    name: "The Hangover 6 (Morning)",
+                    date: "2026-01-01",
+                    venue: "West Meadowbrook Park",
+                    city: "Greenville, NC",
+                    tier: "C",
+                    url: "https://www.discgolfscene.com/tournaments/The_Hangover_6_2026",
+                    distance: 0,
+                    isGVDG: true,
+                    spots: "12/72"
+                },
+                {
+                    name: "The Hangover 7 (Afternoon)",
+                    date: "2026-01-01",
+                    venue: "West Meadowbrook Park",
+                    city: "Greenville, NC",
+                    tier: "C",
+                    url: "https://www.discgolfscene.com/tournaments/The_Hangover_7_2026",
+                    distance: 0,
+                    isGVDG: true,
+                    spots: "10/72"
+                },
+                {
+                    name: "GVDG Frozen Bowl and Chili Cookoff",
+                    date: "2026-01-24",
+                    venue: "Farmville Municipal DGC",
+                    city: "Farmville, NC",
+                    tier: "Other",
+                    url: "https://www.discgolfscene.com/tournaments/GVDG_Frozen_Bowl_2025",
+                    distance: 10,
+                    isGVDG: true,
+                    spots: null
+                },
+                {
+                    name: "Kings Cup XXI Pro/Am",
+                    date: "2026-01-31",
+                    venue: "Barnet Park",
+                    city: "Kinston, NC",
+                    tier: "B",
+                    url: "https://www.discgolfscene.com/tournaments/Kings_Cup_XX_Pro_Am_2026",
+                    distance: 28,
+                    isGVDG: false,
+                    spots: "37/90"
+                },
+                {
+                    name: "16th Annual Rocky Mount Ice Bowl",
+                    date: "2026-02-07",
+                    venue: "Battle Park DGC",
+                    city: "Rocky Mount, NC",
+                    tier: "Other",
+                    url: "https://www.discgolfscene.com/tournaments/16th_Annual_Rocky_Mount_Ice_Bowl_2026",
+                    distance: 40,
+                    isGVDG: false,
+                    spots: "5/72"
+                }
+            ];
+            
+            const grid = document.getElementById('tournamentGrid');
+            const filterBtns = document.querySelectorAll('.filter-tab');
+            let tournaments = [];
+            let currentFilter = 'all';
+            let lastUpdated = null;
+            
+            // Show loading state
+            function showLoading() {
+                grid.innerHTML = `
+                    <div class="tournament-loading" style="grid-column: 1 / -1;">
+                        <div class="spinner"></div>
+                        <p>Loading tournaments...</p>
+                    </div>
+                `;
+            }
+            
+            // Format date for display
+            function formatDate(dateStr) {
+                const date = new Date(dateStr + 'T12:00:00');
+                const months = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
+                return {
+                    day: date.getDate(),
+                    month: months[date.getMonth()],
+                    year: date.getFullYear()
+                };
+            }
+            
+            // Get tier CSS class
+            function getTierClass(tier) {
+                const tierMap = {
+                    'A': 'tier-a',
+                    'B': 'tier-b',
+                    'C': 'tier-c',
+                    'XC': 'tier-xc',
+                    'League': 'tier-league',
+                    'Doubles': 'tier-other',
+                    'Other': 'tier-other'
+                };
+                return tierMap[tier] || 'tier-other';
+            }
+            
+            // Get tier label
+            function getTierLabel(tier) {
+                if (tier === 'Other' || tier === 'Doubles') return tier;
+                if (tier === 'XC') return 'XC-Tier';
+                return tier + '-Tier';
+            }
+            
+            // Create tournament card HTML
+            function createTournamentCard(tournament) {
+                const dateInfo = formatDate(tournament.date);
+                const isPast = new Date(tournament.date) < new Date();
+                
+                return `
+                    <div class="tournament-card ${isPast ? 'past' : ''}" onclick="window.open('${tournament.url}', '_blank')">
+                        <div class="tournament-card-header">
+                            <div class="tournament-date-badge">
+                                <div class="day">${dateInfo.day}</div>
+                                <div class="month">${dateInfo.month}</div>
+                                <div class="year">${dateInfo.year}</div>
+                            </div>
+                            <div class="tournament-details">
+                                <h4 class="tournament-name">${tournament.name}</h4>
+                                <p class="tournament-location">📍 ${tournament.city}</p>
+                            </div>
+                        </div>
+                        <div class="tournament-card-footer">
+                            <span class="tournament-tier ${getTierClass(tournament.tier)}">
+                                ${tournament.isGVDG ? '⭐ GVDG' : getTierLabel(tournament.tier)}
+                            </span>
+                            <span class="tournament-distance">~${tournament.distance} mi</span>
+                            ${tournament.spots ? `<span class="tournament-spots">${tournament.spots}</span>` : ''}
+                        </div>
+                        <a href="${tournament.url}" target="_blank" rel="noopener noreferrer" class="tournament-card-link" onclick="event.stopPropagation()">
+                            View on Disc Golf Scene →
+                        </a>
+                    </div>
+                `;
+            }
+            
+            // Filter tournaments
+            function filterTournaments(filter) {
+                let filtered = [...tournaments];
+                
+                // Filter out past tournaments (more than 1 day ago)
+                const yesterday = new Date();
+                yesterday.setDate(yesterday.getDate() - 1);
+                filtered = filtered.filter(t => new Date(t.date) >= yesterday);
+                
+                // Apply category filter
+                if (filter === 'gvdg') {
+                    filtered = filtered.filter(t => t.isGVDG);
+                } else if (filter === 'pdga') {
+                    filtered = filtered.filter(t => ['A', 'B', 'C', 'XC'].includes(t.tier));
+                }
+                
+                // Sort by date
+                filtered.sort((a, b) => new Date(a.date) - new Date(b.date));
+                
+                return filtered;
+            }
+            
+            // Render tournaments to grid
+            function renderTournaments(filter = 'all') {
+                const filtered = filterTournaments(filter);
+                
+                if (filtered.length === 0) {
+                    grid.innerHTML = `
+                        <div class="no-tournaments" style="grid-column: 1 / -1;">
+                            <p>No upcoming tournaments found for this filter.</p>
+                            <p style="margin-top: 0.5rem;">
+                                <a href="https://www.discgolfscene.com/tournaments/North_Carolina" target="_blank" rel="noopener noreferrer" style="color: var(--primary);">
+                                    Browse all NC tournaments on Disc Golf Scene →
+                                </a>
+                            </p>
+                        </div>
+                    `;
+                } else {
+                    grid.innerHTML = filtered.map(createTournamentCard).join('');
+                }
+            }
+            
+            // Check localStorage cache
+            function getCachedData() {
+                try {
+                    const cached = localStorage.getItem('gvdg_tournaments');
+                    if (cached) {
+                        const data = JSON.parse(cached);
+                        const cacheAge = (Date.now() - data.cachedAt) / (1000 * 60 * 60);
+                        if (cacheAge < CONFIG.cacheHours) {
+                            return data;
+                        }
+                    }
+                } catch (e) {
+                    console.warn('Cache read error:', e);
+                }
+                return null;
+            }
+            
+            // Save to localStorage cache
+            function setCachedData(data) {
+                try {
+                    data.cachedAt = Date.now();
+                    localStorage.setItem('gvdg_tournaments', JSON.stringify(data));
+                } catch (e) {
+                    console.warn('Cache write error:', e);
+                }
+            }
+            
+            // Load tournaments from JSON file or cache
+            async function loadTournaments() {
+                showLoading();
+                
+                // Check cache first
+                const cached = getCachedData();
+                if (cached && cached.tournaments) {
+                    console.log('Using cached tournament data');
+                    tournaments = cached.tournaments;
+                    lastUpdated = cached.lastUpdated;
+                    initializeUI();
+                    return;
+                }
+                
+                // Try to fetch fresh data
+                try {
+                    const response = await fetch(CONFIG.jsonUrl);
+                    if (!response.ok) throw new Error(`HTTP ${response.status}`);
+                    
+                    const data = await response.json();
+                    tournaments = data.tournaments || [];
+                    lastUpdated = data.lastUpdated;
+                    
+                    // Cache the data
+                    setCachedData(data);
+                    
+                    console.log(`Loaded ${tournaments.length} tournaments from JSON`);
+                } catch (error) {
+                    console.warn('Failed to load tournaments.json, using fallback:', error);
+                    tournaments = FALLBACK_TOURNAMENTS;
+                    lastUpdated = null;
+                }
+                
+                initializeUI();
+            }
+            
+            // Initialize UI after data is loaded
+            function initializeUI() {
+                // Render tournaments
+                renderTournaments(currentFilter);
+                
+                // Setup filter buttons
+                filterBtns.forEach(btn => {
+                    btn.addEventListener('click', function() {
+                        filterBtns.forEach(b => b.classList.remove('active'));
+                        this.classList.add('active');
+                        currentFilter = this.dataset.filter;
+                        renderTournaments(currentFilter);
+                    });
+                });
+                
+                // Add data freshness note
+                const feedHeader = document.querySelector('.tournament-feed-header');
+                if (feedHeader) {
+                    const note = document.createElement('p');
+                    note.style.cssText = 'font-size: 0.75rem; color: var(--text-muted); margin-top: 0.5rem; opacity: 0.7;';
+                    
+                    let noteText = 'Data from <a href="https://www.discgolfscene.com" target="_blank" rel="noopener noreferrer" style="color: var(--primary);">discgolfscene.com</a>.';
+                    if (lastUpdated) {
+                        const updated = new Date(lastUpdated);
+                        noteText += ` Last updated: ${updated.toLocaleDateString()}.`;
+                    }
+                    noteText += ' For current info, visit event pages directly.';
+                    
+                    note.innerHTML = noteText;
+                    
+                    // Remove any existing note
+                    const existingNote = feedHeader.querySelector('p[style*="opacity"]');
+                    if (existingNote) existingNote.remove();
+                    
+                    feedHeader.querySelector('div').appendChild(note);
+                }
+            }
+            
+            // Start loading
+            loadTournaments();
+        })();
+    </script>
+</body>
+</html>
