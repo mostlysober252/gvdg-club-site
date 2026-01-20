@@ -2637,6 +2637,568 @@ nav ul,
     background: var(--bg-card-dark, #1a1a1a);
   }
 }
+
+/* ============================================
+   GVDG Website - Mobile Responsive Styles
+   ============================================ */
+
+/* ============================================
+   BASE MOBILE RESETS
+   ============================================ */
+
+html {
+  -webkit-text-size-adjust: 100%;
+  text-size-adjust: 100%;
+}
+
+/* ============================================
+   TYPOGRAPHY - Mobile Optimized
+   ============================================ */
+
+h1 {
+  font-size: clamp(1.75rem, 5vw, 3rem);
+  line-height: 1.2;
+}
+
+h2 {
+  font-size: clamp(1.5rem, 4vw, 2.25rem);
+  line-height: 1.3;
+}
+
+h3 {
+  font-size: clamp(1.125rem, 3vw, 1.5rem);
+  line-height: 1.4;
+}
+
+/* ============================================
+   NAVIGATION - Mobile First
+   ============================================ */
+
+@media (max-width: 768px) {
+  .nav-toggle {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 48px;
+    height: 48px;
+    font-size: 1.75rem;
+    cursor: pointer;
+    background: transparent;
+    border: none;
+    padding: 0;
+    z-index: 1001;
+  }
+
+  nav ul,
+  .nav-menu,
+  .nav-links {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: rgba(26, 26, 46, 0.98);
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    gap: 1.5rem;
+    transform: translateX(-100%);
+    transition: transform 0.3s ease-in-out;
+    z-index: 1000;
+  }
+
+  nav ul.active,
+  .nav-menu.active,
+  .nav-links.active {
+    transform: translateX(0);
+  }
+
+  .nav-links a {
+    font-size: 1.25rem;
+    padding: 1rem 2rem;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    min-height: 48px;
+  }
+
+  .theme-toggle {
+    position: fixed;
+    bottom: 1.5rem;
+    right: 1.5rem;
+    z-index: 1002;
+    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.3);
+  }
+
+  header {
+    padding: 0.75rem 1rem;
+  }
+
+  .logo-image {
+    max-height: 40px;
+    width: auto;
+  }
+}
+
+/* ============================================
+   HERO SECTION
+   ============================================ */
+
+@media (max-width: 768px) {
+  .hero,
+  #hero {
+    min-height: 70vh;
+    padding: 2rem 1rem;
+  }
+
+  .hero h1 {
+    font-size: 1.75rem;
+    margin-bottom: 0.75rem;
+  }
+
+  .hero p,
+  .hero .subtitle {
+    font-size: 1rem;
+    margin-bottom: 1.5rem;
+  }
+
+  .hero .btn,
+  .hero button,
+  .hero a.btn {
+    padding: 0.875rem 1.75rem;
+    font-size: 1rem;
+    width: 100%;
+    max-width: 280px;
+  }
+}
+
+/* ============================================
+   CAROUSEL - Touch Optimized
+   ============================================ */
+
+@media (max-width: 768px) {
+  .carousel,
+  .carousel-container {
+    overflow-x: auto;
+    scroll-snap-type: x mandatory;
+    -webkit-overflow-scrolling: touch;
+    scrollbar-width: none;
+    -ms-overflow-style: none;
+  }
+
+  .carousel::-webkit-scrollbar,
+  .carousel-container::-webkit-scrollbar {
+    display: none;
+  }
+
+  .carousel-item,
+  .carousel-slide {
+    scroll-snap-align: center;
+    flex: 0 0 85%;
+    max-width: 85%;
+  }
+
+  .carousel-btn,
+  .carousel-prev,
+  .carousel-next {
+    width: 48px;
+    height: 48px;
+    font-size: 1.5rem;
+    opacity: 0.9;
+  }
+
+  .carousel-dots,
+  .carousel-indicators {
+    display: flex;
+    justify-content: center;
+    gap: 0.5rem;
+    padding: 1rem 0;
+  }
+
+  .carousel-dot,
+  .carousel-indicator {
+    width: 10px;
+    height: 10px;
+    border-radius: 50%;
+    background: var(--text-muted);
+    cursor: pointer;
+  }
+
+  .carousel-dot.active,
+  .carousel-indicator.active {
+    background: var(--primary);
+  }
+}
+
+@media (max-width: 480px) {
+  .carousel-btn,
+  .carousel-prev,
+  .carousel-next {
+    display: none;
+  }
+}
+
+/* ============================================
+   COURSE CARDS
+   ============================================ */
+
+@media (max-width: 768px) {
+  .courses-grid,
+  .course-cards,
+  #courses .grid {
+    display: flex;
+    flex-direction: column;
+    gap: 1rem;
+    padding: 0 1rem;
+  }
+
+  .course-card {
+    width: 100%;
+    max-width: 100%;
+    margin: 0;
+  }
+
+  .course-card img {
+    width: 100%;
+    height: 180px;
+    object-fit: cover;
+    border-radius: 8px 8px 0 0;
+  }
+
+  .course-card h3 {
+    font-size: 1.125rem;
+    margin: 0.75rem 0 0.5rem;
+  }
+
+  .course-card .details,
+  .course-card .meta {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.5rem;
+    font-size: 0.875rem;
+  }
+
+  .course-card .badge,
+  .course-card .difficulty {
+    font-size: 0.75rem;
+    padding: 0.25rem 0.5rem;
+  }
+}
+
+/* ============================================
+   BOARD MEMBERS SECTION
+   ============================================ */
+
+@media (max-width: 768px) {
+  .board-grid,
+  .team-grid,
+  #board .grid {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 1rem;
+    padding: 0 1rem;
+  }
+
+  .board-member,
+  .team-member {
+    text-align: center;
+    padding: 1rem;
+  }
+
+  .board-member .icon,
+  .team-member .avatar {
+    font-size: 2rem;
+    margin-bottom: 0.5rem;
+  }
+
+  .board-member h4,
+  .team-member h4 {
+    font-size: 0.9375rem;
+    margin-bottom: 0.25rem;
+  }
+
+  .board-member .role,
+  .team-member .role {
+    font-size: 0.75rem;
+  }
+}
+
+@media (max-width: 480px) {
+  .board-grid,
+  .team-grid,
+  #board .grid {
+    grid-template-columns: 1fr;
+  }
+}
+
+/* ============================================
+   STATS SECTION
+   ============================================ */
+
+@media (max-width: 768px) {
+  .stats,
+  .stats-container {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 1.5rem;
+    padding: 2rem 1rem;
+  }
+
+  .stat-item {
+    text-align: center;
+  }
+
+  .stat-number {
+    font-size: 2rem;
+    font-weight: 700;
+    line-height: 1;
+    margin-bottom: 0.25rem;
+  }
+
+  .stat-label {
+    font-size: 0.75rem;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+  }
+}
+
+/* ============================================
+   EVENTS/TOURNAMENTS SECTION
+   ============================================ */
+
+@media (max-width: 768px) {
+  .events-list,
+  .events-grid,
+  .tournaments-grid,
+  #events .grid {
+    display: flex;
+    flex-direction: column;
+    gap: 1rem;
+    padding: 0 1rem;
+  }
+
+  .event-card,
+  .tournament-card {
+    padding: 1rem;
+  }
+
+  .event-filters,
+  .tournament-tabs,
+  .filter-buttons {
+    display: flex;
+    overflow-x: auto;
+    gap: 0.5rem;
+    padding: 0 1rem 1rem;
+    -webkit-overflow-scrolling: touch;
+  }
+
+  .filter-btn,
+  .tab-btn {
+    flex: 0 0 auto;
+    padding: 0.5rem 1rem;
+    font-size: 0.875rem;
+    white-space: nowrap;
+    min-height: 44px;
+  }
+}
+
+/* ============================================
+   MEMBERSHIP SECTION
+   ============================================ */
+
+@media (max-width: 768px) {
+  .membership,
+  #membership {
+    padding: 3rem 1rem;
+  }
+
+  .benefits-grid,
+  .membership-benefits {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 1rem;
+    margin: 1.5rem 0;
+  }
+
+  .benefit-item {
+    text-align: center;
+    padding: 1rem;
+  }
+
+  .membership .btn,
+  #membership .btn {
+    width: 100%;
+    max-width: 280px;
+    padding: 1rem 2rem;
+  }
+}
+
+@media (max-width: 480px) {
+  .benefits-grid,
+  .membership-benefits {
+    grid-template-columns: 1fr;
+  }
+}
+
+/* ============================================
+   CONTACT SECTION
+   ============================================ */
+
+@media (max-width: 768px) {
+  .contact,
+  #contact {
+    padding: 3rem 1rem;
+  }
+
+  .contact-grid {
+    display: flex;
+    flex-direction: column;
+    gap: 1.5rem;
+  }
+
+  .contact-item {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+    padding: 1rem;
+  }
+}
+
+/* ============================================
+   FOOTER
+   ============================================ */
+
+@media (max-width: 768px) {
+  footer {
+    padding: 2rem 1rem;
+    text-align: center;
+  }
+
+  footer .links,
+  footer nav {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+    gap: 1rem;
+    margin-bottom: 1rem;
+  }
+
+  footer a {
+    padding: 0.5rem;
+    min-height: 44px;
+    display: inline-flex;
+    align-items: center;
+  }
+}
+
+/* ============================================
+   GENERAL SECTIONS
+   ============================================ */
+
+@media (max-width: 768px) {
+  section {
+    padding: 3rem 1rem;
+  }
+
+  section h2 {
+    margin-bottom: 1.5rem;
+    text-align: center;
+  }
+
+  .container {
+    width: 100%;
+    max-width: 100%;
+    padding-left: 1rem;
+    padding-right: 1rem;
+  }
+}
+
+/* ============================================
+   BUTTONS - Touch Friendly
+   ============================================ */
+
+@media (max-width: 768px) {
+  .btn,
+  button,
+  input[type="submit"] {
+    min-height: 48px;
+    padding: 0.875rem 1.5rem;
+    font-size: 1rem;
+    border-radius: 8px;
+    -webkit-tap-highlight-color: transparent;
+  }
+}
+
+@media (max-width: 480px) {
+  .btn-primary,
+  .btn-cta {
+    width: 100%;
+    text-align: center;
+  }
+}
+
+/* ============================================
+   UTILITY CLASSES
+   ============================================ */
+
+@media (max-width: 768px) {
+  .hide-mobile {
+    display: none !important;
+  }
+
+  .show-mobile {
+    display: block !important;
+  }
+
+  .text-center-mobile {
+    text-align: center !important;
+  }
+
+  .stack-mobile {
+    flex-direction: column !important;
+  }
+}
+
+@media (min-width: 769px) {
+  .hide-desktop {
+    display: none !important;
+  }
+}
+
+/* ============================================
+   SAFE AREAS (iPhone notch support)
+   ============================================ */
+
+@supports (padding: env(safe-area-inset-bottom)) {
+  header {
+    padding-top: env(safe-area-inset-top);
+  }
+
+  footer {
+    padding-bottom: env(safe-area-inset-bottom);
+  }
+
+  .theme-toggle {
+    bottom: calc(1.5rem + env(safe-area-inset-bottom));
+    right: calc(1.5rem + env(safe-area-inset-right));
+  }
+}
+
+/* ============================================
+   REDUCED MOTION
+   ============================================ */
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
+}
+
     </style>
 </head>
 <body>
@@ -4194,4 +4756,5 @@ nav ul,
     </script>
 </body>
 </html>
+
 
