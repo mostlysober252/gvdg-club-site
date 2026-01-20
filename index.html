@@ -3198,7 +3198,252 @@ h3 {
     scroll-behavior: auto !important;
   }
 }
+/* ============================================
+   GVDG MOBILE FIXES
+   Add this CSS at the END of your existing styles
+   to fix carousel centering and course card display
+   ============================================ */
 
+/* ----------------------------------------
+   FIX 1: Hero Carousel Dots Off-Center
+   The issue is the dots have large touch targets (44px)
+   but the visual dots are positioned with ::before
+   This causes the overall container to shift
+   ---------------------------------------- */
+
+/* Reset carousel controls positioning */
+.carousel-controls {
+    position: absolute;
+    bottom: 30px;
+    left: 50%;
+    transform: translateX(-50%);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    gap: 8px;
+    z-index: 10;
+    padding: 0;
+    width: auto;
+}
+
+/* Fix the dot styling - remove the large min-width/height */
+.carousel-dot {
+    width: 12px;
+    height: 12px;
+    min-width: unset;
+    min-height: unset;
+    border-radius: 50%;
+    background: rgba(255, 255, 255, 0.4);
+    border: 2px solid white;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    position: relative;
+    -webkit-tap-highlight-color: transparent;
+    /* Add padding for touch target without affecting visual size */
+    padding: 15px;
+    box-sizing: content-box;
+    background-clip: content-box;
+}
+
+/* Remove the ::before pseudo-element approach */
+.carousel-dot::before {
+    display: none;
+}
+
+.carousel-dot.active {
+    background: white;
+    transform: scale(1.2);
+}
+
+.carousel-dot:hover {
+    background: rgba(255, 255, 255, 0.8);
+}
+
+/* Mobile specific adjustments */
+@media (max-width: 768px) {
+    .carousel-controls {
+        bottom: 20px;
+        gap: 5px;
+    }
+    
+    .carousel-dot {
+        width: 10px;
+        height: 10px;
+        padding: 17px;
+        border-width: 1.5px;
+    }
+}
+
+/* ----------------------------------------
+   FIX 2: Course Cards Not Displaying Correctly
+   The grid isn't responding properly on mobile
+   ---------------------------------------- */
+
+/* Ensure proper course grid behavior */
+@media (max-width: 768px) {
+    /* Section padding */
+    #courses {
+        padding: 2rem 1rem;
+    }
+    
+    /* Carousel container */
+    .courses-carousel-container {
+        overflow: hidden;
+        width: 100%;
+    }
+    
+    .courses-carousel {
+        display: flex;
+        width: 100%;
+    }
+    
+    .carousel-slide-courses {
+        min-width: 100%;
+        width: 100%;
+        flex-shrink: 0;
+        padding: 1rem 0;
+    }
+    
+    /* Slide header */
+    .slide-header {
+        text-align: center;
+        margin-bottom: 1.5rem;
+        padding: 0 0.5rem;
+    }
+    
+    .slide-title {
+        font-size: 1.8rem;
+    }
+    
+    .slide-subtitle {
+        font-size: 0.9rem;
+    }
+    
+    /* THE KEY FIX: Force single column layout */
+    .courses-grid {
+        display: grid !important;
+        grid-template-columns: 1fr !important;
+        gap: 1rem !important;
+        padding: 0 !important;
+    }
+    
+    /* Course card sizing */
+    .course-card {
+        width: 100%;
+        max-width: 100%;
+        margin: 0;
+    }
+    
+    /* Course image */
+    .course-image {
+        width: 100%;
+        height: 160px;
+    }
+    
+    .course-image img {
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
+    }
+    
+    /* Course content */
+    .course-content {
+        padding: 1rem;
+    }
+    
+    /* Course header - stack on mobile */
+    .course-header {
+        display: flex;
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 0.5rem;
+        margin-bottom: 0.75rem;
+    }
+    
+    .course-name {
+        font-size: 1.25rem;
+        line-height: 1.2;
+    }
+    
+    .difficulty-badge {
+        font-size: 0.7rem;
+        padding: 0.3rem 0.6rem;
+    }
+    
+    /* Course location */
+    .course-location {
+        font-size: 0.8rem;
+        margin-bottom: 0.75rem;
+    }
+    
+    /* Course info grid - keep horizontal */
+    .course-info {
+        display: flex;
+        gap: 1rem;
+        margin: 1rem 0;
+        padding: 0.75rem;
+    }
+    
+    .info-item {
+        flex: 1;
+        text-align: center;
+    }
+    
+    .info-label {
+        font-size: 0.65rem;
+    }
+    
+    .info-value {
+        font-size: 1.1rem;
+    }
+    
+    /* Course description */
+    .course-description {
+        font-size: 0.85rem;
+        line-height: 1.5;
+    }
+    
+    /* Carousel navigation */
+    .courses-carousel-nav {
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        gap: 1.5rem;
+        margin-top: 1.5rem;
+    }
+    
+    .courses-carousel-nav .carousel-btn {
+        width: 44px;
+        height: 44px;
+        font-size: 1.2rem;
+    }
+    
+    .courses-carousel-nav .carousel-indicators {
+        display: flex;
+        gap: 0.75rem;
+    }
+    
+    .courses-carousel-nav .carousel-indicator {
+        width: 10px;
+        height: 10px;
+    }
+}
+
+/* Very small screens */
+@media (max-width: 400px) {
+    .course-info {
+        gap: 0.5rem;
+        padding: 0.5rem;
+    }
+    
+    .info-value {
+        font-size: 1rem;
+    }
+    
+    .course-name {
+        font-size: 1.15rem;
+    }
+}
     </style>
 </head>
 <body>
@@ -4756,5 +5001,6 @@ h3 {
     </script>
 </body>
 </html>
+
 
 
