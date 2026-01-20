@@ -3444,6 +3444,96 @@ h3 {
         font-size: 1.15rem;
     }
 }
+		/* ============================================
+   GVDG FIX: Hero Carousel Slides Off-Center on Mobile
+   Add this CSS at the END of your existing styles
+   ============================================ */
+
+/* Fix hero carousel slide positioning */
+.carousel {
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+    overflow: hidden;
+}
+
+.carousel-slide {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    opacity: 0;
+    transition: opacity 0.8s ease-in-out;
+    background-size: cover;
+    background-position: center center;
+    background-repeat: no-repeat;
+}
+
+.carousel-slide.active {
+    opacity: 1;
+}
+
+/* Mobile specific fixes */
+@media (max-width: 768px) {
+    .hero {
+        position: relative;
+        width: 100%;
+        overflow: hidden;
+    }
+    
+    .carousel {
+        position: absolute;
+        top: 0;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        width: 100%;
+        height: 100%;
+    }
+    
+    .carousel-slide {
+        position: absolute;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background-size: cover;
+        background-position: center center;
+    }
+    
+    /* Ensure each slide image is centered */
+    .carousel-slide:nth-child(1),
+    .carousel-slide:nth-child(2),
+    .carousel-slide:nth-child(3),
+    .carousel-slide:nth-child(4),
+    .carousel-slide:nth-child(5) {
+        background-position: center center;
+    }
+}
+
+/* Very small screens - may need to adjust position */
+@media (max-width: 480px) {
+    .carousel-slide {
+        /* Adjust if images look better with different positioning */
+        /* Options: center center, center top, center bottom, 50% 50% */
+        background-position: center center;
+        background-size: cover;
+    }
+}
+
+/* Landscape mobile orientation */
+@media (max-width: 768px) and (orientation: landscape) {
+    .carousel-slide {
+        background-position: center center;
+        background-size: cover;
+    }
+    
+    .hero {
+        min-height: 100vh;
+    }
+}
     </style>
 </head>
 <body>
@@ -5001,6 +5091,7 @@ h3 {
     </script>
 </body>
 </html>
+
 
 
 
