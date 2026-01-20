@@ -4935,23 +4935,165 @@ h3 {
             });
         })();
         
-        // ============================================
+       // ============================================
         // Tournament Feed from Disc Golf Scene
         // Loads from tournaments.json (updated by GitHub Actions)
         // Falls back to static data if fetch fails
+        // 
+        // v2.0 - Includes data cleaning to fix malformed scraper output
         // ============================================
         (function() {
             // Configuration
             const CONFIG = {
                 // URL to your tournaments.json file
-                // Fetches from your GitHub scraper repository
                 jsonUrl: 'https://raw.githubusercontent.com/mostlysober252/GVDG-DGS-Scraper-2.0/main/tournaments.json',
                 
                 // How long to cache data in localStorage (in hours)
                 cacheHours: 6
             };
             
-            // Fallback static data (used if fetch fails)
+            // ============================================
+            // DATA CLEANER - Fixes malformed scraper output
+            // ============================================
+            const TournamentCleaner = {
+                // Patterns indicating invalid data
+                INVALID_URL_PATTERNS: [
+                    'search-filter',
+                    'tournaments/search',
+                    'tournaments/mine',
+                    'tournaments/new'
+                ],
+                
+                // Venue prefixes that accidentally got into city names
+                BAD_CITY_PREFIXES: [
+                    'Park ', 'Complex ', 'Course ', 'DGC ', 'Disc Golf ',
+                    'Recreation ', 'Recreational ', 'Municipal ', 'Campground '
+                ],
+                
+                /**
+                 * Clean a single tournament
+                 */
+                clean(t) {
+                    if (!t || !t.name || !t.url) return null;
+                    
+                    // Skip invalid URLs (search filters, etc.)
+                    if (this.INVALID_URL_PATTERNS.some(p => t.url.includes(p))) {
+                        console.log('[Cleaner] Skipping invalid URL:', t.url);
+                        return null;
+                    }
+                    
+                    // Clean the name
+                    let name = this.cleanName(t.name);
+                    if (!name || name.length < 5 || name.length > 150) {
+                        console.log('[Cleaner] Invalid name:', t.name);
+                        return null;
+                    }
+                    
+                    // Clean the city
+                    let city = this.cleanCity(t.city);
+                    
+                    return {
+                        ...t,
+                        name: name,
+                        city: city
+                    };
+                },
+                
+                /**
+                 * Clean tournament name - handle concatenation issues
+                 */
+                cleanName(name) {
+                    if (!name) return '';
+                    let c = name;
+                    
+                    // Skip if starts with "PDGA" (search filter text)
+                    if (c.startsWith('PDGA')) return '';
+                    
+                    // Extract name before date if concatenated
+                    const dateMatch = c.match(/^(.+?)(?:Mon|Tue|Wed|Thu|Fri|Sat|Sun)(?:-(?:Mon|Tue|Wed|Thu|Fri|Sat|Sun))?,\s*[A-Za-z]{3}\s+\d/);
+                    if (dateMatch && dateMatch[1].length > 5) {
+                        c = dateMatch[1].trim();
+                    }
+                    
+                    // Take everything before interpunct (·)
+                    if (c.includes('·')) {
+                        c = c.split('·')[0].trim();
+                    }
+                    
+                    // Remove embedded PDGA tier info
+                    c = c.replace(/\s*PDGA\s*(Flex\s*)?(A|B|C|XC)-?[Tt]ier\s*/g, ' ');
+                    
+                    // Remove spots at end (14/72)
+                    c = c.replace(/\s*\d+\s*\/\s*\d+\s*$/, '');
+                    
+                    // Remove format indicators
+                    c = c.replace(/\s*\d*\s*(Doubles|Teams|Singles|Flex\s*start|Event|League)\s*$/i, '');
+                    
+                    // Remove trailing numbers (round counts)
+                    c = c.replace(/\s+\d\s*$/, '');
+                    
+                    // Remove registration dates at end
+                    c = c.replace(/\s*(?:Mon|Tue|Wed|Thu|Fri|Sat|Sun),\s*[A-Za-z]{3}\s+\d+\s+at\s+\d+:\d+[ap]m\s*[A-Z]{3,4}\s*$/i, '');
+                    
+                    // Clean up whitespace
+                    return c.replace(/\s+/g, ' ').trim();
+                },
+                
+                /**
+                 * Clean city name - remove venue prefixes
+                 */
+                cleanCity(city) {
+                    if (!city) return 'NC';
+                    let c = city;
+                    
+                    // Remove venue prefixes
+                    for (const prefix of this.BAD_CITY_PREFIXES) {
+                        if (c.startsWith(prefix)) {
+                            c = c.substring(prefix.length);
+                        }
+                    }
+                    
+                    // Ensure proper format: "City, NC"
+                    if (c.includes('NC') && !c.includes(', NC')) {
+                        c = c.replace(/\s*NC\s*$/, ', NC');
+                    }
+                    
+                    if (!c.includes(',')) {
+                        c = c.trim() + ', NC';
+                    }
+                    
+                    return c.trim();
+                },
+                
+                /**
+                 * Clean an array of tournaments
+                 */
+                cleanAll(tournaments) {
+                    if (!Array.isArray(tournaments)) return [];
+                    
+                    const cleaned = [];
+                    let removed = 0;
+                    
+                    for (const t of tournaments) {
+                        const result = this.clean(t);
+                        if (result) {
+                            cleaned.push(result);
+                        } else {
+                            removed++;
+                        }
+                    }
+                    
+                    if (removed > 0) {
+                        console.log(`[TournamentCleaner] Removed ${removed} invalid entries`);
+                    }
+                    
+                    return cleaned;
+                }
+            };
+            
+            // ============================================
+            // FALLBACK DATA - Used if fetch fails
+            // ============================================
             const FALLBACK_TOURNAMENTS = [
                 {
                     name: "The Hangover 6 (Morning)",
@@ -4987,6 +5129,28 @@ h3 {
                     spots: null
                 },
                 {
+                    name: "White Oak Gold Grand Opening",
+                    date: "2026-01-24",
+                    venue: "White Oak River Campground",
+                    city: "Maysville, NC",
+                    tier: "Other",
+                    url: "https://www.discgolfscene.com/tournaments/White_Oak_Gold_Grand_Opening_2025",
+                    distance: 50,
+                    isGVDG: false,
+                    spots: null
+                },
+                {
+                    name: "JDC of NC Membership Drive",
+                    date: "2026-01-25",
+                    venue: "Northeast Creek Park",
+                    city: "Jacksonville, NC",
+                    tier: "C",
+                    url: "https://www.discgolfscene.com/tournaments/JDC_of_NC_Membership_Drive_2026",
+                    distance: 50,
+                    isGVDG: false,
+                    spots: "15/72"
+                },
+                {
                     name: "Kings Cup XXI Pro/Am",
                     date: "2026-01-31",
                     venue: "Barnet Park",
@@ -5007,16 +5171,33 @@ h3 {
                     distance: 40,
                     isGVDG: false,
                     spots: "5/72"
+                },
+                {
+                    name: "Scallywag Showdown (USDGC Dubs Qualifier)",
+                    date: "2026-02-08",
+                    venue: "North Recreational Complex",
+                    city: "Greenville, NC",
+                    tier: "Doubles",
+                    url: "https://www.discgolfscene.com/tournaments/Scallywag_Showdown_USDGC_DUBS_QUALIFIER_2026",
+                    distance: 0,
+                    isGVDG: false,
+                    spots: "2/72"
                 }
             ];
             
+            // ============================================
+            // DOM ELEMENTS
+            // ============================================
             const grid = document.getElementById('tournamentGrid');
             const filterBtns = document.querySelectorAll('.filter-tab');
             let tournaments = [];
             let currentFilter = 'all';
             let lastUpdated = null;
             
-            // Show loading state
+            // ============================================
+            // HELPER FUNCTIONS
+            // ============================================
+            
             function showLoading() {
                 grid.innerHTML = `
                     <div class="tournament-loading" style="grid-column: 1 / -1;">
@@ -5026,7 +5207,6 @@ h3 {
                 `;
             }
             
-            // Format date for display
             function formatDate(dateStr) {
                 const date = new Date(dateStr + 'T12:00:00');
                 const months = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
@@ -5037,7 +5217,6 @@ h3 {
                 };
             }
             
-            // Get tier CSS class
             function getTierClass(tier) {
                 const tierMap = {
                     'A': 'tier-a',
@@ -5046,19 +5225,18 @@ h3 {
                     'XC': 'tier-xc',
                     'League': 'tier-league',
                     'Doubles': 'tier-other',
+                    'Teams': 'tier-other',
                     'Other': 'tier-other'
                 };
                 return tierMap[tier] || 'tier-other';
             }
             
-            // Get tier label
             function getTierLabel(tier) {
-                if (tier === 'Other' || tier === 'Doubles') return tier;
+                if (tier === 'Other' || tier === 'Doubles' || tier === 'Teams') return tier;
                 if (tier === 'XC') return 'XC-Tier';
                 return tier + '-Tier';
             }
             
-            // Create tournament card HTML
             function createTournamentCard(tournament) {
                 const dateInfo = formatDate(tournament.date);
                 const isPast = new Date(tournament.date) < new Date();
@@ -5090,7 +5268,6 @@ h3 {
                 `;
             }
             
-            // Filter tournaments
             function filterTournaments(filter) {
                 let filtered = [...tournaments];
                 
@@ -5112,7 +5289,6 @@ h3 {
                 return filtered;
             }
             
-            // Render tournaments to grid
             function renderTournaments(filter = 'all') {
                 const filtered = filterTournaments(filter);
                 
@@ -5132,10 +5308,13 @@ h3 {
                 }
             }
             
-            // Check localStorage cache
+            // ============================================
+            // CACHING
+            // ============================================
+            
             function getCachedData() {
                 try {
-                    const cached = localStorage.getItem('gvdg_tournaments');
+                    const cached = localStorage.getItem('gvdg_tournaments_v2');
                     if (cached) {
                         const data = JSON.parse(cached);
                         const cacheAge = (Date.now() - data.cachedAt) / (1000 * 60 * 60);
@@ -5149,17 +5328,19 @@ h3 {
                 return null;
             }
             
-            // Save to localStorage cache
             function setCachedData(data) {
                 try {
                     data.cachedAt = Date.now();
-                    localStorage.setItem('gvdg_tournaments', JSON.stringify(data));
+                    localStorage.setItem('gvdg_tournaments_v2', JSON.stringify(data));
                 } catch (e) {
                     console.warn('Cache write error:', e);
                 }
             }
             
-            // Load tournaments from JSON file or cache
+            // ============================================
+            // MAIN LOADER
+            // ============================================
+            
             async function loadTournaments() {
                 showLoading();
                 
@@ -5179,13 +5360,20 @@ h3 {
                     if (!response.ok) throw new Error(`HTTP ${response.status}`);
                     
                     const data = await response.json();
-                    tournaments = data.tournaments || [];
+                    
+                    // CLEAN THE DATA - this fixes malformed scraper output
+                    const rawTournaments = data.tournaments || [];
+                    tournaments = TournamentCleaner.cleanAll(rawTournaments);
+                    
                     lastUpdated = data.lastUpdated;
                     
-                    // Cache the data
-                    setCachedData(data);
+                    // Cache the cleaned data
+                    setCachedData({
+                        tournaments: tournaments,
+                        lastUpdated: lastUpdated
+                    });
                     
-                    console.log(`Loaded ${tournaments.length} tournaments from JSON`);
+                    console.log(`Loaded and cleaned ${tournaments.length} tournaments (${rawTournaments.length - tournaments.length} invalid removed)`);
                 } catch (error) {
                     console.warn('Failed to load tournaments.json, using fallback:', error);
                     tournaments = FALLBACK_TOURNAMENTS;
@@ -5195,7 +5383,6 @@ h3 {
                 initializeUI();
             }
             
-            // Initialize UI after data is loaded
             function initializeUI() {
                 // Render tournaments
                 renderTournaments(currentFilter);
@@ -5213,7 +5400,12 @@ h3 {
                 // Add data freshness note
                 const feedHeader = document.querySelector('.tournament-feed-header');
                 if (feedHeader) {
+                    // Remove any existing note
+                    const existingNote = feedHeader.querySelector('.data-note');
+                    if (existingNote) existingNote.remove();
+                    
                     const note = document.createElement('p');
+                    note.className = 'data-note';
                     note.style.cssText = 'font-size: 0.75rem; color: var(--text-muted); margin-top: 0.5rem; opacity: 0.7;';
                     
                     let noteText = 'Data from <a href="https://www.discgolfscene.com" target="_blank" rel="noopener noreferrer" style="color: var(--primary);">discgolfscene.com</a>.';
@@ -5224,11 +5416,6 @@ h3 {
                     noteText += ' For current info, visit event pages directly.';
                     
                     note.innerHTML = noteText;
-                    
-                    // Remove any existing note
-                    const existingNote = feedHeader.querySelector('p[style*="opacity"]');
-                    if (existingNote) existingNote.remove();
-                    
                     feedHeader.querySelector('div').appendChild(note);
                 }
             }
@@ -5239,6 +5426,7 @@ h3 {
     </script>
 </body>
 </html>
+
 
 
 
