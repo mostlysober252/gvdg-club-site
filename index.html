@@ -389,44 +389,192 @@ body::before{
             padding: 1rem;
         }
         
-        .carousel-dot {
-            width: 12px;
-            height: 12px;
-            min-width: 44px;
-            min-height: 44px;
-            border-radius: 50%;
-            background: rgba(255, 255, 255, 0.4);
-            border: 2px solid white;
-            cursor: pointer;
-            transition: all 0.3s ease;
-            position: relative;
-            -webkit-tap-highlight-color: transparent;
-        }
-        
-        .carousel-dot::before {
-            content: '';
-            position: absolute;
-            top: 50%;
-            left: 50%;
-            transform: translate(-50%, -50%);
-            width: 12px;
-            height: 12px;
-            border-radius: 50%;
-            background: rgba(255, 255, 255, 0.4);
-            transition: all 0.3s ease;
-        }
-        
-        .carousel-dot.active::before {
-            background: white;
-            width: 16px;
-            height: 16px;
-        }
-        
-        .carousel-dot:hover::before {
-            background: rgba(255, 255, 255, 0.8);
-            width: 14px;
-            height: 14px;
-        }
+        /* ============================================
+   GVDG CAROUSEL DOTS FIX
+   
+   PROBLEM: The carousel dots are rendering as large 
+   ovals/pills on mobile instead of small circles.
+   
+   CAUSE: Conflicting CSS rules where:
+   1. Dots have padding: 15px for touch targets
+   2. min-width/min-height: 44px from mobile styles
+   3. The ::before pseudo-element approach isn't working
+   
+   SOLUTION: Add this CSS at the VERY END of your 
+   stylesheet to override all previous rules.
+   ============================================ */
+
+/* ===== HERO CAROUSEL DOTS ===== */
+
+/* Container reset */
+.carousel-controls {
+    position: absolute !important;
+    bottom: 30px !important;
+    left: 50% !important;
+    transform: translateX(-50%) !important;
+    display: flex !important;
+    justify-content: center !important;
+    align-items: center !important;
+    gap: 16px !important;
+    z-index: 10 !important;
+    padding: 10px !important;
+    width: auto !important;
+}
+
+/* Individual dot styling - CRITICAL FIXES */
+.carousel-dot {
+    /* Reset all problematic properties */
+    width: 12px !important;
+    height: 12px !important;
+    min-width: 12px !important;
+    min-height: 12px !important;
+    max-width: 12px !important;
+    max-height: 12px !important;
+    
+    /* Remove the padding that's causing oval shapes */
+    padding: 0 !important;
+    
+    /* Ensure proper box model */
+    box-sizing: border-box !important;
+    background-clip: border-box !important;
+    
+    /* Visual styling */
+    border-radius: 50% !important;
+    background: rgba(255, 255, 255, 0.4) !important;
+    border: 2px solid rgba(255, 255, 255, 0.8) !important;
+    
+    /* Interaction */
+    cursor: pointer !important;
+    transition: all 0.3s ease !important;
+    -webkit-tap-highlight-color: transparent !important;
+    
+    /* Position for touch target pseudo-element */
+    position: relative !important;
+    
+    /* Ensure flex doesn't stretch it */
+    flex-shrink: 0 !important;
+    flex-grow: 0 !important;
+}
+
+/* Touch target using pseudo-element (invisible) */
+.carousel-dot::before {
+    content: '' !important;
+    position: absolute !important;
+    top: 50% !important;
+    left: 50% !important;
+    transform: translate(-50%, -50%) !important;
+    width: 44px !important;
+    height: 44px !important;
+    background: transparent !important;
+    border: none !important;
+    border-radius: 50% !important;
+    /* This creates an invisible but tappable area */
+}
+
+/* Active dot state */
+.carousel-dot.active {
+    background: white !important;
+    border-color: white !important;
+    transform: scale(1.3) !important;
+    /* Keep same dimensions, just scale up */
+    width: 12px !important;
+    height: 12px !important;
+}
+
+/* Hover state */
+.carousel-dot:hover {
+    background: rgba(255, 255, 255, 0.8) !important;
+    border-color: white !important;
+}
+
+/* ===== MOBILE SPECIFIC ===== */
+@media (max-width: 768px) {
+    .carousel-controls {
+        bottom: 25px !important;
+        gap: 14px !important;
+    }
+    
+    .carousel-dot {
+        width: 10px !important;
+        height: 10px !important;
+        min-width: 10px !important;
+        min-height: 10px !important;
+        max-width: 10px !important;
+        max-height: 10px !important;
+    }
+    
+    .carousel-dot.active {
+        width: 10px !important;
+        height: 10px !important;
+        transform: scale(1.4) !important;
+    }
+}
+
+@media (max-width: 480px) {
+    .carousel-controls {
+        bottom: 20px !important;
+        gap: 12px !important;
+    }
+    
+    .carousel-dot {
+        width: 8px !important;
+        height: 8px !important;
+        min-width: 8px !important;
+        min-height: 8px !important;
+        max-width: 8px !important;
+        max-height: 8px !important;
+    }
+    
+    .carousel-dot.active {
+        width: 8px !important;
+        height: 8px !important;
+        transform: scale(1.5) !important;
+    }
+}
+
+/* ===== SECTION CAROUSEL INDICATORS ===== */
+/* (About section and Courses section carousels) */
+
+.carousel-indicators .carousel-indicator,
+.about-carousel-nav .carousel-indicator,
+.courses-carousel-nav .carousel-indicator {
+    width: 12px !important;
+    height: 12px !important;
+    min-width: 12px !important;
+    min-height: 12px !important;
+    max-width: 12px !important;
+    max-height: 12px !important;
+    padding: 0 !important;
+    border-radius: 50% !important;
+    background: var(--text-muted) !important;
+    border: none !important;
+    cursor: pointer !important;
+    opacity: 0.4 !important;
+    transition: all 0.3s ease !important;
+    flex-shrink: 0 !important;
+    position: relative !important;
+}
+
+.carousel-indicators .carousel-indicator::before,
+.about-carousel-nav .carousel-indicator::before,
+.courses-carousel-nav .carousel-indicator::before {
+    content: '' !important;
+    position: absolute !important;
+    top: 50% !important;
+    left: 50% !important;
+    transform: translate(-50%, -50%) !important;
+    width: 44px !important;
+    height: 44px !important;
+    background: transparent !important;
+}
+
+.carousel-indicators .carousel-indicator.active,
+.about-carousel-nav .carousel-indicator.active,
+.courses-carousel-nav .carousel-indicator.active {
+    background: var(--primary) !important;
+    opacity: 1 !important;
+    transform: scale(1.3) !important;
+}
         
         .carousel-arrow {
             position: absolute;
