@@ -3785,7 +3785,138 @@ h3 {
         left: 0 !important;
     }
 }
+<style>
+/* ============================================
+   NAVIGATION CENTERING FIX
+   Fixes off-center menu items using CSS Grid
+   ============================================ */
 
+/* Desktop: 3-column grid layout */
+@media (min-width: 769px) {
+    nav {
+        display: grid !important;
+        grid-template-columns: auto 1fr auto !important;
+        align-items: center !important;
+        gap: 2rem !important;
+        max-width: 1200px;
+        margin: 0 auto;
+    }
+    
+    /* Logo - Left side */
+    .logo {
+        grid-column: 1;
+        justify-self: start !important;
+    }
+    
+    /* Nav links - Center (takes up middle space) */
+    .nav-links {
+        grid-column: 2;
+        justify-self: center !important;
+        display: flex !important;
+        justify-content: center !important;
+        gap: 2rem !important;
+        list-style: none;
+        margin: 0;
+        padding: 0;
+        /* Reset any positioning from mobile styles */
+        position: static !important;
+        transform: none !important;
+        opacity: 1 !important;
+        pointer-events: all !important;
+        background: transparent !important;
+        flex-direction: row !important;
+    }
+    
+    .nav-links li {
+        padding: 0 !important;
+        border: none !important;
+    }
+    
+    /* Right side - Theme toggle only on desktop */
+    .nav-right {
+        grid-column: 3;
+        justify-self: end !important;
+        display: flex !important;
+        align-items: center !important;
+        gap: 1rem !important;
+    }
+    
+    /* Hide hamburger menu on desktop */
+    .menu-toggle {
+        display: none !important;
+    }
+}
+
+/* Mobile: Stack vertically with hamburger menu */
+@media (max-width: 768px) {
+    nav {
+        display: flex !important;
+        justify-content: space-between !important;
+        align-items: center !important;
+    }
+    
+    /* Mobile menu - slides down from top */
+    .nav-links {
+        position: fixed;
+        top: 70px;
+        left: 0;
+        right: 0;
+        background: rgba(26, 26, 46, 0.98);
+        flex-direction: column;
+        justify-content: flex-start;
+        align-items: center;
+        gap: 0;
+        padding: 2rem;
+        transform: translateY(-100%);
+        opacity: 0;
+        transition: all 0.3s ease;
+        pointer-events: none;
+        max-height: calc(100vh - 70px);
+        overflow-y: auto;
+        z-index: 999;
+    }
+    
+    [data-theme="dark"] .nav-links {
+        background: rgba(15, 15, 30, 0.98);
+    }
+    
+    .nav-links.active {
+        transform: translateY(0);
+        opacity: 1;
+        pointer-events: all;
+    }
+    
+    .nav-links li {
+        padding: 1.25rem 0;
+        border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+        width: 100%;
+        text-align: center;
+    }
+    
+    .nav-links li:last-child {
+        border-bottom: none;
+    }
+    
+    .nav-links a {
+        font-size: 1.1rem;
+        display: block;
+        padding: 0.5rem 0;
+    }
+    
+    /* Show hamburger menu on mobile */
+    .menu-toggle {
+        display: flex !important;
+        align-items: center;
+        justify-content: center;
+    }
+    
+    .nav-right {
+        display: flex;
+        align-items: center;
+        gap: 1rem;
+    }
+}
+		</style>
     </style>
 </head>		
     </style>
@@ -3793,26 +3924,28 @@ h3 {
 <body>
     <!-- Header Navigation -->
     <header>
-        <nav>
-            <a href="#" class="logo">
-                <img src="img/logo.png" alt="Greenville DGC Logo" class="logo-image">
-            </a>
-            <div class="nav-right">
-                <button class="menu-toggle" aria-label="Toggle menu">☰</button>
-                <ul class="nav-links">
-                    <li><a href="#about">About</a></li>
-                    <li><a href="#courses">Courses</a></li>
-                    <li><a href="#events">Events</a></li>
-					<li><a href="gvdg-blog.html">Blog</a></li>
-					<li><a href="gvdg-members.html">Members</a></li>
-					<li><a href="#membership">Join</a></li>
-                    <li><a href="#contact">Contact</a></li>
-                </ul>
-                <button class="theme-toggle" aria-label="Toggle dark mode">
-                    <span class="theme-icon">🌙</span>
-                </button>
-            </div>
-        </nav>
+    <nav>
+        <a href="#" class="logo">
+            <img src="img/logo.png" alt="Greenville DGC Logo" class="logo-image">
+        </a>
+        <ul class="nav-links">
+            <li><a href="#about">About</a></li>
+            <li><a href="#courses">Courses</a></li>
+            <li><a href="#events">Events</a></li>
+            <li><a href="gvdg-blog.html">Blog</a></li>
+            <li><a href="gvdg-members.html">Members</a></li>
+            <li><a href="#membership">Join</a></li>
+            <li><a href="#contact">Contact</a></li>
+        </ul>
+        
+       <div class="nav-right">
+            <button class="menu-toggle" aria-label="Toggle menu">☰</button>
+            <button class="theme-toggle" aria-label="Toggle dark mode">
+                <span class="theme-icon">🌙</span>
+            </button>
+        </div>
+    </nav>
+</header>
     </header>
 
     <!-- Hero Section with Carousel -->
@@ -6152,6 +6285,7 @@ h3 {
     </script>
 </body>
 </html>
+
 
 
 
