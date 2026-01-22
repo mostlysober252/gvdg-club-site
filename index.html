@@ -3785,7 +3785,67 @@ h3 {
         left: 0 !important;
     }
 }
+/* ============================================
+   Courses Section - Title Navigation Arrows
+   ============================================ */
 
+.slide-title-with-arrows {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 1.5rem;
+}
+
+.slide-arrow {
+    background: var(--primary);
+    color: white;
+    border: none;
+    width: 44px;
+    height: 44px;
+    min-width: 44px;
+    min-height: 44px;
+    border-radius: 50%;
+    cursor: pointer;
+    font-size: 1.5rem;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: all 0.3s ease;
+    -webkit-tap-highlight-color: transparent;
+}
+
+.slide-arrow:hover {
+    background: var(--secondary);
+    transform: scale(1.1);
+}
+
+.slide-arrow:active {
+    transform: scale(0.95);
+}
+
+.slide-arrow:disabled {
+    opacity: 0.3;
+    cursor: not-allowed;
+    transform: none;
+}
+
+@media (max-width: 480px) {
+    .slide-title-with-arrows {
+        gap: 1rem;
+    }
+    
+    .slide-arrow {
+        width: 40px;
+        height: 40px;
+        min-width: 40px;
+        min-height: 40px;
+        font-size: 1.3rem;
+    }
+    
+    .slide-title {
+        font-size: 1.5rem;
+    }
+}
     </style>
 </head>		
     </style>
@@ -3947,9 +4007,13 @@ h3 {
                 <!-- Slide 1 -->
                 <div class="carousel-slide-courses">
                     <div class="slide-header">
+                    <div class="slide-title-with-arrows">
+                        <button class="slide-arrow slide-arrow-left" id="coursesArrowLeft">‹</button>
                         <h3 class="slide-title">Our Courses</h3>
-                        <p class="slide-subtitle">5 Courses in Greenville, NC</p>
+                        <button class="slide-arrow slide-arrow-right" id="coursesArrowRight">›</button>
                     </div>
+                    <p class="slide-subtitle">5 Courses in Greenville, NC</p>
+                </div>
                     
                     <div class="courses-grid">
                         <div class="course-card" data-course="ECU North Rec Complex" data-location="Greenville, NC" data-udisc="https://udisc.com/courses/ecu-north-recreational-complex-HbME" data-coords="35.631092,-77.319923" data-youtube="">
@@ -6152,6 +6216,7 @@ h3 {
     </script>
 </body>
 </html>
+
 
 
 
