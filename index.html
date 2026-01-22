@@ -4325,10 +4325,12 @@ h3 {
             </div>
         </div>
         
-      <!-- 
-    TOURNAMENTS SECTION - Matches GVDG Site Styling
-    Place this in your index.html where you want the tournaments section
-    (Recommend placing after the Upcoming Events section or replacing the current Area Tournaments)
+    <!-- 
+    TOURNAMENTS SECTION - Auto-updating from Google Sheet
+    Replace your current Area Tournaments section with this.
+    
+    This fetches tournament data from your published Google Sheet CSV
+    and displays it in cards matching your site's styling.
 -->
 
 <section id="area-tournaments" class="section">
@@ -4336,43 +4338,21 @@ h3 {
         <h2 class="section-title">🏆 Area Tournaments</h2>
         <p class="section-subtitle">PDGA sanctioned events within 60 miles of Greenville, NC</p>
         
-        <!-- Main Tournament Search Card -->
-        <a href="https://www.discgolfscene.com/tournaments/search?filter%5Blocation%5D%5Bcountry%5D=USA&filter%5Blocation%5D%5Bname%5D=Greenville%2C+NC&filter%5Blocation%5D%5Blatitude%5D=35.597011&filter%5Blocation%5D%5Blongitude%5D=-77.375799&filter%5Blocation%5D%5Bdistance%5D=60&filter%5Blocation%5D%5Bunits%5D=mi&filter%5Blocation%5D%5Bzipcode%5D=27833&filter%5Bformat%5D%5B0%5D=s&filter%5Bformat%5D%5B1%5D=d&filter%5Bformat%5D%5B2%5D=t" 
-           target="_blank" 
-           rel="noopener" 
-           class="tournament-search-card">
-            <div class="tournament-search-icon">
-                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                    <circle cx="11" cy="11" r="8"></circle>
-                    <path d="m21 21-4.35-4.35"></path>
-                </svg>
+        <!-- Tournament Cards Container -->
+        <div id="tournament-list" class="tournament-grid">
+            <div class="tournament-loading">
+                <div class="loading-spinner"></div>
+                <p>Loading tournaments...</p>
             </div>
-            <div class="tournament-search-content">
-                <h3>Browse Upcoming Tournaments</h3>
-                <p>Singles, doubles & team events near Greenville</p>
-            </div>
-            <div class="tournament-search-arrow">
-                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                    <path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"></path>
-                    <polyline points="15 3 21 3 21 9"></polyline>
-                    <line x1="10" y1="14" x2="21" y2="3"></line>
-                </svg>
-            </div>
-        </a>
-
-        <!-- Quick Links -->
-        <div class="tournament-quick-links">
-            <a href="https://www.discgolfscene.com/tournaments/North_Carolina" target="_blank" rel="noopener" class="quick-link-card">
-                <span class="quick-link-icon">📍</span>
-                <span class="quick-link-text">All NC Tournaments</span>
-            </a>
-            <a href="https://www.pdga.com/tour/search?date_filter%5Bmin%5D%5Bdate%5D=&State=NC&Country=US" target="_blank" rel="noopener" class="quick-link-card">
-                <span class="quick-link-icon">🏅</span>
-                <span class="quick-link-text">PDGA NC Events</span>
-            </a>
-            <a href="https://www.discgolfscene.com/leagues/North_Carolina" target="_blank" rel="noopener" class="quick-link-card">
-                <span class="quick-link-icon">📅</span>
-                <span class="quick-link-text">NC Leagues</span>
+        </div>
+        
+        <!-- Fallback link -->
+        <div class="tournament-footer">
+            <a href="https://www.discgolfscene.com/tournaments/search?filter%5Blocation%5D%5Bcountry%5D=USA&filter%5Blocation%5D%5Bname%5D=Greenville%2C+NC&filter%5Blocation%5D%5Blatitude%5D=35.597011&filter%5Blocation%5D%5Blongitude%5D=-77.375799&filter%5Blocation%5D%5Bdistance%5D=60&filter%5Blocation%5D%5Bunits%5D=mi&filter%5Blocation%5D%5Bzipcode%5D=27833&filter%5Bformat%5D%5B0%5D=s&filter%5Bformat%5D%5B1%5D=d&filter%5Bformat%5D%5B2%5D=t" 
+               target="_blank" 
+               rel="noopener" 
+               class="view-all-link">
+                View All on Disc Golf Scene →
             </a>
         </div>
     </div>
@@ -4380,10 +4360,9 @@ h3 {
 
 <style>
 /* ========================================
-   TOURNAMENTS SECTION - GVDG Style Match
+   TOURNAMENTS SECTION - GVDG Style
    ======================================== */
 
-/* Section Container - matches your existing sections */
 #area-tournaments {
     padding: 5rem 2rem;
     background: var(--bg-secondary, #f8f9fa);
@@ -4394,7 +4373,6 @@ h3 {
     margin: 0 auto;
 }
 
-/* Section Title - matches your h2 styling */
 #area-tournaments .section-title {
     text-align: center;
     font-size: 2rem;
@@ -4410,156 +4388,187 @@ h3 {
     margin-bottom: 2rem;
 }
 
-/* Main Tournament Search Card - matches your card styling */
-.tournament-search-card {
-    display: flex;
-    align-items: center;
-    gap: 1.5rem;
-    padding: 1.5rem 2rem;
-    background: linear-gradient(135deg, #FF6B35 0%, #e85a28 100%);
-    border-radius: 12px;
-    text-decoration: none;
-    color: white;
-    box-shadow: 0 4px 15px rgba(255, 107, 53, 0.3);
-    transition: transform 0.3s ease, box-shadow 0.3s ease;
-    max-width: 700px;
-    margin: 0 auto 1.5rem;
-}
-
-.tournament-search-card:hover {
-    transform: translateY(-3px);
-    box-shadow: 0 8px 25px rgba(255, 107, 53, 0.4);
-}
-
-.tournament-search-icon {
-    flex-shrink: 0;
-    width: 56px;
-    height: 56px;
-    background: rgba(255, 255, 255, 0.2);
-    border-radius: 12px;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-}
-
-.tournament-search-icon svg {
-    width: 28px;
-    height: 28px;
-}
-
-.tournament-search-content {
-    flex: 1;
-}
-
-.tournament-search-content h3 {
-    font-size: 1.25rem;
-    font-weight: 700;
-    margin: 0 0 0.25rem 0;
-}
-
-.tournament-search-content p {
-    margin: 0;
-    opacity: 0.9;
-    font-size: 0.95rem;
-}
-
-.tournament-search-arrow {
-    flex-shrink: 0;
-    width: 40px;
-    height: 40px;
-    background: rgba(255, 255, 255, 0.15);
-    border-radius: 8px;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    transition: background 0.2s ease;
-}
-
-.tournament-search-arrow svg {
-    width: 20px;
-    height: 20px;
-}
-
-.tournament-search-card:hover .tournament-search-arrow {
-    background: rgba(255, 255, 255, 0.25);
-}
-
-/* Quick Links Grid - matches your card grid styling */
-.tournament-quick-links {
+/* Tournament Grid */
+.tournament-grid {
     display: grid;
-    grid-template-columns: repeat(3, 1fr);
-    gap: 1rem;
-    max-width: 700px;
-    margin: 0 auto;
+    grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
+    gap: 1.25rem;
+    margin-bottom: 2rem;
 }
 
-.quick-link-card {
+/* Individual Tournament Card */
+.tournament-card {
     display: flex;
-    align-items: center;
-    justify-content: center;
-    gap: 0.5rem;
-    padding: 1rem 1.25rem;
     background: var(--card-bg, #ffffff);
     border-radius: 12px;
-    text-decoration: none;
-    color: var(--text-primary, #333);
-    font-weight: 500;
-    font-size: 0.9rem;
+    overflow: hidden;
     box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
     border: 1px solid var(--border-color, rgba(0, 0, 0, 0.06));
-    transition: transform 0.2s ease, box-shadow 0.2s ease, border-color 0.2s ease;
+    transition: transform 0.2s ease, box-shadow 0.2s ease;
+    text-decoration: none;
+    color: inherit;
 }
 
-.quick-link-card:hover {
-    transform: translateY(-2px);
-    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.12);
-    border-color: #FF6B35;
+.tournament-card:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 6px 20px rgba(0, 0, 0, 0.12);
 }
 
-.quick-link-icon {
-    font-size: 1.1rem;
+/* Date Badge */
+.tournament-date-badge {
+    flex-shrink: 0;
+    width: 70px;
+    background: linear-gradient(135deg, #FF6B35 0%, #e85a28 100%);
+    color: white;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    padding: 0.75rem 0.5rem;
+    text-align: center;
 }
 
-.quick-link-text {
-    white-space: nowrap;
+.tournament-date-badge .month {
+    font-size: 0.75rem;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+}
+
+.tournament-date-badge .day {
+    font-size: 1.5rem;
+    font-weight: 700;
+    line-height: 1.1;
+}
+
+.tournament-date-badge .year {
+    font-size: 0.7rem;
+    opacity: 0.85;
+}
+
+/* Card Content */
+.tournament-content {
+    flex: 1;
+    padding: 1rem 1.25rem;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    min-width: 0; /* Allows text truncation */
+}
+
+.tournament-name {
+    font-size: 1rem;
+    font-weight: 600;
+    color: var(--text-primary, #333);
+    margin: 0 0 0.35rem 0;
+    line-height: 1.3;
+    /* Truncate long names */
+    display: -webkit-box;
+    -webkit-line-clamp: 2;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+}
+
+.tournament-location {
+    font-size: 0.85rem;
+    color: var(--text-secondary, #666);
+    margin: 0;
+    display: flex;
+    align-items: center;
+    gap: 0.35rem;
+}
+
+.tournament-tier {
+    display: inline-block;
+    font-size: 0.7rem;
+    font-weight: 600;
+    padding: 0.2rem 0.5rem;
+    border-radius: 4px;
+    background: var(--tier-bg, #e8f4f8);
+    color: var(--tier-color, #004E89);
+    margin-top: 0.5rem;
+    text-transform: uppercase;
+}
+
+/* Loading State */
+.tournament-loading {
+    grid-column: 1 / -1;
+    text-align: center;
+    padding: 3rem;
+    color: var(--text-secondary, #666);
+}
+
+.loading-spinner {
+    width: 40px;
+    height: 40px;
+    border: 3px solid var(--border-color, #e0e0e0);
+    border-top-color: #FF6B35;
+    border-radius: 50%;
+    animation: spin 1s linear infinite;
+    margin: 0 auto 1rem;
+}
+
+@keyframes spin {
+    to { transform: rotate(360deg); }
+}
+
+/* No Tournaments State */
+.no-tournaments {
+    grid-column: 1 / -1;
+    text-align: center;
+    padding: 3rem;
+    color: var(--text-secondary, #666);
+}
+
+.no-tournaments p {
+    margin-bottom: 1rem;
+}
+
+/* Footer Link */
+.tournament-footer {
+    text-align: center;
+}
+
+.view-all-link {
+    display: inline-block;
+    color: #FF6B35;
+    font-weight: 600;
+    text-decoration: none;
+    padding: 0.75rem 1.5rem;
+    border: 2px solid #FF6B35;
+    border-radius: 8px;
+    transition: all 0.2s ease;
+}
+
+.view-all-link:hover {
+    background: #FF6B35;
+    color: white;
 }
 
 /* ========================================
-   RESPONSIVE - Mobile Styles
+   RESPONSIVE
    ======================================== */
 @media (max-width: 768px) {
     #area-tournaments {
         padding: 3rem 1rem;
     }
     
-    #area-tournaments .section-title {
-        font-size: 1.75rem;
-    }
-    
-    .tournament-search-card {
-        flex-direction: column;
-        text-align: center;
-        padding: 1.5rem;
+    .tournament-grid {
+        grid-template-columns: 1fr;
         gap: 1rem;
     }
     
-    .tournament-search-arrow {
-        display: none;
+    .tournament-date-badge {
+        width: 60px;
     }
     
-    .tournament-quick-links {
-        grid-template-columns: 1fr;
-        gap: 0.75rem;
-    }
-    
-    .quick-link-card {
-        justify-content: flex-start;
-        padding: 0.875rem 1rem;
+    .tournament-date-badge .day {
+        font-size: 1.25rem;
     }
 }
 
 /* ========================================
-   DARK THEME - Matches your dark mode
+   DARK THEME
    ======================================== */
 [data-theme="dark"] #area-tournaments {
     background: var(--bg-secondary, #1a1a2e);
@@ -4573,26 +4582,250 @@ h3 {
     color: var(--text-secondary, #a0a0a0);
 }
 
-[data-theme="dark"] .tournament-search-card {
-    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.3);
-}
-
-[data-theme="dark"] .tournament-search-card:hover {
-    box-shadow: 0 8px 25px rgba(0, 0, 0, 0.4);
-}
-
-[data-theme="dark"] .quick-link-card {
+[data-theme="dark"] .tournament-card {
     background: var(--card-bg, #2a2a3e);
-    color: var(--text-primary, #ffffff);
     border-color: rgba(255, 255, 255, 0.1);
     box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
 }
 
-[data-theme="dark"] .quick-link-card:hover {
-    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
-    border-color: #FF6B35;
+[data-theme="dark"] .tournament-card:hover {
+    box-shadow: 0 6px 20px rgba(0, 0, 0, 0.3);
+}
+
+[data-theme="dark"] .tournament-name {
+    color: var(--text-primary, #ffffff);
+}
+
+[data-theme="dark"] .tournament-location {
+    color: var(--text-secondary, #a0a0a0);
+}
+
+[data-theme="dark"] .tournament-tier {
+    background: rgba(0, 78, 137, 0.3);
+    color: #6cb4e8;
+}
+
+[data-theme="dark"] .loading-spinner {
+    border-color: rgba(255, 255, 255, 0.2);
+    border-top-color: #FF6B35;
 }
 </style>
+
+<script>
+/**
+ * Fetch tournaments from Google Sheet and render them
+ */
+(function() {
+    // Your published Google Sheet CSV URL
+    const SHEET_CSV_URL = 'https://docs.google.com/spreadsheets/d/e/2PACX-1vRz6V6BAwII4eoqITz4MW5zmM_3mYJqrtqtZl9xB87lAZgDT1E0Do1r2cp2aa1tvEKWevnPhb2zQu4s/pub?gid=0&single=true&output=csv';
+    
+    const container = document.getElementById('tournament-list');
+    
+    // Parse CSV string into array of objects
+    function parseCSV(csv) {
+        const lines = csv.trim().split('\n');
+        if (lines.length < 2) return []; // Need header + at least one data row
+        
+        const headers = parseCSVLine(lines[0]);
+        const tournaments = [];
+        
+        for (let i = 1; i < lines.length; i++) {
+            const values = parseCSVLine(lines[i]);
+            if (values.length >= 2 && values[1]) { // Must have at least date and name
+                tournaments.push({
+                    date: values[0] || '',
+                    name: values[1] || '',
+                    location: values[2] || '',
+                    tier: values[3] || '',
+                    url: values[4] || ''
+                });
+            }
+        }
+        
+        return tournaments;
+    }
+    
+    // Parse a single CSV line (handles quoted fields)
+    function parseCSVLine(line) {
+        const values = [];
+        let current = '';
+        let inQuotes = false;
+        
+        for (let i = 0; i < line.length; i++) {
+            const char = line[i];
+            
+            if (char === '"') {
+                inQuotes = !inQuotes;
+            } else if (char === ',' && !inQuotes) {
+                values.push(current.trim());
+                current = '';
+            } else {
+                current += char;
+            }
+        }
+        values.push(current.trim());
+        
+        return values;
+    }
+    
+    // Parse date string and return formatted parts
+    function parseDate(dateStr) {
+        if (!dateStr) return null;
+        
+        // Try to parse various date formats
+        let date;
+        
+        // Try ISO format (2025-01-15)
+        if (/^\d{4}-\d{2}-\d{2}/.test(dateStr)) {
+            date = new Date(dateStr + 'T00:00:00');
+        }
+        // Try MM/DD/YYYY or M/D/YYYY
+        else if (/^\d{1,2}\/\d{1,2}\/\d{4}/.test(dateStr)) {
+            const parts = dateStr.split('/');
+            date = new Date(parts[2], parts[0] - 1, parts[1]);
+        }
+        // Try "Jan 15, 2025" format
+        else {
+            date = new Date(dateStr);
+        }
+        
+        if (isNaN(date.getTime())) return null;
+        
+        const months = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 
+                        'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
+        
+        return {
+            month: months[date.getMonth()],
+            day: date.getDate(),
+            year: date.getFullYear()
+        };
+    }
+    
+    // Render a single tournament card
+    function renderTournamentCard(tournament) {
+        const dateInfo = parseDate(tournament.date);
+        
+        const card = document.createElement('a');
+        card.className = 'tournament-card';
+        card.href = tournament.url || '#';
+        card.target = '_blank';
+        card.rel = 'noopener';
+        
+        // Date badge
+        const dateBadge = document.createElement('div');
+        dateBadge.className = 'tournament-date-badge';
+        if (dateInfo) {
+            dateBadge.innerHTML = `
+                <span class="month">${dateInfo.month}</span>
+                <span class="day">${dateInfo.day}</span>
+                <span class="year">${dateInfo.year}</span>
+            `;
+        } else {
+            dateBadge.innerHTML = `
+                <span class="month">TBD</span>
+                <span class="day">--</span>
+            `;
+        }
+        
+        // Content
+        const content = document.createElement('div');
+        content.className = 'tournament-content';
+        
+        let html = `<h3 class="tournament-name">${escapeHtml(tournament.name)}</h3>`;
+        
+        if (tournament.location) {
+            html += `<p class="tournament-location">📍 ${escapeHtml(tournament.location)}</p>`;
+        }
+        
+        if (tournament.tier) {
+            html += `<span class="tournament-tier">${escapeHtml(tournament.tier)}</span>`;
+        }
+        
+        content.innerHTML = html;
+        
+        card.appendChild(dateBadge);
+        card.appendChild(content);
+        
+        return card;
+    }
+    
+    // Escape HTML to prevent XSS
+    function escapeHtml(str) {
+        const div = document.createElement('div');
+        div.textContent = str;
+        return div.innerHTML;
+    }
+    
+    // Render no tournaments message
+    function renderNoTournaments() {
+        container.innerHTML = `
+            <div class="no-tournaments">
+                <p>No upcoming tournaments found.</p>
+                <a href="https://www.discgolfscene.com/tournaments/search?filter%5Blocation%5D%5Bcountry%5D=USA&filter%5Blocation%5D%5Bname%5D=Greenville%2C+NC&filter%5Blocation%5D%5Blatitude%5D=35.597011&filter%5Blocation%5D%5Blongitude%5D=-77.375799&filter%5Blocation%5D%5Bdistance%5D=60&filter%5Blocation%5D%5Bunits%5D=mi&filter%5Blocation%5D%5Bzipcode%5D=27833&filter%5Bformat%5D%5B0%5D=s&filter%5Bformat%5D%5B1%5D=d&filter%5Bformat%5D%5B2%5D=t" 
+                   target="_blank" 
+                   rel="noopener"
+                   class="view-all-link">
+                    Search on Disc Golf Scene →
+                </a>
+            </div>
+        `;
+    }
+    
+    // Render error message
+    function renderError() {
+        container.innerHTML = `
+            <div class="no-tournaments">
+                <p>Unable to load tournaments.</p>
+                <a href="https://www.discgolfscene.com/tournaments/search?filter%5Blocation%5D%5Bcountry%5D=USA&filter%5Blocation%5D%5Bname%5D=Greenville%2C+NC&filter%5Blocation%5D%5Blatitude%5D=35.597011&filter%5Blocation%5D%5Blongitude%5D=-77.375799&filter%5Blocation%5D%5Bdistance%5D=60&filter%5Blocation%5D%5Bunits%5D=mi&filter%5Blocation%5D%5Bzipcode%5D=27833&filter%5Bformat%5D%5B0%5D=s&filter%5Bformat%5D%5B1%5D=d&filter%5Bformat%5D%5B2%5D=t" 
+                   target="_blank" 
+                   rel="noopener"
+                   class="view-all-link">
+                    View on Disc Golf Scene →
+                </a>
+            </div>
+        `;
+    }
+    
+    // Main fetch and render function
+    async function loadTournaments() {
+        try {
+            const response = await fetch(SHEET_CSV_URL);
+            
+            if (!response.ok) {
+                throw new Error('Failed to fetch');
+            }
+            
+            const csv = await response.text();
+            const tournaments = parseCSV(csv);
+            
+            if (tournaments.length === 0) {
+                renderNoTournaments();
+                return;
+            }
+            
+            // Clear loading state
+            container.innerHTML = '';
+            
+            // Render each tournament card
+            tournaments.forEach(tournament => {
+                const card = renderTournamentCard(tournament);
+                container.appendChild(card);
+            });
+            
+        } catch (error) {
+            console.error('Error loading tournaments:', error);
+            renderError();
+        }
+    }
+    
+    // Load tournaments when DOM is ready
+    if (document.readyState === 'loading') {
+        document.addEventListener('DOMContentLoaded', loadTournaments);
+    } else {
+        loadTournaments();
+    }
+})();
+</script>
 
     <!-- Membership Section -->
     <section id="membership">
@@ -5666,6 +5899,7 @@ h3 {
     </script>
 </body>
 </html>
+
 
 
 
