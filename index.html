@@ -3785,67 +3785,7 @@ h3 {
         left: 0 !important;
     }
 }
-/* ============================================
-   Courses Section - Title Navigation Arrows
-   ============================================ */
 
-.slide-title-with-arrows {
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    gap: 1.5rem;
-}
-
-.slide-arrow {
-    background: var(--primary);
-    color: white;
-    border: none;
-    width: 44px;
-    height: 44px;
-    min-width: 44px;
-    min-height: 44px;
-    border-radius: 50%;
-    cursor: pointer;
-    font-size: 1.5rem;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    transition: all 0.3s ease;
-    -webkit-tap-highlight-color: transparent;
-}
-
-.slide-arrow:hover {
-    background: var(--secondary);
-    transform: scale(1.1);
-}
-
-.slide-arrow:active {
-    transform: scale(0.95);
-}
-
-.slide-arrow:disabled {
-    opacity: 0.3;
-    cursor: not-allowed;
-    transform: none;
-}
-
-@media (max-width: 480px) {
-    .slide-title-with-arrows {
-        gap: 1rem;
-    }
-    
-    .slide-arrow {
-        width: 40px;
-        height: 40px;
-        min-width: 40px;
-        min-height: 40px;
-        font-size: 1.3rem;
-    }
-    
-    .slide-title {
-        font-size: 1.5rem;
-    }
-}
     </style>
 </head>		
     </style>
@@ -4007,13 +3947,9 @@ h3 {
                 <!-- Slide 1 -->
                 <div class="carousel-slide-courses">
                     <div class="slide-header">
-                    <div class="slide-title-with-arrows">
-                        <button class="slide-arrow slide-arrow-left" id="coursesArrowLeft">‹</button>
                         <h3 class="slide-title">Our Courses</h3>
-                        <button class="slide-arrow slide-arrow-right" id="coursesArrowRight">›</button>
+                        <p class="slide-subtitle">5 Courses in Greenville, NC</p>
                     </div>
-                    <p class="slide-subtitle">5 Courses in Greenville, NC</p>
-                </div>
                     
                     <div class="courses-grid">
                         <div class="course-card" data-course="ECU North Rec Complex" data-location="Greenville, NC" data-udisc="https://udisc.com/courses/ecu-north-recreational-complex-HbME" data-coords="35.631092,-77.319923" data-youtube="">
@@ -5365,82 +5301,365 @@ h3 {
         })();
         
         // Courses Carousel
-        // Courses Carousel
-(function() {
-    const carousel = document.querySelector('.courses-carousel');
-    const slides = document.querySelectorAll('.carousel-slide-courses');
-    const indicators = document.querySelectorAll('.courses-carousel-nav .carousel-indicator');
-    const prevBtn = document.getElementById('coursesPrevBtn');
-    const nextBtn = document.getElementById('coursesNextBtn');
-    const arrowLeft = document.getElementById('coursesArrowLeft');
-    const arrowRight = document.getElementById('coursesArrowRight');
-    const container = document.querySelector('.courses-carousel-container');
-    
-    if (!carousel || slides.length === 0) return;
-    
-    let currentSlide = 0;
-    
-    function updateCarousel() {
-        carousel.style.transform = `translateX(-${currentSlide * 100}%)`;
-        
-        indicators.forEach((ind, i) => {
-            ind.classList.toggle('active', i === currentSlide);
-        });
-        
-        // Update all navigation buttons
-        if (prevBtn) prevBtn.disabled = currentSlide === 0;
-        if (nextBtn) nextBtn.disabled = currentSlide === slides.length - 1;
-        if (arrowLeft) arrowLeft.disabled = currentSlide === 0;
-        if (arrowRight) arrowRight.disabled = currentSlide === slides.length - 1;
-    }
-    
-    function goToSlide(index) {
-        currentSlide = Math.max(0, Math.min(index, slides.length - 1));
-        updateCarousel();
-    }
-    
-    if (prevBtn) {
-        prevBtn.addEventListener('click', () => goToSlide(currentSlide - 1));
-    }
-    
-    if (nextBtn) {
-        nextBtn.addEventListener('click', () => goToSlide(currentSlide + 1));
-    }
-    
-    if (arrowLeft) {
-        arrowLeft.addEventListener('click', () => goToSlide(currentSlide - 1));
-    }
-    
-    if (arrowRight) {
-        arrowRight.addEventListener('click', () => goToSlide(currentSlide + 1));
-    }
-    
-    indicators.forEach((ind) => {
-        ind.addEventListener('click', () => {
-            const slideIndex = parseInt(ind.getAttribute('data-slide'));
-            if (!isNaN(slideIndex)) goToSlide(slideIndex);
-        });
-    });
-    
-    // Touch support
-    if (container) {
-        let touchStartX = 0;
-        
-        container.addEventListener('touchstart', (e) => {
-            touchStartX = e.changedTouches[0].screenX;
-        }, { passive: true });
-        
-        container.addEventListener('touchend', (e) => {
-            const touchEndX = e.changedTouches[0].screenX;
-            const diff = touchStartX - touchEndX;
-            if (Math.abs(diff) > 50) {
-                goToSlide(currentSlide + (diff > 0 ? 1 : -1));
+        (function() {
+            const carousel = document.querySelector('.courses-carousel');
+            const slides = document.querySelectorAll('.carousel-slide-courses');
+            const indicators = document.querySelectorAll('.courses-carousel-nav .carousel-indicator');
+            const prevBtn = document.getElementById('coursesPrevBtn');
+            const nextBtn = document.getElementById('coursesNextBtn');
+            const container = document.querySelector('.courses-carousel-container');
+            
+            if (!carousel || slides.length === 0) return;
+            
+            let currentSlide = 0;
+            
+            function updateCarousel() {
+                carousel.style.transform = `translateX(-${currentSlide * 100}%)`;
+                
+                indicators.forEach((ind, i) => {
+                    ind.classList.toggle('active', i === currentSlide);
+                });
+                
+                if (prevBtn) prevBtn.disabled = currentSlide === 0;
+                if (nextBtn) nextBtn.disabled = currentSlide === slides.length - 1;
             }
-        }, { passive: true });
-    }
-    
-    updateCarousel();
-})();
+            
+            function goToSlide(index) {
+                currentSlide = Math.max(0, Math.min(index, slides.length - 1));
+                updateCarousel();
+            }
+            
+            if (prevBtn) {
+                prevBtn.addEventListener('click', () => goToSlide(currentSlide - 1));
+            }
+            
+            if (nextBtn) {
+                nextBtn.addEventListener('click', () => goToSlide(currentSlide + 1));
+            }
+            
+            indicators.forEach((ind) => {
+                ind.addEventListener('click', () => {
+                    const slideIndex = parseInt(ind.getAttribute('data-slide'));
+                    if (!isNaN(slideIndex)) goToSlide(slideIndex);
+                });
+            });
+            
+            // Touch support
+            if (container) {
+                let touchStartX = 0;
+                
+                container.addEventListener('touchstart', (e) => {
+                    touchStartX = e.changedTouches[0].screenX;
+                }, { passive: true });
+                
+                container.addEventListener('touchend', (e) => {
+                    const touchEndX = e.changedTouches[0].screenX;
+                    const diff = touchStartX - touchEndX;
+                    if (Math.abs(diff) > 50) {
+                        goToSlide(currentSlide + (diff > 0 ? 1 : -1));
+                    }
+                }, { passive: true });
+            }
+            
+            updateCarousel();
+        })();
+        // Mobile menu toggle
+        const menuToggle = document.querySelector('.menu-toggle');
+        const navLinks = document.querySelector('.nav-links');
+        
+        menuToggle.addEventListener('click', () => {
+            navLinks.classList.toggle('active');
+            menuToggle.textContent = navLinks.classList.contains('active') ? '✕' : '☰';
+        });
+        
+        // Close mobile menu when clicking a link
+        document.querySelectorAll('.nav-links a').forEach(link => {
+            link.addEventListener('click', () => {
+                navLinks.classList.remove('active');
+                menuToggle.textContent = '☰';
+            });
+        });
+        
+        // Header scroll effect
+        const header = document.querySelector('header');
+        window.addEventListener('scroll', () => {
+            if (window.scrollY > 100) {
+                header.classList.add('scrolled');
+            } else {
+                header.classList.remove('scrolled');
+            }
+        });
+        
+        // Enhanced scroll animations with stagger
+        const observerOptions = {
+            threshold: 0.1,
+            rootMargin: '0px 0px -50px 0px'
+        };
+
+        const observer = new IntersectionObserver((entries) => {
+            entries.forEach((entry, index) => {
+                if (entry.isIntersecting) {
+                    // Stagger animation for items in the same container
+                    const delay = entry.target.dataset.delay || 0;
+                    setTimeout(() => {
+                        entry.target.classList.add('visible');
+                    }, delay);
+                }
+            });
+        }, observerOptions);
+
+        // Apply staggered delays to grid items
+        document.querySelectorAll('.event-item').forEach((item, index) => {
+            item.dataset.delay = index * 150;
+            observer.observe(item);
+        });
+        
+        document.querySelectorAll('.stat-card').forEach((card, index) => {
+            card.dataset.delay = index * 100;
+            observer.observe(card);
+        });
+        
+        document.querySelectorAll('.perk').forEach((perk, index) => {
+            perk.dataset.delay = index * 100;
+            observer.observe(perk);
+        });
+        
+
+        document.querySelectorAll('.contact-box').forEach((box, index) => {
+            box.dataset.delay = index * 150;
+            observer.observe(box);
+        });
+
+        document.querySelectorAll('.fade-in, .section-title').forEach(el => {
+            observer.observe(el);
+        });
+        
+        // Animated counters for stats
+        function animateCounter(element) {
+            if (!element) return;
+            const target = parseInt(element.dataset.count);
+            if (isNaN(target)) return;
+            
+            const duration = 2000;
+            const startTime = performance.now();
+            
+            const updateCounter = (currentTime) => {
+                const elapsed = currentTime - startTime;
+                const progress = Math.min(elapsed / duration, 1);
+                element.textContent = Math.floor(progress * target);
+                
+                if (progress < 1) {
+                    requestAnimationFrame(updateCounter);
+                } else {
+                    element.textContent = target;
+                }
+            };
+            
+            requestAnimationFrame(updateCounter);
+        }
+        
+        // Observe stat cards and trigger counter animation
+        const statsObserver = new IntersectionObserver((entries) => {
+            entries.forEach(entry => {
+                if (entry.isIntersecting && !entry.target.dataset.animated) {
+                    const counter = entry.target.querySelector('.stat-number');
+                    if (counter) {
+                        animateCounter(counter);
+                        entry.target.dataset.animated = 'true';
+                    }
+                }
+            });
+        }, { threshold: 0.3 });
+        
+        document.querySelectorAll('.stat-card').forEach(card => {
+            statsObserver.observe(card);
+        });
+        
+        // Trigger animation for already visible cards
+        setTimeout(() => {
+            document.querySelectorAll('.stat-card').forEach(card => {
+                const rect = card.getBoundingClientRect();
+                if (rect.top < window.innerHeight && rect.bottom > 0 && !card.dataset.animated) {
+                    const counter = card.querySelector('.stat-number');
+                    if (counter) {
+                        animateCounter(counter);
+                        card.dataset.animated = 'true';
+                    }
+                }
+            });
+        }, 500);
+
+        // Smooth scrolling with offset for fixed header
+        document.querySelectorAll('a[href^="#"]').forEach(anchor => {
+            anchor.addEventListener('click', function (e) {
+                e.preventDefault();
+                const target = document.querySelector(this.getAttribute('href'));
+                if (target) {
+                    const headerOffset = 80;
+                    const elementPosition = target.getBoundingClientRect().top;
+                    const offsetPosition = elementPosition + window.pageYOffset - headerOffset;
+
+                    window.scrollTo({
+                        top: offsetPosition,
+                        behavior: 'smooth'
+                    });
+                }
+            });
+        });
+        
+        // Prevent text selection on rapid mobile taps
+        let lastTap = 0;
+        document.addEventListener('touchend', (e) => {
+            const currentTime = new Date().getTime();
+            const tapLength = currentTime - lastTap;
+            if (tapLength < 500 && tapLength > 0) {
+                e.preventDefault();
+            }
+            lastTap = currentTime;
+        });
+        
+        // Course Modal Functionality
+        (function() {
+            // Create modal HTML
+            const modalHTML = `
+                <div class="course-modal-overlay" id="courseModal">
+                    <div class="course-modal">
+                        <div class="course-modal-header">
+                            <h3 class="course-modal-title" id="modalCourseName"></h3>
+                            <p class="course-modal-location" id="modalCourseLocation"></p>
+                        </div>
+                        <div class="course-modal-options">
+                            <a href="#" class="course-modal-btn" id="modalUdisc" target="_blank" rel="noopener noreferrer">
+                                <div class="course-modal-btn-icon udisc">
+                                    <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                                        <circle cx="12" cy="12" r="10" fill="white"/>
+                                        <circle cx="12" cy="12" r="7" fill="#FF6B00"/>
+                                        <circle cx="12" cy="12" r="3" fill="white"/>
+                                        <path d="M12 2C12 2 12 8 12 12" stroke="white" stroke-width="1.5" stroke-linecap="round"/>
+                                    </svg>
+                                </div>
+                                <div class="course-modal-btn-text">
+                                    <div class="course-modal-btn-title">View on UDisc</div>
+                                    <div class="course-modal-btn-subtitle">Course info, layouts & reviews</div>
+                                </div>
+                                <span class="course-modal-btn-arrow">→</span>
+                            </a>
+                            <a href="#" class="course-modal-btn" id="modalDirections" target="_blank" rel="noopener noreferrer">
+                                <div class="course-modal-btn-icon directions">📍</div>
+                                <div class="course-modal-btn-text">
+                                    <div class="course-modal-btn-title">Get Directions</div>
+                                    <div class="course-modal-btn-subtitle">Open in Google Maps</div>
+                                </div>
+                                <span class="course-modal-btn-arrow">→</span>
+                            </a>
+                            <a href="#" class="course-modal-btn" id="modalYoutube" target="_blank" rel="noopener noreferrer">
+                                <div class="course-modal-btn-icon youtube">▶</div>
+                                <div class="course-modal-btn-text">
+                                    <div class="course-modal-btn-title">Course Preview</div>
+                                    <div class="course-modal-btn-subtitle">Watch on YouTube</div>
+                                </div>
+                                <span class="course-modal-btn-arrow">→</span>
+                            </a>
+                        </div>
+                        <button class="course-modal-close" id="modalClose">Close</button>
+                    </div>
+                </div>
+            `;
+            
+            // Inject modal into page
+            document.body.insertAdjacentHTML('beforeend', modalHTML);
+            
+            const modal = document.getElementById('courseModal');
+            const modalCourseName = document.getElementById('modalCourseName');
+            const modalCourseLocation = document.getElementById('modalCourseLocation');
+            const modalUdisc = document.getElementById('modalUdisc');
+            const modalDirections = document.getElementById('modalDirections');
+            const modalYoutube = document.getElementById('modalYoutube');
+            const modalClose = document.getElementById('modalClose');
+            
+            // Open modal function
+            function openModal(courseData) {
+                modalCourseName.textContent = courseData.course;
+                modalCourseLocation.textContent = '📍 ' + courseData.location;
+                
+                // Set UDisc link
+                if (courseData.udisc) {
+                    modalUdisc.href = courseData.udisc;
+                    modalUdisc.classList.remove('disabled');
+                } else {
+                    modalUdisc.href = '#';
+                    modalUdisc.classList.add('disabled');
+                }
+                
+                // Set directions link
+                if (courseData.coords) {
+                    const [lat, lng] = courseData.coords.split(',');
+                    modalDirections.href = `https://www.google.com/maps/dir/?api=1&destination=${lat},${lng}`;
+                    modalDirections.classList.remove('disabled');
+                } else {
+                    modalDirections.href = '#';
+                    modalDirections.classList.add('disabled');
+                }
+                
+                // Set YouTube link
+                if (courseData.youtube && courseData.youtube.trim() !== '') {
+                    modalYoutube.href = courseData.youtube;
+                    modalYoutube.classList.remove('disabled');
+                    modalYoutube.querySelector('.course-modal-btn-subtitle').textContent = 'Watch on YouTube';
+                } else {
+                    modalYoutube.href = '#';
+                    modalYoutube.classList.add('disabled');
+                    modalYoutube.querySelector('.course-modal-btn-subtitle').textContent = 'Coming soon';
+                }
+                
+                modal.classList.add('active');
+                document.body.style.overflow = 'hidden';
+            }
+            
+            // Close modal function
+            function closeModal() {
+                modal.classList.remove('active');
+                document.body.style.overflow = '';
+            }
+            
+            // Add click handlers to course cards
+            document.querySelectorAll('.course-card[data-course]').forEach(card => {
+                card.style.cursor = 'pointer';
+                card.addEventListener('click', function(e) {
+                    e.preventDefault();
+                    const courseData = {
+                        course: this.dataset.course,
+                        location: this.dataset.location,
+                        udisc: this.dataset.udisc,
+                        coords: this.dataset.coords,
+                        youtube: this.dataset.youtube
+                    };
+                    openModal(courseData);
+                });
+            });
+            
+            // Close modal handlers
+            modalClose.addEventListener('click', closeModal);
+            
+            modal.addEventListener('click', function(e) {
+                if (e.target === modal) {
+                    closeModal();
+                }
+            });
+            
+            document.addEventListener('keydown', function(e) {
+                if (e.key === 'Escape' && modal.classList.contains('active')) {
+                    closeModal();
+                }
+            });
+            
+            // Prevent disabled buttons from navigating
+            document.querySelectorAll('.course-modal-btn.disabled').forEach(btn => {
+                btn.addEventListener('click', function(e) {
+                    e.preventDefault();
+                });
+            });
+        })();
         
        // ============================================
         // Tournament Feed from Disc Golf Scene
@@ -5933,8 +6152,6 @@ h3 {
     </script>
 </body>
 </html>
-
-
 
 
 
