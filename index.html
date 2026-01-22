@@ -4325,34 +4325,274 @@ h3 {
             </div>
         </div>
         
-        <!-- Tournament Feed from Disc Golf Scene -->
-        <div class="tournament-feed" id="tournamentFeed">
-            <div class="tournament-feed-header">
-                <div>
-                    <h3 class="tournament-feed-title">
-                        <span class="icon">🏆</span>
-                        Area Tournaments
-                    </h3>
-                    <p class="tournament-feed-subtitle">PDGA sanctioned events within 60 miles of Greenville, NC</p>
-                </div>
-                <a href="https://www.discgolfscene.com/tournaments/North_Carolina" target="_blank" rel="noopener noreferrer" class="tournament-feed-link">
-                    View All on DGS →
-                </a>
+      <!-- 
+    TOURNAMENTS SECTION - Matches GVDG Site Styling
+    Place this in your index.html where you want the tournaments section
+    (Recommend placing after the Upcoming Events section or replacing the current Area Tournaments)
+-->
+
+<section id="area-tournaments" class="section">
+    <div class="container">
+        <h2 class="section-title">🏆 Area Tournaments</h2>
+        <p class="section-subtitle">PDGA sanctioned events within 60 miles of Greenville, NC</p>
+        
+        <!-- Main Tournament Search Card -->
+        <a href="https://www.discgolfscene.com/tournaments/search?filter%5Blocation%5D%5Bcountry%5D=USA&filter%5Blocation%5D%5Bname%5D=Greenville%2C+NC&filter%5Blocation%5D%5Blatitude%5D=35.597011&filter%5Blocation%5D%5Blongitude%5D=-77.375799&filter%5Blocation%5D%5Bdistance%5D=60&filter%5Blocation%5D%5Bunits%5D=mi&filter%5Blocation%5D%5Bzipcode%5D=27833&filter%5Bformat%5D%5B0%5D=s&filter%5Bformat%5D%5B1%5D=d&filter%5Bformat%5D%5B2%5D=t" 
+           target="_blank" 
+           rel="noopener" 
+           class="tournament-search-card">
+            <div class="tournament-search-icon">
+                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <circle cx="11" cy="11" r="8"></circle>
+                    <path d="m21 21-4.35-4.35"></path>
+                </svg>
             </div>
-            
-            <div class="filter-tabs" id="tournamentFilters">
-                <button class="filter-tab active" data-filter="all">All Events</button>
-                <button class="filter-tab" data-filter="gvdg">GVDG Events</button>
-                <button class="filter-tab" data-filter="pdga">PDGA Sanctioned</button>
+            <div class="tournament-search-content">
+                <h3>Browse Upcoming Tournaments</h3>
+                <p>Singles, doubles & team events near Greenville</p>
             </div>
-            
-            <p class="radius-note">📍 Showing tournaments at courses within ~60 miles of Greenville</p>
-            
-            <div class="tournament-grid" id="tournamentGrid">
-                <!-- Tournaments will be populated here -->
+            <div class="tournament-search-arrow">
+                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"></path>
+                    <polyline points="15 3 21 3 21 9"></polyline>
+                    <line x1="10" y1="14" x2="21" y2="3"></line>
+                </svg>
             </div>
+        </a>
+
+        <!-- Quick Links -->
+        <div class="tournament-quick-links">
+            <a href="https://www.discgolfscene.com/tournaments/North_Carolina" target="_blank" rel="noopener" class="quick-link-card">
+                <span class="quick-link-icon">📍</span>
+                <span class="quick-link-text">All NC Tournaments</span>
+            </a>
+            <a href="https://www.pdga.com/tour/search?date_filter%5Bmin%5D%5Bdate%5D=&State=NC&Country=US" target="_blank" rel="noopener" class="quick-link-card">
+                <span class="quick-link-icon">🏅</span>
+                <span class="quick-link-text">PDGA NC Events</span>
+            </a>
+            <a href="https://www.discgolfscene.com/leagues/North_Carolina" target="_blank" rel="noopener" class="quick-link-card">
+                <span class="quick-link-icon">📅</span>
+                <span class="quick-link-text">NC Leagues</span>
+            </a>
         </div>
-    </section>
+    </div>
+</section>
+
+<style>
+/* ========================================
+   TOURNAMENTS SECTION - GVDG Style Match
+   ======================================== */
+
+/* Section Container - matches your existing sections */
+#area-tournaments {
+    padding: 5rem 2rem;
+    background: var(--bg-secondary, #f8f9fa);
+}
+
+#area-tournaments .container {
+    max-width: 1200px;
+    margin: 0 auto;
+}
+
+/* Section Title - matches your h2 styling */
+#area-tournaments .section-title {
+    text-align: center;
+    font-size: 2rem;
+    font-weight: 700;
+    margin-bottom: 0.5rem;
+    color: var(--text-primary, #333);
+}
+
+#area-tournaments .section-subtitle {
+    text-align: center;
+    color: var(--text-secondary, #666);
+    font-size: 1.1rem;
+    margin-bottom: 2rem;
+}
+
+/* Main Tournament Search Card - matches your card styling */
+.tournament-search-card {
+    display: flex;
+    align-items: center;
+    gap: 1.5rem;
+    padding: 1.5rem 2rem;
+    background: linear-gradient(135deg, #FF6B35 0%, #e85a28 100%);
+    border-radius: 12px;
+    text-decoration: none;
+    color: white;
+    box-shadow: 0 4px 15px rgba(255, 107, 53, 0.3);
+    transition: transform 0.3s ease, box-shadow 0.3s ease;
+    max-width: 700px;
+    margin: 0 auto 1.5rem;
+}
+
+.tournament-search-card:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 8px 25px rgba(255, 107, 53, 0.4);
+}
+
+.tournament-search-icon {
+    flex-shrink: 0;
+    width: 56px;
+    height: 56px;
+    background: rgba(255, 255, 255, 0.2);
+    border-radius: 12px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.tournament-search-icon svg {
+    width: 28px;
+    height: 28px;
+}
+
+.tournament-search-content {
+    flex: 1;
+}
+
+.tournament-search-content h3 {
+    font-size: 1.25rem;
+    font-weight: 700;
+    margin: 0 0 0.25rem 0;
+}
+
+.tournament-search-content p {
+    margin: 0;
+    opacity: 0.9;
+    font-size: 0.95rem;
+}
+
+.tournament-search-arrow {
+    flex-shrink: 0;
+    width: 40px;
+    height: 40px;
+    background: rgba(255, 255, 255, 0.15);
+    border-radius: 8px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: background 0.2s ease;
+}
+
+.tournament-search-arrow svg {
+    width: 20px;
+    height: 20px;
+}
+
+.tournament-search-card:hover .tournament-search-arrow {
+    background: rgba(255, 255, 255, 0.25);
+}
+
+/* Quick Links Grid - matches your card grid styling */
+.tournament-quick-links {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 1rem;
+    max-width: 700px;
+    margin: 0 auto;
+}
+
+.quick-link-card {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.5rem;
+    padding: 1rem 1.25rem;
+    background: var(--card-bg, #ffffff);
+    border-radius: 12px;
+    text-decoration: none;
+    color: var(--text-primary, #333);
+    font-weight: 500;
+    font-size: 0.9rem;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+    border: 1px solid var(--border-color, rgba(0, 0, 0, 0.06));
+    transition: transform 0.2s ease, box-shadow 0.2s ease, border-color 0.2s ease;
+}
+
+.quick-link-card:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.12);
+    border-color: #FF6B35;
+}
+
+.quick-link-icon {
+    font-size: 1.1rem;
+}
+
+.quick-link-text {
+    white-space: nowrap;
+}
+
+/* ========================================
+   RESPONSIVE - Mobile Styles
+   ======================================== */
+@media (max-width: 768px) {
+    #area-tournaments {
+        padding: 3rem 1rem;
+    }
+    
+    #area-tournaments .section-title {
+        font-size: 1.75rem;
+    }
+    
+    .tournament-search-card {
+        flex-direction: column;
+        text-align: center;
+        padding: 1.5rem;
+        gap: 1rem;
+    }
+    
+    .tournament-search-arrow {
+        display: none;
+    }
+    
+    .tournament-quick-links {
+        grid-template-columns: 1fr;
+        gap: 0.75rem;
+    }
+    
+    .quick-link-card {
+        justify-content: flex-start;
+        padding: 0.875rem 1rem;
+    }
+}
+
+/* ========================================
+   DARK THEME - Matches your dark mode
+   ======================================== */
+[data-theme="dark"] #area-tournaments {
+    background: var(--bg-secondary, #1a1a2e);
+}
+
+[data-theme="dark"] #area-tournaments .section-title {
+    color: var(--text-primary, #ffffff);
+}
+
+[data-theme="dark"] #area-tournaments .section-subtitle {
+    color: var(--text-secondary, #a0a0a0);
+}
+
+[data-theme="dark"] .tournament-search-card {
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.3);
+}
+
+[data-theme="dark"] .tournament-search-card:hover {
+    box-shadow: 0 8px 25px rgba(0, 0, 0, 0.4);
+}
+
+[data-theme="dark"] .quick-link-card {
+    background: var(--card-bg, #2a2a3e);
+    color: var(--text-primary, #ffffff);
+    border-color: rgba(255, 255, 255, 0.1);
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
+}
+
+[data-theme="dark"] .quick-link-card:hover {
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+    border-color: #FF6B35;
+}
+</style>
 
     <!-- Membership Section -->
     <section id="membership">
@@ -5426,6 +5666,7 @@ h3 {
     </script>
 </body>
 </html>
+
 
 
 
