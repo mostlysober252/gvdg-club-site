@@ -3916,7 +3916,108 @@ h3 {
         gap: 1rem;
     }
 }
-	
+/* ============================================
+   FIX: Mobile Hamburger Menu Visibility
+   
+   Problem: The hamburger icon disappears on mobile
+   in both light and dark modes.
+   
+   Add this CSS at the END of your stylesheet
+   ============================================ */
+
+/* Ensure hamburger is visible on mobile */
+@media (max-width: 768px) {
+    /* Reset and force hamburger visibility */
+    .menu-toggle {
+        display: flex !important;
+        align-items: center !important;
+        justify-content: center !important;
+        width: 44px !important;
+        height: 44px !important;
+        min-width: 44px !important;
+        min-height: 44px !important;
+        background: transparent !important;
+        border: none !important;
+        color: white !important;
+        font-size: 1.5rem !important;
+        cursor: pointer !important;
+        padding: 0 !important;
+        z-index: 1001 !important;
+        -webkit-tap-highlight-color: transparent !important;
+        /* Ensure it's not being clipped or hidden */
+        opacity: 1 !important;
+        visibility: visible !important;
+        overflow: visible !important;
+    }
+    
+    /* Ensure nav-right container is visible */
+    .nav-right {
+        display: flex !important;
+        align-items: center !important;
+        gap: 0.75rem !important;
+        /* Don't let it overflow or get cut off */
+        flex-shrink: 0 !important;
+    }
+    
+    /* Theme toggle should stay in nav-right, not fixed position on mobile */
+    .theme-toggle {
+        position: relative !important;
+        bottom: auto !important;
+        right: auto !important;
+        width: 44px !important;
+        height: 44px !important;
+        min-width: 44px !important;
+        min-height: 44px !important;
+        display: flex !important;
+        align-items: center !important;
+        justify-content: center !important;
+        /* Remove the fixed positioning that was hiding it */
+        box-shadow: none !important;
+    }
+    
+    /* Header layout fix */
+    header nav {
+        display: flex !important;
+        justify-content: space-between !important;
+        align-items: center !important;
+        width: 100% !important;
+    }
+    
+    /* Make sure logo doesn't push nav-right off screen */
+    .logo {
+        flex-shrink: 1 !important;
+        min-width: 0 !important;
+    }
+    
+    .logo-image {
+        max-width: 150px !important;
+        height: auto !important;
+    }
+}
+
+/* Dark mode specific - ensure white icon color */
+[data-theme="dark"] .menu-toggle {
+    color: white !important;
+}
+
+/* Light mode - ensure icon is visible against dark header */
+.menu-toggle {
+    color: white !important;
+}
+
+/* Hide hamburger on desktop */
+@media (min-width: 769px) {
+    .menu-toggle {
+        display: none !important;
+    }
+    
+    /* Reset theme toggle to normal position on desktop */
+    .theme-toggle {
+        position: relative !important;
+        bottom: auto !important;
+        right: auto !important;
+    }
+}	
     </style>
 </head>
 <body>
@@ -6283,6 +6384,7 @@ h3 {
     </script>
 </body>
 </html>
+
 
 
 
