@@ -50,27 +50,34 @@
         
       /* Site background image layer */
 body{
-  position: relative;
+  position: relative; /* allows the ::before layer to sit behind content */
 }
 
+/* Background image + subtle fade so content stays readable */
 body::before{
   content: "";
   position: fixed;
   inset: 0;
   z-index: -1;
+
   background:
+    /* top-to-bottom fade to match your theme */
     linear-gradient(
       to bottom,
       rgba(244,244,249,0.25),
       rgba(244,244,249,0.15)
     ),
     url("img/bg/forest-bg.png");
+
   background-repeat: no-repeat;
   background-position: center bottom;
   background-size: cover;
+
+  /* adjust if you want it more/less visible */
   opacity: 1;
 }
 
+/* Dark mode background adjustment */
 [data-theme="dark"] body::before {
   background:
     linear-gradient(
@@ -84,6 +91,7 @@ body::before{
   background-size: cover;
 }
 
+        
         /* Header Navigation */
         header {
             position: fixed;
@@ -149,6 +157,7 @@ body::before{
             gap: 1.5rem;
         }
         
+        /* Dark Mode Toggle - Enhanced for mobile */
         .theme-toggle {
             background: rgba(255, 255, 255, 0.1);
             border: 2px solid rgba(255, 255, 255, 0.3);
@@ -215,6 +224,7 @@ body::before{
             color: var(--primary);
         }
         
+        /* Mobile Menu - Enhanced */
         .menu-toggle {
             display: none;
             background: none;
@@ -299,7 +309,7 @@ body::before{
             }
         }
         
-        /* Hero Section */
+        /* Hero Section - Enhanced for mobile */
         .hero {
             position: relative;
             height: 100vh;
@@ -347,157 +357,224 @@ body::before{
             background: transparent;
         }
         
-        .carousel-slide:nth-child(1) { background-image: url('img/slide1.jpg'); }
-        .carousel-slide:nth-child(2) { background-image: url('img/slide2.jpg'); }
-        .carousel-slide:nth-child(3) { background-image: url('img/slide3.jpg'); }
-        .carousel-slide:nth-child(4) { background-image: url('img/slide4.jpg'); }
-        .carousel-slide:nth-child(5) { background-image: url('img/slide5.jpg'); }
+        .carousel-slide:nth-child(1) {
+            background-image: url('img/slide1.jpg');
+        }
         
+        .carousel-slide:nth-child(2) {
+            background-image: url('img/slide2.jpg');
+        }
+        
+        .carousel-slide:nth-child(3) {
+            background-image: url('img/slide3.jpg');
+        }
+        
+        .carousel-slide:nth-child(4) {
+            background-image: url('img/slide4.jpg');
+        }
+        
+        .carousel-slide:nth-child(5) {
+            background-image: url('img/slide5.jpg');
+        }
+        
+        /* Enhanced Carousel Controls for Touch */
         .carousel-controls {
-            position: absolute !important;
-            bottom: 30px !important;
-            left: 50% !important;
-            transform: translateX(-50%) !important;
-            display: flex !important;
-            justify-content: center !important;
-            align-items: center !important;
-            gap: 16px !important;
-            z-index: 10 !important;
-            padding: 10px !important;
-            width: auto !important;
+            position: absolute;
+            bottom: 30px;
+            left: 50%;
+            transform: translateX(-50%);
+            display: flex;
+            gap: 15px;
+            z-index: 10;
+            padding: 1rem;
         }
+        
+        /* ============================================
+   GVDG CAROUSEL DOTS FIX
+   
+   PROBLEM: The carousel dots are rendering as large 
+   ovals/pills on mobile instead of small circles.
+   
+   CAUSE: Conflicting CSS rules where:
+   1. Dots have padding: 15px for touch targets
+   2. min-width/min-height: 44px from mobile styles
+   3. The ::before pseudo-element approach isn't working
+   
+   SOLUTION: Add this CSS at the VERY END of your 
+   stylesheet to override all previous rules.
+   ============================================ */
 
-        .carousel-dot {
-            width: 12px !important;
-            height: 12px !important;
-            min-width: 12px !important;
-            min-height: 12px !important;
-            max-width: 12px !important;
-            max-height: 12px !important;
-            padding: 0 !important;
-            box-sizing: border-box !important;
-            background-clip: border-box !important;
-            border-radius: 50% !important;
-            background: rgba(255, 255, 255, 0.4) !important;
-            border: 2px solid rgba(255, 255, 255, 0.8) !important;
-            cursor: pointer !important;
-            transition: all 0.3s ease !important;
-            -webkit-tap-highlight-color: transparent !important;
-            position: relative !important;
-            flex-shrink: 0 !important;
-            flex-grow: 0 !important;
-        }
+/* ===== HERO CAROUSEL DOTS ===== */
 
-        .carousel-dot::before {
-            content: '' !important;
-            position: absolute !important;
-            top: 50% !important;
-            left: 50% !important;
-            transform: translate(-50%, -50%) !important;
-            width: 44px !important;
-            height: 44px !important;
-            background: transparent !important;
-            border: none !important;
-            border-radius: 50% !important;
-        }
+/* Container reset */
+.carousel-controls {
+    position: absolute !important;
+    bottom: 30px !important;
+    left: 50% !important;
+    transform: translateX(-50%) !important;
+    display: flex !important;
+    justify-content: center !important;
+    align-items: center !important;
+    gap: 16px !important;
+    z-index: 10 !important;
+    padding: 10px !important;
+    width: auto !important;
+}
 
-        .carousel-dot.active {
-            background: white !important;
-            border-color: white !important;
-            transform: scale(1.3) !important;
-            width: 12px !important;
-            height: 12px !important;
-        }
+/* Individual dot styling - CRITICAL FIXES */
+.carousel-dot {
+    /* Reset all problematic properties */
+    width: 12px !important;
+    height: 12px !important;
+    min-width: 12px !important;
+    min-height: 12px !important;
+    max-width: 12px !important;
+    max-height: 12px !important;
+    
+    /* Remove the padding that's causing oval shapes */
+    padding: 0 !important;
+    
+    /* Ensure proper box model */
+    box-sizing: border-box !important;
+    background-clip: border-box !important;
+    
+    /* Visual styling */
+    border-radius: 50% !important;
+    background: rgba(255, 255, 255, 0.4) !important;
+    border: 2px solid rgba(255, 255, 255, 0.8) !important;
+    
+    /* Interaction */
+    cursor: pointer !important;
+    transition: all 0.3s ease !important;
+    -webkit-tap-highlight-color: transparent !important;
+    
+    /* Position for touch target pseudo-element */
+    position: relative !important;
+    
+    /* Ensure flex doesn't stretch it */
+    flex-shrink: 0 !important;
+    flex-grow: 0 !important;
+}
 
-        .carousel-dot:hover {
-            background: rgba(255, 255, 255, 0.8) !important;
-            border-color: white !important;
-        }
+/* Touch target using pseudo-element (invisible) */
+.carousel-dot::before {
+    content: '' !important;
+    position: absolute !important;
+    top: 50% !important;
+    left: 50% !important;
+    transform: translate(-50%, -50%) !important;
+    width: 44px !important;
+    height: 44px !important;
+    background: transparent !important;
+    border: none !important;
+    border-radius: 50% !important;
+    /* This creates an invisible but tappable area */
+}
 
-        @media (max-width: 768px) {
-            .carousel-controls {
-                bottom: 25px !important;
-                gap: 14px !important;
-            }
-            
-            .carousel-dot {
-                width: 10px !important;
-                height: 10px !important;
-                min-width: 10px !important;
-                min-height: 10px !important;
-                max-width: 10px !important;
-                max-height: 10px !important;
-            }
-            
-            .carousel-dot.active {
-                width: 10px !important;
-                height: 10px !important;
-                transform: scale(1.4) !important;
-            }
-        }
+/* Active dot state */
+.carousel-dot.active {
+    background: white !important;
+    border-color: white !important;
+    transform: scale(1.3) !important;
+    /* Keep same dimensions, just scale up */
+    width: 12px !important;
+    height: 12px !important;
+}
 
-        @media (max-width: 480px) {
-            .carousel-controls {
-                bottom: 20px !important;
-                gap: 12px !important;
-            }
-            
-            .carousel-dot {
-                width: 8px !important;
-                height: 8px !important;
-                min-width: 8px !important;
-                min-height: 8px !important;
-                max-width: 8px !important;
-                max-height: 8px !important;
-            }
-            
-            .carousel-dot.active {
-                width: 8px !important;
-                height: 8px !important;
-                transform: scale(1.5) !important;
-            }
-        }
+/* Hover state */
+.carousel-dot:hover {
+    background: rgba(255, 255, 255, 0.8) !important;
+    border-color: white !important;
+}
 
-        .carousel-indicators .carousel-indicator,
-        .about-carousel-nav .carousel-indicator,
-        .courses-carousel-nav .carousel-indicator {
-            width: 12px !important;
-            height: 12px !important;
-            min-width: 12px !important;
-            min-height: 12px !important;
-            max-width: 12px !important;
-            max-height: 12px !important;
-            padding: 0 !important;
-            border-radius: 50% !important;
-            background: var(--text-muted) !important;
-            border: none !important;
-            cursor: pointer !important;
-            opacity: 0.4 !important;
-            transition: all 0.3s ease !important;
-            flex-shrink: 0 !important;
-            position: relative !important;
-        }
+/* ===== MOBILE SPECIFIC ===== */
+@media (max-width: 768px) {
+    .carousel-controls {
+        bottom: 25px !important;
+        gap: 14px !important;
+    }
+    
+    .carousel-dot {
+        width: 10px !important;
+        height: 10px !important;
+        min-width: 10px !important;
+        min-height: 10px !important;
+        max-width: 10px !important;
+        max-height: 10px !important;
+    }
+    
+    .carousel-dot.active {
+        width: 10px !important;
+        height: 10px !important;
+        transform: scale(1.4) !important;
+    }
+}
 
-        .carousel-indicators .carousel-indicator::before,
-        .about-carousel-nav .carousel-indicator::before,
-        .courses-carousel-nav .carousel-indicator::before {
-            content: '' !important;
-            position: absolute !important;
-            top: 50% !important;
-            left: 50% !important;
-            transform: translate(-50%, -50%) !important;
-            width: 44px !important;
-            height: 44px !important;
-            background: transparent !important;
-        }
+@media (max-width: 480px) {
+    .carousel-controls {
+        bottom: 20px !important;
+        gap: 12px !important;
+    }
+    
+    .carousel-dot {
+        width: 8px !important;
+        height: 8px !important;
+        min-width: 8px !important;
+        min-height: 8px !important;
+        max-width: 8px !important;
+        max-height: 8px !important;
+    }
+    
+    .carousel-dot.active {
+        width: 8px !important;
+        height: 8px !important;
+        transform: scale(1.5) !important;
+    }
+}
 
-        .carousel-indicators .carousel-indicator.active,
-        .about-carousel-nav .carousel-indicator.active,
-        .courses-carousel-nav .carousel-indicator.active {
-            background: var(--primary) !important;
-            opacity: 1 !important;
-            transform: scale(1.3) !important;
-        }
+/* ===== SECTION CAROUSEL INDICATORS ===== */
+/* (About section and Courses section carousels) */
+
+.carousel-indicators .carousel-indicator,
+.about-carousel-nav .carousel-indicator,
+.courses-carousel-nav .carousel-indicator {
+    width: 12px !important;
+    height: 12px !important;
+    min-width: 12px !important;
+    min-height: 12px !important;
+    max-width: 12px !important;
+    max-height: 12px !important;
+    padding: 0 !important;
+    border-radius: 50% !important;
+    background: var(--text-muted) !important;
+    border: none !important;
+    cursor: pointer !important;
+    opacity: 0.4 !important;
+    transition: all 0.3s ease !important;
+    flex-shrink: 0 !important;
+    position: relative !important;
+}
+
+.carousel-indicators .carousel-indicator::before,
+.about-carousel-nav .carousel-indicator::before,
+.courses-carousel-nav .carousel-indicator::before {
+    content: '' !important;
+    position: absolute !important;
+    top: 50% !important;
+    left: 50% !important;
+    transform: translate(-50%, -50%) !important;
+    width: 44px !important;
+    height: 44px !important;
+    background: transparent !important;
+}
+
+.carousel-indicators .carousel-indicator.active,
+.about-carousel-nav .carousel-indicator.active,
+.courses-carousel-nav .carousel-indicator.active {
+    background: var(--primary) !important;
+    opacity: 1 !important;
+    transform: scale(1.3) !important;
+}
         
         .carousel-arrow {
             position: absolute;
@@ -531,8 +608,13 @@ body::before{
             transform: translateY(-50%) scale(0.95);
         }
         
-        .carousel-prev { left: 20px; }
-        .carousel-next { right: 20px; }
+        .carousel-prev {
+            left: 20px;
+        }
+        
+        .carousel-next {
+            right: 20px;
+        }
         
         @media (max-width: 768px) {
             .carousel-arrow {
@@ -543,10 +625,17 @@ body::before{
                 font-size: 1.2rem;
             }
             
-            .carousel-prev { left: 10px; }
-            .carousel-next { right: 10px; }
+            .carousel-prev {
+                left: 10px;
+            }
             
-            .carousel-controls { bottom: 20px; }
+            .carousel-next {
+                right: 10px;
+            }
+            
+            .carousel-controls {
+                bottom: 20px;
+            }
         }
         
         .hero-content {
@@ -560,8 +649,14 @@ body::before{
         }
         
         @keyframes fadeInUp {
-            from { opacity: 0; transform: translateY(30px); }
-            to { opacity: 1; transform: translateY(0); }
+            from {
+                opacity: 0;
+                transform: translateY(30px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
         }
         
         .hero-title {
@@ -608,6 +703,7 @@ body::before{
             transform: translateY(-1px);
         }
         
+        /* Scroll Indicator */
         .scroll-indicator {
             position: absolute;
             bottom: 80px;
@@ -618,9 +714,15 @@ body::before{
         }
         
         @keyframes bounce {
-            0%, 20%, 50%, 80%, 100% { transform: translateX(-50%) translateY(0); }
-            40% { transform: translateX(-50%) translateY(-10px); }
-            60% { transform: translateX(-50%) translateY(-5px); }
+            0%, 20%, 50%, 80%, 100% {
+                transform: translateX(-50%) translateY(0);
+            }
+            40% {
+                transform: translateX(-50%) translateY(-10px);
+            }
+            60% {
+                transform: translateX(-50%) translateY(-5px);
+            }
         }
         
         .scroll-indicator::after {
@@ -632,8 +734,13 @@ body::before{
         }
         
         @media (max-width: 768px) {
-            .hero { min-height: 500px; }
-            .scroll-indicator { bottom: 100px; }
+            .hero {
+                min-height: 500px;
+            }
+            
+            .scroll-indicator {
+                bottom: 100px;
+            }
         }
         
         /* Sections */
@@ -660,7 +767,7 @@ body::before{
             transform: translateY(0);
         }
         
-        /* About Section */
+        /* About Section - Enhanced with Interactive Stats */
         #about {
             background: var(--bg-secondary);
             border-radius: 20px;
@@ -675,7 +782,9 @@ body::before{
             border-color: rgba(255, 255, 255, 0.05);
         }
         
-        .about-content { display: block; }
+        .about-content {
+            display: block;
+        }
         
         .about-text {
             font-size: clamp(1rem, 2vw, 1.1rem);
@@ -683,8 +792,11 @@ body::before{
             color: var(--text-secondary);
         }
         
-        .about-text p { margin-bottom: 1.5rem; }
+        .about-text p {
+            margin-bottom: 1.5rem;
+        }
         
+        /* Interactive Stats Counter */
         .stats-grid {
             display: grid;
             grid-template-columns: 1fr;
@@ -693,7 +805,9 @@ body::before{
         }
         
         @media (min-width: 480px) {
-            .stats-grid { grid-template-columns: repeat(2, 1fr); }
+            .stats-grid {
+                grid-template-columns: repeat(2, 1fr);
+            }
         }
         
         .stat-card {
@@ -755,6 +869,7 @@ body::before{
             box-sizing: border-box;
         }
         
+        /* Slide 1: About content layout */
         .carousel-slide-about .about-content {
             display: grid;
             grid-template-columns: 1fr;
@@ -777,7 +892,7 @@ body::before{
             margin-top: 2.5rem;
         }
         
-        /* Board Members */
+        /* Board Members Grid */
         .board-members-grid {
             display: grid;
             grid-template-columns: repeat(2, 1fr);
@@ -785,7 +900,9 @@ body::before{
         }
         
         @media (min-width: 768px) {
-            .board-members-grid { grid-template-columns: repeat(3, 1fr); }
+            .board-members-grid {
+                grid-template-columns: repeat(3, 1fr);
+            }
         }
         
         .board-member-card {
@@ -859,7 +976,7 @@ body::before{
             font-weight: 600;
         }
         
-        /* Courses Section */
+        /* Courses Carousel Section */
         #courses {
             background: var(--bg-secondary);
             border-radius: 20px;
@@ -915,7 +1032,9 @@ body::before{
         }
         
         @media (max-width: 640px) {
-            .courses-grid { grid-template-columns: 1fr; }
+            .courses-grid {
+                grid-template-columns: 1fr;
+            }
         }
         
         .course-card {
@@ -961,7 +1080,9 @@ body::before{
             opacity: 0.3;
         }
         
-        .course-content { padding: 1.5rem; }
+        .course-content {
+            padding: 1.5rem;
+        }
         
         .course-header {
             display: flex;
@@ -987,9 +1108,20 @@ body::before{
             white-space: nowrap;
         }
         
-        .difficulty-beginner { background: linear-gradient(135deg, var(--green), #4a7c23); color: white; }
-        .difficulty-intermediate { background: linear-gradient(135deg, var(--accent), #e5a600); color: var(--dark); }
-        .difficulty-advanced { background: linear-gradient(135deg, var(--primary), #cc4a1a); color: white; }
+        .difficulty-beginner {
+            background: linear-gradient(135deg, var(--green), #4a7c23);
+            color: white;
+        }
+        
+        .difficulty-intermediate {
+            background: linear-gradient(135deg, var(--accent), #e5a600);
+            color: var(--dark);
+        }
+        
+        .difficulty-advanced {
+            background: linear-gradient(135deg, var(--primary), #cc4a1a);
+            color: white;
+        }
         
         .course-location {
             font-size: 0.85rem;
@@ -1006,7 +1138,10 @@ body::before{
             border-radius: 10px;
         }
         
-        .info-item { flex: 1; text-align: center; }
+        .info-item {
+            flex: 1;
+            text-align: center;
+        }
         
         .info-label {
             font-size: 0.75rem;
@@ -1181,11 +1316,21 @@ body::before{
             font-size: 1.4rem;
         }
         
-        .course-modal-btn-icon.udisc { background: linear-gradient(135deg, #FF6B00, #FF9500); }
-        .course-modal-btn-icon.directions { background: linear-gradient(135deg, #4285F4, #34A853); }
-        .course-modal-btn-icon.youtube { background: linear-gradient(135deg, #FF0000, #CC0000); }
+        .course-modal-btn-icon.udisc {
+            background: linear-gradient(135deg, #FF6B00, #FF9500);
+        }
         
-        .course-modal-btn-text { flex: 1; }
+        .course-modal-btn-icon.directions {
+            background: linear-gradient(135deg, #4285F4, #34A853);
+        }
+        
+        .course-modal-btn-icon.youtube {
+            background: linear-gradient(135deg, #FF0000, #CC0000);
+        }
+        
+        .course-modal-btn-text {
+            flex: 1;
+        }
         
         .course-modal-btn-title {
             font-weight: 700;
@@ -1236,7 +1381,11 @@ body::before{
             pointer-events: none;
         }
         
-        /* Events Section */
+        .course-modal-btn.disabled .course-modal-btn-subtitle {
+            color: var(--text-muted);
+        }
+        
+        /* Events Section - Interactive Cards */
         #events {
             background: var(--bg-secondary);
             border-radius: 20px;
@@ -1248,150 +1397,6 @@ body::before{
         
         [data-theme="dark"] #events {
             border-color: rgba(255, 255, 255, 0.05);
-        }
-        
-        .event-list {
-            display: grid;
-            gap: 1.5rem;
-        }
-        
-        .event-item {
-            display: flex;
-            gap: 1.5rem;
-            padding: 1.5rem;
-            background: var(--bg-primary);
-            border-radius: 15px;
-            border-left: 5px solid var(--primary);
-            transition: all 0.3s ease;
-            opacity: 0;
-            transform: translateX(-30px);
-            cursor: pointer;
-            text-decoration: none;
-            color: inherit;
-        }
-        
-        .event-item.visible {
-            opacity: 1;
-            transform: translateX(0);
-        }
-        
-        .event-item:hover {
-            transform: translateX(10px);
-            box-shadow: 0 5px 20px var(--card-shadow);
-            border-left-width: 8px;
-        }
-        
-        .event-date {
-            flex-shrink: 0;
-            width: 80px;
-            height: 80px;
-            background: linear-gradient(135deg, var(--primary), var(--secondary));
-            border-radius: 12px;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            justify-content: center;
-            color: white;
-            transition: all 0.3s ease;
-        }
-        
-        .event-item:hover .event-date {
-            transform: rotate(5deg) scale(1.05);
-        }
-        
-        .event-day {
-            font-family: 'Bebas Neue', sans-serif;
-            font-size: 2rem;
-            line-height: 1;
-        }
-        
-        .event-month {
-            font-size: 0.9rem;
-            text-transform: uppercase;
-        }
-        
-        .event-info {
-            flex: 1;
-            min-width: 0;
-        }
-        
-        .event-title {
-            font-family: 'Bebas Neue', sans-serif;
-            font-size: clamp(1.3rem, 4vw, 1.6rem);
-            color: var(--text-primary);
-            margin-bottom: 0.5rem;
-        }
-        
-        .event-description {
-            font-size: clamp(0.9rem, 2vw, 1rem);
-            line-height: 1.6;
-            color: var(--text-tertiary);
-        }
-        
-        /* TBD Event Styling */
-        .event-item.tbd-event .event-date.tbd {
-            background: linear-gradient(135deg, var(--accent), #e5a600);
-        }
-        
-        .event-date.tbd .event-day {
-            font-size: 1.2rem;
-            letter-spacing: 0.05em;
-        }
-        
-        .event-date.tbd {
-            display: flex;
-            align-items: center;
-            justify-content: center;
-        }
-        
-        /* Event Loading State */
-        .event-loading {
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            padding: 3rem;
-            color: var(--text-muted);
-        }
-        
-        .event-loading .spinner {
-            width: 40px;
-            height: 40px;
-            border: 3px solid var(--border-color);
-            border-top-color: var(--primary);
-            border-radius: 50%;
-            animation: spin 1s linear infinite;
-            margin-bottom: 1rem;
-        }
-        
-        .no-events {
-            text-align: center;
-            padding: 3rem 2rem;
-            color: var(--text-muted);
-            background: var(--bg-primary);
-            border-radius: 15px;
-            border: 2px dashed var(--border-color);
-        }
-        
-        @keyframes spin {
-            to { transform: rotate(360deg); }
-        }
-        
-        @media (max-width: 480px) {
-            .event-item {
-                flex-direction: column;
-                gap: 1rem;
-            }
-            
-            .event-date {
-                width: 100%;
-                height: 60px;
-                flex-direction: row;
-                gap: 1rem;
-            }
-            
-            .event-date.tbd { height: 60px; }
-            .event-date.tbd .event-day { font-size: 1.5rem; }
-            .event-day { font-size: 2.5rem; }
         }
         
         /* Tournament Feed Styles */
@@ -1420,6 +1425,41 @@ body::before{
             gap: 0.5rem;
         }
         
+        .tournament-feed-title .icon {
+            font-size: 1.5rem;
+        }
+        
+        .tournament-feed-subtitle {
+            font-size: 0.95rem;
+            color: var(--text-muted);
+            margin-top: 0.25rem;
+        }
+        
+        .tournament-feed-link {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+            padding: 0.6rem 1.2rem;
+            background: linear-gradient(135deg, var(--primary), var(--secondary));
+            color: white;
+            text-decoration: none;
+            border-radius: 25px;
+
+            font-weight: 600;
+            font-size: 0.9rem;
+            transition: all 0.3s ease;
+            -webkit-tap-highlight-color: transparent;
+        }
+        
+        .tournament-feed-link:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(255, 107, 53, 0.3);
+        }
+        
+        .tournament-feed-link:active {
+            transform: translateY(0);
+        }
+        
         .tournament-grid {
             display: grid;
             grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
@@ -1427,7 +1467,9 @@ body::before{
         }
         
         @media (max-width: 640px) {
-            .tournament-grid { grid-template-columns: 1fr; }
+            .tournament-grid {
+                grid-template-columns: 1fr;
+            }
         }
         
         .tournament-card {
@@ -1446,6 +1488,10 @@ body::before{
             transform: translateY(-5px);
             box-shadow: 0 10px 30px var(--card-shadow-hover);
             border-color: var(--primary);
+        }
+        
+        .tournament-card:active {
+            transform: translateY(-2px);
         }
         
         .tournament-card-header {
@@ -1479,7 +1525,16 @@ body::before{
             margin-top: 0.15rem;
         }
         
-        .tournament-details { flex: 1; min-width: 0; }
+        .tournament-date-badge .year {
+            font-size: 0.7rem;
+            opacity: 0.8;
+            margin-top: 0.1rem;
+        }
+        
+        .tournament-details {
+            flex: 1;
+            min-width: 0;
+        }
         
         .tournament-name {
             font-family: 'Bebas Neue', sans-serif;
@@ -1536,6 +1591,12 @@ body::before{
             gap: 0.3rem;
         }
         
+        .tournament-spots {
+            font-size: 0.85rem;
+            color: var(--primary);
+            font-weight: 600;
+        }
+        
         .tournament-card-link {
             display: flex;
             align-items: center;
@@ -1575,6 +1636,16 @@ body::before{
             margin-bottom: 1rem;
         }
         
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+        
+        .no-tournaments {
+            text-align: center;
+            padding: 2rem;
+            color: var(--text-muted);
+        }
+        
         .filter-tabs {
             display: flex;
             flex-wrap: wrap;
@@ -1606,7 +1677,124 @@ body::before{
             color: white;
         }
         
-        /* Membership Section */
+        .radius-note {
+            font-size: 0.85rem;
+            color: var(--text-muted);
+            margin-bottom: 1rem;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .event-list {
+            display: grid;
+            gap: 1.5rem;
+        }
+        
+        .event-item {
+            display: flex;
+            gap: 1.5rem;
+            padding: 1.5rem;
+            background: var(--bg-primary);
+            border-radius: 15px;
+            border-left: 5px solid var(--primary);
+            transition: all 0.3s ease;
+            opacity: 0;
+            transform: translateX(-30px);
+            cursor: pointer;
+            min-height: 80px;
+            -webkit-tap-highlight-color: transparent;
+        }
+        
+        .event-item.visible {
+            opacity: 1;
+            transform: translateX(0);
+        }
+        
+        .event-item:hover {
+            transform: translateX(10px);
+            box-shadow: 0 5px 20px var(--card-shadow);
+            border-left-width: 8px;
+        }
+        
+        .event-item:active {
+            transform: translateX(5px);
+        }
+        
+        .event-date {
+            flex-shrink: 0;
+            width: 80px;
+            height: 80px;
+            min-width: 80px;
+            background: linear-gradient(135deg, var(--primary), var(--secondary));
+            border-radius: 12px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            transition: all 0.3s ease;
+        }
+        
+        .event-item:hover .event-date {
+            transform: rotate(5deg) scale(1.05);
+        }
+        
+        .event-day {
+            font-family: 'Bebas Neue', sans-serif;
+            font-size: 2rem;
+            line-height: 1;
+        }
+        
+        .event-month {
+            font-size: 0.9rem;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+            margin-top: 0.2rem;
+        }
+        
+        .event-info {
+            flex: 1;
+            min-width: 0;
+        }
+        
+        .event-title {
+            font-family: 'Bebas Neue', sans-serif;
+            font-size: clamp(1.3rem, 4vw, 1.6rem);
+            color: var(--text-primary);
+            margin-bottom: 0.5rem;
+            letter-spacing: 0.03em;
+        }
+        
+        .event-description {
+            font-size: clamp(0.9rem, 2vw, 1rem);
+            line-height: 1.6;
+            color: var(--text-tertiary);
+        }
+        
+        @media (max-width: 480px) {
+            .event-item {
+                flex-direction: column;
+                gap: 1rem;
+            }
+            
+            .event-date {
+                width: 100%;
+                height: 60px;
+                flex-direction: row;
+                gap: 1rem;
+            }
+            
+            .event-day {
+                font-size: 2.5rem;
+            }
+            
+            .event-month {
+                font-size: 1rem;
+            }
+        }
+        
+        /* Membership Section - Interactive Pricing */
         #membership {
             background: linear-gradient(135deg, var(--secondary) 0%, var(--green) 100%);
             color: white;
@@ -1619,7 +1807,8 @@ body::before{
             content: '';
             position: absolute;
             inset: 0;
-            background-image: repeating-linear-gradient(45deg, transparent, transparent 35px, rgba(255,255,255,.03) 35px, rgba(255,255,255,.03) 70px);
+            background-image: 
+                repeating-linear-gradient(45deg, transparent, transparent 35px, rgba(255,255,255,.03) 35px, rgba(255,255,255,.03) 70px);
         }
         
         .membership-content {
@@ -1638,11 +1827,15 @@ body::before{
         }
         
         @media (min-width: 640px) {
-            .membership-perks { grid-template-columns: repeat(2, 1fr); }
+            .membership-perks {
+                grid-template-columns: repeat(2, 1fr);
+            }
         }
         
         @media (min-width: 1024px) {
-            .membership-perks { grid-template-columns: repeat(4, 1fr); }
+            .membership-perks {
+                grid-template-columns: repeat(4, 1fr);
+            }
         }
         
         .perk {
@@ -1671,6 +1864,10 @@ body::before{
             background: rgba(255, 255, 255, 0.2);
             transform: translateY(-10px) scale(1.05);
             border-color: var(--accent);
+        }
+        
+        .perk:active {
+            transform: translateY(-5px) scale(1.02);
         }
         
         .perk-icon {
@@ -1706,12 +1903,18 @@ body::before{
         }
         
         @keyframes pulse {
-            0%, 100% { transform: scale(1); }
-            50% { transform: scale(1.05); }
+            0%, 100% {
+                transform: scale(1);
+            }
+            50% {
+                transform: scale(1.05);
+            }
         }
         
-        /* Contact Section */
-        #contact { background: var(--bg-primary); }
+        /* Contact Section - Enhanced Touch Targets */
+        #contact {
+            background: var(--bg-primary);
+        }
         
         .contact-info {
             display: grid;
@@ -1722,7 +1925,9 @@ body::before{
         }
         
         @media (min-width: 768px) {
-            .contact-info { grid-template-columns: repeat(3, 1fr); }
+            .contact-info {
+                grid-template-columns: repeat(3, 1fr);
+            }
         }
         
         .contact-box {
@@ -1750,6 +1955,10 @@ body::before{
         .contact-box:hover {
             transform: translateY(-10px) scale(1.02);
             box-shadow: 0 10px 30px var(--card-shadow-hover);
+        }
+        
+        .contact-box:active {
+            transform: translateY(-5px) scale(1);
         }
         
         .contact-icon {
@@ -1812,7 +2021,17 @@ body::before{
             transform: translateY(0);
         }
         
-        /* Accessibility */
+        /* Loading Animation */
+        @keyframes shimmer {
+            0% {
+                background-position: -1000px 0;
+            }
+            100% {
+                background-position: 1000px 0;
+            }
+        }
+        
+        /* Accessibility Improvements */
         @media (prefers-reduced-motion: reduce) {
             *,
             *::before,
@@ -1823,153 +2042,1982 @@ body::before{
             }
         }
         
-        /* Print */
+        /* Print Styles */
         @media print {
-            header, .carousel-arrow, .carousel-controls, .scroll-indicator, footer { display: none; }
-            section { page-break-inside: avoid; }
+            header,
+            .carousel-arrow,
+            .carousel-controls,
+            .scroll-indicator,
+            footer {
+                display: none;
+            }
+            
+            section {
+                page-break-inside: avoid;
+            }
         }
-        
-        /* Mobile Resets */
-        html {
-            -webkit-text-size-adjust: 100%;
-            text-size-adjust: 100%;
-        }
-        
-        body {
-            overflow-x: hidden;
-            width: 100%;
-            font-size: 16px;
-            line-height: 1.6;
-        }
-        
-        a, button, input, select, textarea,
-        .nav-toggle, .theme-toggle, .carousel-btn {
-            min-height: 44px;
-            min-width: 44px;
-        }
-        
-        /* Mobile Navigation */
-        @media (min-width: 769px) {
-            nav {
-                display: grid !important;
-                grid-template-columns: auto 1fr auto !important;
-                align-items: center !important;
-                gap: 2rem !important;
-            }
-            
-            .logo { grid-column: 1; justify-self: start !important; }
-            
-            .nav-links {
-                grid-column: 2;
-                justify-self: center !important;
-                display: flex !important;
-                justify-content: center !important;
-                gap: 2rem !important;
-                position: static !important;
-                transform: none !important;
-                opacity: 1 !important;
-                pointer-events: all !important;
-                background: transparent !important;
-                flex-direction: row !important;
-            }
-            
-            .nav-links li { padding: 0 !important; border: none !important; }
-            
-            .nav-right {
-                grid-column: 3;
-                justify-self: end !important;
-                display: flex !important;
-                align-items: center !important;
-                gap: 1rem !important;
-            }
-            
-            .menu-toggle { display: none !important; }
-        }
-        
-        @media (max-width: 768px) {
-            nav {
-                display: flex !important;
-                justify-content: space-between !important;
-                align-items: center !important;
-            }
-            
-            .menu-toggle {
-                display: flex !important;
-                align-items: center !important;
-                justify-content: center !important;
-                width: 44px !important;
-                height: 44px !important;
-                min-width: 44px !important;
-                min-height: 44px !important;
-                background: transparent !important;
-                border: none !important;
-                color: white !important;
-                font-size: 1.5rem !important;
-                cursor: pointer !important;
-                padding: 0 !important;
-                z-index: 1001 !important;
-                -webkit-tap-highlight-color: transparent !important;
-                opacity: 1 !important;
-                visibility: visible !important;
-            }
-            
-            .nav-right {
-                display: flex !important;
-                align-items: center !important;
-                gap: 0.75rem !important;
-                flex-shrink: 0 !important;
-            }
-            
-            .theme-toggle {
-                position: relative !important;
-                bottom: auto !important;
-                right: auto !important;
-                width: 44px !important;
-                height: 44px !important;
-                min-width: 44px !important;
-                min-height: 44px !important;
-                display: flex !important;
-                align-items: center !important;
-                justify-content: center !important;
-                box-shadow: none !important;
-            }
-            
-            .logo { flex-shrink: 1 !important; min-width: 0 !important; }
-            .logo-image { max-width: 150px !important; height: auto !important; }
-        }
-        
-        /* Hero Mobile */
-        @media (max-width: 768px) {
-            html, body { overflow-x: hidden; }
-            
-            .hero {
-                width: 100vw !important;
-                max-width: 100vw !important;
-                margin-left: 0;
-                margin-right: 0;
-                padding-left: 0;
-                padding-right: 0;
-            }
-            
-            .carousel {
-                width: 100vw !important;
-                max-width: 100vw !important;
-                left: 0 !important;
-                right: 0 !important;
-            }
-            
-            .carousel-slide {
-                width: 100vw !important;
-                max-width: 100vw !important;
-                left: 0 !important;
+		/* ============================================
+   GVDG Website - Mobile Responsive Styles
+   Add this to your existing styles.css or 
+   link as a separate stylesheet after styles.css
+   ============================================ */
+
+/* ============================================
+   BASE MOBILE RESETS
+   ============================================ */
+
+/* Prevent iOS text size adjustment */
+html {
+  -webkit-text-size-adjust: 100%;
+  text-size-adjust: 100%;
+}
+
+/* Ensure proper box sizing */
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+}
+
+/* Minimum touch target size (44x44px per Apple HIG) */
+a, button, input, select, textarea,
+.nav-toggle, .theme-toggle, .carousel-btn {
+  min-height: 44px;
+  min-width: 44px;
+}
+
+/* Prevent horizontal scroll */
+body {
+  overflow-x: hidden;
+  width: 100%;
+}
+
+/* ============================================
+   TYPOGRAPHY - Mobile Optimized
+   ============================================ */
+
+/* Base font size for mobile readability */
+body {
+  font-size: 16px; /* Prevents iOS zoom on input focus */
+  line-height: 1.6;
+}
+
+h1 {
+  font-size: clamp(1.75rem, 5vw, 3rem);
+  line-height: 1.2;
+}
+
+h2 {
+  font-size: clamp(1.5rem, 4vw, 2.25rem);
+  line-height: 1.3;
+}
+
+h3 {
+  font-size: clamp(1.125rem, 3vw, 1.5rem);
+  line-height: 1.4;
+}
+
+p {
+  font-size: clamp(0.9375rem, 2.5vw, 1.0625rem);
+}
+
+/* ============================================
+   NAVIGATION - Mobile First
+   ============================================ */
+
+@media (max-width: 768px) {
+  /* Hamburger menu styling */
+  .nav-toggle {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 48px;
+    height: 48px;
+    font-size: 1.75rem;
+    cursor: pointer;
+    background: transparent;
+    border: none;
+    padding: 0;
+    z-index: 1001;
+  }
+
+  /* Mobile nav container */
+  nav ul,
+  .nav-menu {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: var(--bg-primary, rgba(0, 0, 0, 0.95));
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    gap: 1.5rem;
+    transform: translateX(-100%);
+    transition: transform 0.3s ease-in-out;
+    z-index: 1000;
+  }
+
+  nav ul.active,
+  .nav-menu.active {
+    transform: translateX(0);
+  }
+
+  nav ul li,
+  .nav-menu li {
+    margin: 0;
+  }
+
+  nav ul li a,
+  .nav-menu li a {
+    font-size: 1.25rem;
+    padding: 1rem 2rem;
+    display: block;
+    text-align: center;
+    min-height: 48px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+
+  /* Theme toggle mobile positioning */
+  .theme-toggle {
+    position: fixed;
+    bottom: 1.5rem;
+    right: 1.5rem;
+    width: 48px;
+    height: 48px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1.25rem;
+    z-index: 1002;
+    background: var(--bg-secondary, #333);
+    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.3);
+  }
+
+  /* Header layout */
+  header {
+    padding: 0.75rem 1rem;
+  }
+
+  .logo img {
+    max-height: 40px;
+    width: auto;
+  }
+}
+
+/* ============================================
+   HERO SECTION
+   ============================================ */
+
+@media (max-width: 768px) {
+  .hero,
+  #hero {
+    min-height: 70vh;
+    padding: 2rem 1rem;
+  }
+
+  .hero h1 {
+    font-size: 1.75rem;
+    margin-bottom: 0.75rem;
+  }
+
+  .hero p,
+  .hero .subtitle {
+    font-size: 1rem;
+    margin-bottom: 1.5rem;
+  }
+
+  .hero .btn,
+  .hero button,
+  .hero a.btn {
+    padding: 0.875rem 1.75rem;
+    font-size: 1rem;
+    width: 100%;
+    max-width: 280px;
+  }
+}
+
+/* ============================================
+   CAROUSEL - Touch Optimized
+   ============================================ */
+
+@media (max-width: 768px) {
+  .carousel,
+  .carousel-container {
+    overflow-x: auto;
+    scroll-snap-type: x mandatory;
+    -webkit-overflow-scrolling: touch;
+    scrollbar-width: none; /* Firefox */
+    -ms-overflow-style: none; /* IE/Edge */
+  }
+
+  .carousel::-webkit-scrollbar,
+  .carousel-container::-webkit-scrollbar {
+    display: none;
+  }
+
+  .carousel-item,
+  .carousel-slide {
+    scroll-snap-align: center;
+    flex: 0 0 85%;
+    max-width: 85%;
+  }
+
+  /* Carousel navigation buttons */
+  .carousel-btn,
+  .carousel-prev,
+  .carousel-next {
+    width: 48px;
+    height: 48px;
+    font-size: 1.5rem;
+    opacity: 0.9;
+  }
+
+  /* Hide arrows on very small screens, rely on swipe */
+  @media (max-width: 480px) {
+    .carousel-btn,
+    .carousel-prev,
+    .carousel-next {
+      display: none;
+    }
+  }
+
+  /* Carousel dots/indicators */
+  .carousel-dots,
+  .carousel-indicators {
+    display: flex;
+    justify-content: center;
+    gap: 0.5rem;
+    padding: 1rem 0;
+  }
+
+  .carousel-dot,
+  .carousel-indicator {
+    width: 10px;
+    height: 10px;
+    border-radius: 50%;
+    background: var(--text-muted, #666);
+    cursor: pointer;
+  }
+
+  .carousel-dot.active,
+  .carousel-indicator.active {
+    background: var(--accent, #f97316);
+  }
+}
+
+/* ============================================
+   COURSE CARDS
+   ============================================ */
+
+@media (max-width: 768px) {
+  .courses-grid,
+  .course-cards,
+  #courses .grid {
+    display: flex;
+    flex-direction: column;
+    gap: 1rem;
+    padding: 0 1rem;
+  }
+
+  .course-card {
+    width: 100%;
+    max-width: 100%;
+    margin: 0;
+  }
+
+  .course-card img {
+    width: 100%;
+    height: 180px;
+    object-fit: cover;
+    border-radius: 8px 8px 0 0;
+  }
+
+  .course-card h3 {
+    font-size: 1.125rem;
+    margin: 0.75rem 0 0.5rem;
+  }
+
+  .course-card .details,
+  .course-card .meta {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.5rem;
+    font-size: 0.875rem;
+  }
+
+  .course-card .badge,
+  .course-card .difficulty {
+    font-size: 0.75rem;
+    padding: 0.25rem 0.5rem;
+  }
+}
+
+/* ============================================
+   BOARD MEMBERS SECTION
+   ============================================ */
+
+@media (max-width: 768px) {
+  .board-grid,
+  .team-grid,
+  #board .grid {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 1rem;
+    padding: 0 1rem;
+  }
+
+  .board-member,
+  .team-member {
+    text-align: center;
+    padding: 1rem;
+  }
+
+  .board-member .icon,
+  .team-member .avatar {
+    font-size: 2rem;
+    margin-bottom: 0.5rem;
+  }
+
+  .board-member h4,
+  .team-member h4 {
+    font-size: 0.9375rem;
+    margin-bottom: 0.25rem;
+  }
+
+  .board-member .role,
+  .team-member .role {
+    font-size: 0.75rem;
+  }
+}
+
+@media (max-width: 480px) {
+  .board-grid,
+  .team-grid,
+  #board .grid {
+    grid-template-columns: 1fr;
+  }
+}
+
+/* ============================================
+   STATS SECTION
+   ============================================ */
+
+@media (max-width: 768px) {
+  .stats,
+  .stats-container {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 1.5rem;
+    padding: 2rem 1rem;
+  }
+
+  .stat-item {
+    text-align: center;
+  }
+
+  .stat-number {
+    font-size: 2rem;
+    font-weight: 700;
+    line-height: 1;
+    margin-bottom: 0.25rem;
+  }
+
+  .stat-label {
+    font-size: 0.75rem;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+  }
+}
+
+/* ============================================
+   EVENTS SECTION
+   ============================================ */
+
+@media (max-width: 768px) {
+  .events-list,
+  .events-grid,
+  #events .grid {
+    display: flex;
+    flex-direction: column;
+    gap: 1rem;
+    padding: 0 1rem;
+  }
+
+  .event-card {
+    display: flex;
+    gap: 1rem;
+    padding: 1rem;
+    align-items: flex-start;
+  }
+
+  .event-date {
+    flex: 0 0 auto;
+    min-width: 50px;
+    text-align: center;
+  }
+
+  .event-date .day {
+    font-size: 1.5rem;
+    font-weight: 700;
+    line-height: 1;
+  }
+
+  .event-date .month {
+    font-size: 0.75rem;
+    text-transform: uppercase;
+  }
+
+  .event-content {
+    flex: 1;
+  }
+
+  .event-content h3 {
+    font-size: 1rem;
+    margin-bottom: 0.5rem;
+  }
+
+  .event-content p {
+    font-size: 0.875rem;
+    line-height: 1.5;
+  }
+
+  /* Tournament filter tabs */
+  .event-filters,
+  .tournament-tabs {
+    display: flex;
+    overflow-x: auto;
+    gap: 0.5rem;
+    padding: 0 1rem 1rem;
+    -webkit-overflow-scrolling: touch;
+  }
+
+  .filter-btn,
+  .tab-btn {
+    flex: 0 0 auto;
+    padding: 0.5rem 1rem;
+    font-size: 0.875rem;
+    white-space: nowrap;
+    min-height: 44px;
+  }
+}
+
+/* ============================================
+   MEMBERSHIP SECTION
+   ============================================ */
+
+@media (max-width: 768px) {
+  .membership,
+  #membership {
+    padding: 3rem 1rem;
+  }
+
+  .benefits-grid,
+  .membership-benefits {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 1rem;
+    margin: 1.5rem 0;
+  }
+
+  .benefit-item {
+    text-align: center;
+    padding: 1rem;
+  }
+
+  .benefit-icon {
+    font-size: 1.5rem;
+    margin-bottom: 0.5rem;
+  }
+
+  .benefit-title {
+    font-size: 0.875rem;
+    font-weight: 600;
+    margin-bottom: 0.25rem;
+  }
+
+  .benefit-desc {
+    font-size: 0.75rem;
+    color: var(--text-muted, #666);
+  }
+
+  .price {
+    font-size: 2rem;
+    font-weight: 700;
+    margin: 1.5rem 0;
+  }
+
+  .membership .btn,
+  #membership .btn {
+    width: 100%;
+    max-width: 280px;
+    padding: 1rem 2rem;
+  }
+}
+
+@media (max-width: 480px) {
+  .benefits-grid,
+  .membership-benefits {
+    grid-template-columns: 1fr;
+  }
+}
+
+/* ============================================
+   CONTACT SECTION
+   ============================================ */
+
+@media (max-width: 768px) {
+  .contact,
+  #contact {
+    padding: 3rem 1rem;
+  }
+
+  .contact-grid {
+    display: flex;
+    flex-direction: column;
+    gap: 1.5rem;
+  }
+
+  .contact-item {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+    padding: 1rem;
+  }
+
+  .contact-icon {
+    font-size: 1.25rem;
+    flex: 0 0 auto;
+  }
+
+  .contact-info {
+    flex: 1;
+  }
+
+  .contact-info a {
+    word-break: break-word;
+  }
+}
+
+/* ============================================
+   FOOTER
+   ============================================ */
+
+@media (max-width: 768px) {
+  footer {
+    padding: 2rem 1rem;
+    text-align: center;
+  }
+
+  footer .links,
+  footer nav {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+    gap: 1rem;
+    margin-bottom: 1rem;
+  }
+
+  footer a {
+    padding: 0.5rem;
+    min-height: 44px;
+    display: inline-flex;
+    align-items: center;
+  }
+}
+
+/* ============================================
+   GENERAL SECTIONS
+   ============================================ */
+
+@media (max-width: 768px) {
+  section {
+    padding: 3rem 1rem;
+  }
+
+  section h2 {
+    margin-bottom: 1.5rem;
+    text-align: center;
+  }
+
+  /* Container width */
+  .container {
+    width: 100%;
+    max-width: 100%;
+    padding-left: 1rem;
+    padding-right: 1rem;
+  }
+}
+
+/* ============================================
+   BUTTONS - Touch Friendly
+   ============================================ */
+
+@media (max-width: 768px) {
+  .btn,
+  button,
+  input[type="submit"] {
+    min-height: 48px;
+    padding: 0.875rem 1.5rem;
+    font-size: 1rem;
+    border-radius: 8px;
+    cursor: pointer;
+    -webkit-tap-highlight-color: transparent;
+  }
+
+  /* Full width buttons on very small screens */
+  @media (max-width: 480px) {
+    .btn-primary,
+    .btn-cta {
+      width: 100%;
+      text-align: center;
+    }
+  }
+}
+
+/* ============================================
+   IMAGES - Responsive
+   ============================================ */
+
+img {
+  max-width: 100%;
+  height: auto;
+  display: block;
+}
+
+/* Lazy loading placeholder */
+img[loading="lazy"] {
+  background: var(--bg-secondary, #f0f0f0);
+}
+
+/* ============================================
+   UTILITY CLASSES
+   ============================================ */
+
+@media (max-width: 768px) {
+  .hide-mobile {
+    display: none !important;
+  }
+
+  .show-mobile {
+    display: block !important;
+  }
+
+  .text-center-mobile {
+    text-align: center !important;
+  }
+
+  .stack-mobile {
+    flex-direction: column !important;
+  }
+}
+
+@media (min-width: 769px) {
+  .hide-desktop {
+    display: none !important;
+  }
+
+  .show-desktop {
+    display: block !important;
+  }
+}
+
+/* ============================================
+   SAFE AREAS (iPhone X+ notch support)
+   ============================================ */
+
+@supports (padding: env(safe-area-inset-bottom)) {
+  header {
+    padding-top: env(safe-area-inset-top);
+  }
+
+  footer {
+    padding-bottom: env(safe-area-inset-bottom);
+  }
+
+  .theme-toggle {
+    bottom: calc(1.5rem + env(safe-area-inset-bottom));
+    right: calc(1.5rem + env(safe-area-inset-right));
+  }
+}
+
+/* ============================================
+   PERFORMANCE OPTIMIZATIONS
+   ============================================ */
+
+/* Hardware acceleration for smooth animations */
+.carousel,
+.carousel-item,
+nav ul,
+.nav-menu {
+  will-change: transform;
+  transform: translateZ(0);
+}
+
+/* Reduce motion for users who prefer it */
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
+}
+
+/* ============================================
+   DARK MODE MOBILE ADJUSTMENTS
+   ============================================ */
+
+@media (max-width: 768px) {
+  [data-theme="dark"] .course-card,
+  .dark .course-card {
+    background: var(--bg-card-dark, #1a1a1a);
+  }
+
+  [data-theme="dark"] .event-card,
+  .dark .event-card {
+    background: var(--bg-card-dark, #1a1a1a);
+  }
+}
+
+/* ============================================
+   GVDG Website - Mobile Responsive Styles
+   ============================================ */
+
+/* ============================================
+   BASE MOBILE RESETS
+   ============================================ */
+
+html {
+  -webkit-text-size-adjust: 100%;
+  text-size-adjust: 100%;
+}
+
+/* ============================================
+   TYPOGRAPHY - Mobile Optimized
+   ============================================ */
+
+h1 {
+  font-size: clamp(1.75rem, 5vw, 3rem);
+  line-height: 1.2;
+}
+
+h2 {
+  font-size: clamp(1.5rem, 4vw, 2.25rem);
+  line-height: 1.3;
+}
+
+h3 {
+  font-size: clamp(1.125rem, 3vw, 1.5rem);
+  line-height: 1.4;
+}
+
+/* ============================================
+   NAVIGATION - Mobile First
+   ============================================ */
+
+@media (max-width: 768px) {
+  .nav-toggle {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 48px;
+    height: 48px;
+    font-size: 1.75rem;
+    cursor: pointer;
+    background: transparent;
+    border: none;
+    padding: 0;
+    z-index: 1001;
+  }
+
+  nav ul,
+  .nav-menu,
+  .nav-links {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: rgba(26, 26, 46, 0.98);
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    gap: 1.5rem;
+    transform: translateX(-100%);
+    transition: transform 0.3s ease-in-out;
+    z-index: 1000;
+  }
+
+  nav ul.active,
+  .nav-menu.active,
+  .nav-links.active {
+    transform: translateX(0);
+  }
+
+  .nav-links a {
+    font-size: 1.25rem;
+    padding: 1rem 2rem;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    min-height: 48px;
+  }
+
+  .theme-toggle {
+    position: fixed;
+    bottom: 1.5rem;
+    right: 1.5rem;
+    z-index: 1002;
+    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.3);
+  }
+
+  header {
+    padding: 0.75rem 1rem;
+  }
+
+  .logo-image {
+    max-height: 40px;
+    width: auto;
+  }
+}
+
+/* ============================================
+   HERO SECTION
+   ============================================ */
+
+@media (max-width: 768px) {
+  .hero,
+  #hero {
+    min-height: 70vh;
+    padding: 2rem 1rem;
+  }
+
+  .hero h1 {
+    font-size: 1.75rem;
+    margin-bottom: 0.75rem;
+  }
+
+  .hero p,
+  .hero .subtitle {
+    font-size: 1rem;
+    margin-bottom: 1.5rem;
+  }
+
+  .hero .btn,
+  .hero button,
+  .hero a.btn {
+    padding: 0.875rem 1.75rem;
+    font-size: 1rem;
+    width: 100%;
+    max-width: 280px;
+  }
+}
+
+/* ============================================
+   CAROUSEL - Touch Optimized
+   ============================================ */
+
+@media (max-width: 768px) {
+  .carousel,
+  .carousel-container {
+    overflow-x: auto;
+    scroll-snap-type: x mandatory;
+    -webkit-overflow-scrolling: touch;
+    scrollbar-width: none;
+    -ms-overflow-style: none;
+  }
+
+  .carousel::-webkit-scrollbar,
+  .carousel-container::-webkit-scrollbar {
+    display: none;
+  }
+
+  .carousel-item,
+  .carousel-slide {
+    scroll-snap-align: center;
+    flex: 0 0 85%;
+    max-width: 85%;
+  }
+
+  .carousel-btn,
+  .carousel-prev,
+  .carousel-next {
+    width: 48px;
+    height: 48px;
+    font-size: 1.5rem;
+    opacity: 0.9;
+  }
+
+  .carousel-dots,
+  .carousel-indicators {
+    display: flex;
+    justify-content: center;
+    gap: 0.5rem;
+    padding: 1rem 0;
+  }
+
+  .carousel-dot,
+  .carousel-indicator {
+    width: 10px;
+    height: 10px;
+    border-radius: 50%;
+    background: var(--text-muted);
+    cursor: pointer;
+  }
+
+  .carousel-dot.active,
+  .carousel-indicator.active {
+    background: var(--primary);
+  }
+}
+
+@media (max-width: 480px) {
+  .carousel-btn,
+  .carousel-prev,
+  .carousel-next {
+    display: none;
+  }
+}
+
+/* ============================================
+   COURSE CARDS
+   ============================================ */
+
+@media (max-width: 768px) {
+  .courses-grid,
+  .course-cards,
+  #courses .grid {
+    display: flex;
+    flex-direction: column;
+    gap: 1rem;
+    padding: 0 1rem;
+  }
+
+  .course-card {
+    width: 100%;
+    max-width: 100%;
+    margin: 0;
+  }
+
+  .course-card img {
+    width: 100%;
+    height: 180px;
+    object-fit: cover;
+    border-radius: 8px 8px 0 0;
+  }
+
+  .course-card h3 {
+    font-size: 1.125rem;
+    margin: 0.75rem 0 0.5rem;
+  }
+
+  .course-card .details,
+  .course-card .meta {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.5rem;
+    font-size: 0.875rem;
+  }
+
+  .course-card .badge,
+  .course-card .difficulty {
+    font-size: 0.75rem;
+    padding: 0.25rem 0.5rem;
+  }
+}
+
+/* ============================================
+   BOARD MEMBERS SECTION
+   ============================================ */
+
+@media (max-width: 768px) {
+  .board-grid,
+  .team-grid,
+  #board .grid {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 1rem;
+    padding: 0 1rem;
+  }
+
+  .board-member,
+  .team-member {
+    text-align: center;
+    padding: 1rem;
+  }
+
+  .board-member .icon,
+  .team-member .avatar {
+    font-size: 2rem;
+    margin-bottom: 0.5rem;
+  }
+
+  .board-member h4,
+  .team-member h4 {
+    font-size: 0.9375rem;
+    margin-bottom: 0.25rem;
+  }
+
+  .board-member .role,
+  .team-member .role {
+    font-size: 0.75rem;
+  }
+}
+
+@media (max-width: 480px) {
+  .board-grid,
+  .team-grid,
+  #board .grid {
+    grid-template-columns: 1fr;
+  }
+}
+
+/* ============================================
+   STATS SECTION
+   ============================================ */
+
+@media (max-width: 768px) {
+  .stats,
+  .stats-container {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 1.5rem;
+    padding: 2rem 1rem;
+  }
+
+  .stat-item {
+    text-align: center;
+  }
+
+  .stat-number {
+    font-size: 2rem;
+    font-weight: 700;
+    line-height: 1;
+    margin-bottom: 0.25rem;
+  }
+
+  .stat-label {
+    font-size: 0.75rem;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+  }
+}
+
+/* ============================================
+   EVENTS/TOURNAMENTS SECTION
+   ============================================ */
+
+@media (max-width: 768px) {
+  .events-list,
+  .events-grid,
+  .tournaments-grid,
+  #events .grid {
+    display: flex;
+    flex-direction: column;
+    gap: 1rem;
+    padding: 0 1rem;
+  }
+
+  .event-card,
+  .tournament-card {
+    padding: 1rem;
+  }
+
+  .event-filters,
+  .tournament-tabs,
+  .filter-buttons {
+    display: flex;
+    overflow-x: auto;
+    gap: 0.5rem;
+    padding: 0 1rem 1rem;
+    -webkit-overflow-scrolling: touch;
+  }
+
+  .filter-btn,
+  .tab-btn {
+    flex: 0 0 auto;
+    padding: 0.5rem 1rem;
+    font-size: 0.875rem;
+    white-space: nowrap;
+    min-height: 44px;
+  }
+}
+
+/* ============================================
+   MEMBERSHIP SECTION
+   ============================================ */
+
+@media (max-width: 768px) {
+  .membership,
+  #membership {
+    padding: 3rem 1rem;
+  }
+
+  .benefits-grid,
+  .membership-benefits {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 1rem;
+    margin: 1.5rem 0;
+  }
+
+  .benefit-item {
+    text-align: center;
+    padding: 1rem;
+  }
+
+  .membership .btn,
+  #membership .btn {
+    width: 100%;
+    max-width: 280px;
+    padding: 1rem 2rem;
+  }
+}
+
+@media (max-width: 480px) {
+  .benefits-grid,
+  .membership-benefits {
+    grid-template-columns: 1fr;
+  }
+}
+
+/* ============================================
+   CONTACT SECTION
+   ============================================ */
+
+@media (max-width: 768px) {
+  .contact,
+  #contact {
+    padding: 3rem 1rem;
+  }
+
+  .contact-grid {
+    display: flex;
+    flex-direction: column;
+    gap: 1.5rem;
+  }
+
+  .contact-item {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+    padding: 1rem;
+  }
+}
+
+/* ============================================
+   FOOTER
+   ============================================ */
+
+@media (max-width: 768px) {
+  footer {
+    padding: 2rem 1rem;
+    text-align: center;
+  }
+
+  footer .links,
+  footer nav {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+    gap: 1rem;
+    margin-bottom: 1rem;
+  }
+
+  footer a {
+    padding: 0.5rem;
+    min-height: 44px;
+    display: inline-flex;
+    align-items: center;
+  }
+}
+
+/* ============================================
+   GENERAL SECTIONS
+   ============================================ */
+
+@media (max-width: 768px) {
+  section {
+    padding: 3rem 1rem;
+  }
+
+  section h2 {
+    margin-bottom: 1.5rem;
+    text-align: center;
+  }
+
+  .container {
+    width: 100%;
+    max-width: 100%;
+    padding-left: 1rem;
+    padding-right: 1rem;
+  }
+}
+
+/* ============================================
+   BUTTONS - Touch Friendly
+   ============================================ */
+
+@media (max-width: 768px) {
+  .btn,
+  button,
+  input[type="submit"] {
+    min-height: 48px;
+    padding: 0.875rem 1.5rem;
+    font-size: 1rem;
+    border-radius: 8px;
+    -webkit-tap-highlight-color: transparent;
+  }
+}
+
+@media (max-width: 480px) {
+  .btn-primary,
+  .btn-cta {
+    width: 100%;
+    text-align: center;
+  }
+}
+
+/* ============================================
+   UTILITY CLASSES
+   ============================================ */
+
+@media (max-width: 768px) {
+  .hide-mobile {
+    display: none !important;
+  }
+
+  .show-mobile {
+    display: block !important;
+  }
+
+  .text-center-mobile {
+    text-align: center !important;
+  }
+
+  .stack-mobile {
+    flex-direction: column !important;
+  }
+}
+
+@media (min-width: 769px) {
+  .hide-desktop {
+    display: none !important;
+  }
+}
+
+/* ============================================
+   SAFE AREAS (iPhone notch support)
+   ============================================ */
+
+@supports (padding: env(safe-area-inset-bottom)) {
+  header {
+    padding-top: env(safe-area-inset-top);
+  }
+
+  footer {
+    padding-bottom: env(safe-area-inset-bottom);
+  }
+
+  .theme-toggle {
+    bottom: calc(1.5rem + env(safe-area-inset-bottom));
+    right: calc(1.5rem + env(safe-area-inset-right));
+  }
+}
+
+/* ============================================
+   REDUCED MOTION
+   ============================================ */
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
+}
+/* ============================================
+   GVDG MOBILE FIXES
+   Add this CSS at the END of your existing styles
+   to fix carousel centering and course card display
+   ============================================ */
+
+/* ----------------------------------------
+   FIX 1: Hero Carousel Dots Off-Center
+   The issue is the dots have large touch targets (44px)
+   but the visual dots are positioned with ::before
+   This causes the overall container to shift
+   ---------------------------------------- */
+
+/* Reset carousel controls positioning */
+.carousel-controls {
+    position: absolute;
+    bottom: 30px;
+    left: 50%;
+    transform: translateX(-50%);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    gap: 8px;
+    z-index: 10;
+    padding: 0;
+    width: auto;
+}
+
+/* Fix the dot styling - remove the large min-width/height */
+.carousel-dot {
+    width: 12px;
+    height: 12px;
+    min-width: unset;
+    min-height: unset;
+    border-radius: 50%;
+    background: rgba(255, 255, 255, 0.4);
+    border: 2px solid white;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    position: relative;
+    -webkit-tap-highlight-color: transparent;
+    /* Add padding for touch target without affecting visual size */
+    padding: 15px;
+    box-sizing: content-box;
+    background-clip: content-box;
+}
+
+/* Remove the ::before pseudo-element approach */
+.carousel-dot::before {
+    display: none;
+}
+
+.carousel-dot.active {
+    background: white;
+    transform: scale(1.2);
+}
+
+.carousel-dot:hover {
+    background: rgba(255, 255, 255, 0.8);
+}
+
+/* Mobile specific adjustments */
+@media (max-width: 768px) {
+    .carousel-controls {
+        bottom: 20px;
+        gap: 5px;
+    }
+    
+    .carousel-dot {
+        width: 10px;
+        height: 10px;
+        padding: 17px;
+        border-width: 1.5px;
+    }
+}
+
+/* ----------------------------------------
+   FIX 2: Course Cards Not Displaying Correctly
+   The grid isn't responding properly on mobile
+   ---------------------------------------- */
+
+/* Ensure proper course grid behavior */
+@media (max-width: 768px) {
+    /* Section padding */
+    #courses {
+        padding: 2rem 1rem;
+    }
+    
+    /* Carousel container */
+    .courses-carousel-container {
+        overflow: hidden;
+        width: 100%;
+    }
+    
+    .courses-carousel {
+        display: flex;
+        width: 100%;
+    }
+    
+    .carousel-slide-courses {
+        min-width: 100%;
+        width: 100%;
+        flex-shrink: 0;
+        padding: 1rem 0;
+    }
+    
+    /* Slide header */
+    .slide-header {
+        text-align: center;
+        margin-bottom: 1.5rem;
+        padding: 0 0.5rem;
+    }
+    
+    .slide-title {
+        font-size: 1.8rem;
+    }
+    
+    .slide-subtitle {
+        font-size: 0.9rem;
+    }
+    
+    /* THE KEY FIX: Force single column layout */
+    .courses-grid {
+        display: grid !important;
+        grid-template-columns: 1fr !important;
+        gap: 1rem !important;
+        padding: 0 !important;
+    }
+    
+    /* Course card sizing */
+    .course-card {
+        width: 100%;
+        max-width: 100%;
+        margin: 0;
+    }
+    
+    /* Course image */
+    .course-image {
+        width: 100%;
+        height: 160px;
+    }
+    
+    .course-image img {
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
+    }
+    
+    /* Course content */
+    .course-content {
+        padding: 1rem;
+    }
+    
+    /* Course header - stack on mobile */
+    .course-header {
+        display: flex;
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 0.5rem;
+        margin-bottom: 0.75rem;
+    }
+    
+    .course-name {
+        font-size: 1.25rem;
+        line-height: 1.2;
+    }
+    
+    .difficulty-badge {
+        font-size: 0.7rem;
+        padding: 0.3rem 0.6rem;
+    }
+    
+    /* Course location */
+    .course-location {
+        font-size: 0.8rem;
+        margin-bottom: 0.75rem;
+    }
+    
+    /* Course info grid - keep horizontal */
+    .course-info {
+        display: flex;
+        gap: 1rem;
+        margin: 1rem 0;
+        padding: 0.75rem;
+    }
+    
+    .info-item {
+        flex: 1;
+        text-align: center;
+    }
+    
+    .info-label {
+        font-size: 0.65rem;
+    }
+    
+    .info-value {
+        font-size: 1.1rem;
+    }
+    
+    /* Course description */
+    .course-description {
+        font-size: 0.85rem;
+        line-height: 1.5;
+    }
+    
+    /* Carousel navigation */
+    .courses-carousel-nav {
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        gap: 1.5rem;
+        margin-top: 1.5rem;
+    }
+    
+    .courses-carousel-nav .carousel-btn {
+        width: 44px;
+        height: 44px;
+        font-size: 1.2rem;
+    }
+    
+    .courses-carousel-nav .carousel-indicators {
+        display: flex;
+        gap: 0.75rem;
+    }
+    
+    .courses-carousel-nav .carousel-indicator {
+        width: 10px;
+        height: 10px;
+    }
+}
+
+/* Very small screens */
+@media (max-width: 400px) {
+    .course-info {
+        gap: 0.5rem;
+        padding: 0.5rem;
+    }
+    
+    .info-value {
+        font-size: 1rem;
+    }
+    
+    .course-name {
+        font-size: 1.15rem;
+    }
+}
+		/* ============================================
+   GVDG FIX: Hero Carousel Slides Off-Center on Mobile
+   Add this CSS at the END of your existing styles
+   ============================================ */
+
+/* Fix hero carousel slide positioning */
+.carousel {
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+    overflow: hidden;
+}
+
+.carousel-slide {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    opacity: 0;
+    transition: opacity 0.8s ease-in-out;
+    background-size: cover;
+    background-position: center center;
+    background-repeat: no-repeat;
+}
+
+.carousel-slide.active {
+    opacity: 1;
+}
+
+/* Mobile specific fixes */
+@media (max-width: 768px) {
+    .hero {
+        position: relative;
+        width: 100%;
+        overflow: hidden;
+    }
+    
+    .carousel {
+        position: absolute;
+        top: 0;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        width: 100%;
+        height: 100%;
+    }
+    
+    .carousel-slide {
+        position: absolute;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background-size: cover;
+        background-position: center center;
+    }
+    
+    /* Ensure each slide image is centered */
+    .carousel-slide:nth-child(1),
+    .carousel-slide:nth-child(2),
+    .carousel-slide:nth-child(3),
+    .carousel-slide:nth-child(4),
+    .carousel-slide:nth-child(5) {
+        background-position: center center;
+    }
+}
+
+/* Very small screens - may need to adjust position */
+@media (max-width: 480px) {
+    .carousel-slide {
+        /* Adjust if images look better with different positioning */
+        /* Options: center center, center top, center bottom, 50% 50% */
+        background-position: center center;
+        background-size: cover;
+    }
+}
+
+/* Landscape mobile orientation */
+@media (max-width: 768px) and (orientation: landscape) {
+    .carousel-slide {
+        background-position: center center;
+        background-size: cover;
+    }
+    
+    .hero {
+        min-height: 100vh;
+    }
+}
+		/* ============================================
+   FIX: Hero Carousel Right-Side Gap on Mobile
+   ============================================ */
+
+/* Ensure hero spans full width */
+.hero {
+    width: 100%;
+    max-width: 100%;
+    overflow: hidden;
+}
+
+/* Force carousel to full width */
+.carousel {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100% !important;
+    max-width: 100vw !important;
+    height: 100%;
+    overflow: hidden;
+}
+
+/* Force each slide to full width */
+.carousel-slide {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100% !important;
+    max-width: 100vw !important;
+    height: 100%;
+    background-size: cover;
+    background-position: center center;
+}
+
+/* Mobile specific overrides */
+@media (max-width: 768px) {
+    body {
+        overflow-x: hidden;
+    }
+    
+    .hero {
+        width: 100vw;
+        max-width: 100vw;
+        margin-left: 0;
+        margin-right: 0;
+        padding-left: 0;
+        padding-right: 0;
+    }
+    
+    .carousel,
+    .carousel-slide {
+        width: 100vw !important;
+        max-width: 100vw !important;
+        left: 0;
+        right: 0;
+    }
+}
+/* ... all your existing CSS ... */
+
+        @media (prefers-reduced-motion: reduce) {
+            *,
+            *::before,
+            *::after {
+                animation-duration: 0.01ms !important;
+                animation-iteration-count: 1 !important;
+                transition-duration: 0.01ms !important;
+                scroll-behavior: auto !important;
             }
         }
 
-        /* Safe Areas */
-        @supports (padding: env(safe-area-inset-bottom)) {
-            header { padding-top: env(safe-area-inset-top); }
-            footer { padding-bottom: env(safe-area-inset-bottom); }
-        }
+/* ============================================
+   CRITICAL FIX: Hero Carousel Full Width on Mobile
+   This fixes the dark blue strip on the right side
+   Only applies to mobile - desktop unchanged
+   ============================================ */
+
+@media (max-width: 768px) {
+    html, body {
+        overflow-x: hidden;
+    }
+    
+    .hero {
+        width: 100vw !important;
+        max-width: 100vw !important;
+        margin-left: 0;
+        margin-right: 0;
+        padding-left: 0;
+        padding-right: 0;
+    }
+    
+    .carousel {
+        width: 100vw !important;
+        max-width: 100vw !important;
+        left: 0 !important;
+        right: 0 !important;
+    }
+    
+    .carousel-slide {
+        width: 100vw !important;
+        max-width: 100vw !important;
+        left: 0 !important;
+    }
+}
+<style>
+/* ============================================
+   NAVIGATION CENTERING FIX
+   Fixes off-center menu items using CSS Grid
+   ============================================ */
+
+/* Desktop: 3-column grid layout */
+@media (min-width: 769px) {
+    nav {
+        display: grid !important;
+        grid-template-columns: auto 1fr auto !important;
+        align-items: center !important;
+        gap: 2rem !important;
+        max-width: 1200px;
+        margin: 0 auto;
+    }
+    
+    /* Logo - Left side */
+    .logo {
+        grid-column: 1;
+        justify-self: start !important;
+    }
+    
+    /* Nav links - Center (takes up middle space) */
+    .nav-links {
+        grid-column: 2;
+        justify-self: center !important;
+        display: flex !important;
+        justify-content: center !important;
+        gap: 2rem !important;
+        list-style: none;
+        margin: 0;
+        padding: 0;
+        /* Reset any positioning from mobile styles */
+        position: static !important;
+        transform: none !important;
+        opacity: 1 !important;
+        pointer-events: all !important;
+        background: transparent !important;
+        flex-direction: row !important;
+    }
+    
+    .nav-links li {
+        padding: 0 !important;
+        border: none !important;
+    }
+    
+    /* Right side - Theme toggle only on desktop */
+    .nav-right {
+        grid-column: 3;
+        justify-self: end !important;
+        display: flex !important;
+        align-items: center !important;
+        gap: 1rem !important;
+    }
+    
+    /* Hide hamburger menu on desktop */
+    .menu-toggle {
+        display: none !important;
+    }
+}
+
+/* Mobile: Stack vertically with hamburger menu */
+@media (max-width: 768px) {
+    nav {
+        display: flex !important;
+        justify-content: space-between !important;
+        align-items: center !important;
+    }
+    
+    /* Mobile menu - slides down from top */
+    .nav-links {
+        position: fixed;
+        top: 70px;
+        left: 0;
+        right: 0;
+        background: rgba(26, 26, 46, 0.98);
+        flex-direction: column;
+        justify-content: flex-start;
+        align-items: center;
+        gap: 0;
+        padding: 2rem;
+        transform: translateY(-100%);
+        opacity: 0;
+        transition: all 0.3s ease;
+        pointer-events: none;
+        max-height: calc(100vh - 70px);
+        overflow-y: auto;
+        z-index: 999;
+    }
+    
+    [data-theme="dark"] .nav-links {
+        background: rgba(15, 15, 30, 0.98);
+    }
+    
+    .nav-links.active {
+        transform: translateY(0);
+        opacity: 1;
+        pointer-events: all;
+    }
+    
+    .nav-links li {
+        padding: 1.25rem 0;
+        border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+        width: 100%;
+        text-align: center;
+    }
+    
+    .nav-links li:last-child {
+        border-bottom: none;
+    }
+    
+    .nav-links a {
+        font-size: 1.1rem;
+        display: block;
+        padding: 0.5rem 0;
+    }
+    
+    /* Show hamburger menu on mobile */
+    .menu-toggle {
+        display: flex !important;
+        align-items: center;
+        justify-content: center;
+    }
+    
+    .nav-right {
+        display: flex;
+        align-items: center;
+        gap: 1rem;
+    }
+}
+/* ============================================
+   FIX: Mobile Hamburger Menu Visibility
+   
+   Problem: The hamburger icon disappears on mobile
+   in both light and dark modes.
+   
+   Add this CSS at the END of your stylesheet
+   ============================================ */
+
+/* Ensure hamburger is visible on mobile */
+@media (max-width: 768px) {
+    /* Reset and force hamburger visibility */
+    .menu-toggle {
+        display: flex !important;
+        align-items: center !important;
+        justify-content: center !important;
+        width: 44px !important;
+        height: 44px !important;
+        min-width: 44px !important;
+        min-height: 44px !important;
+        background: transparent !important;
+        border: none !important;
+        color: white !important;
+        font-size: 1.5rem !important;
+        cursor: pointer !important;
+        padding: 0 !important;
+        z-index: 1001 !important;
+        -webkit-tap-highlight-color: transparent !important;
+        /* Ensure it's not being clipped or hidden */
+        opacity: 1 !important;
+        visibility: visible !important;
+        overflow: visible !important;
+    }
+    
+    /* Ensure nav-right container is visible */
+    .nav-right {
+        display: flex !important;
+        align-items: center !important;
+        gap: 0.75rem !important;
+        /* Don't let it overflow or get cut off */
+        flex-shrink: 0 !important;
+    }
+    
+    /* Theme toggle should stay in nav-right, not fixed position on mobile */
+    .theme-toggle {
+        position: relative !important;
+        bottom: auto !important;
+        right: auto !important;
+        width: 44px !important;
+        height: 44px !important;
+        min-width: 44px !important;
+        min-height: 44px !important;
+        display: flex !important;
+        align-items: center !important;
+        justify-content: center !important;
+        /* Remove the fixed positioning that was hiding it */
+        box-shadow: none !important;
+    }
+    
+    /* Header layout fix */
+    header nav {
+        display: flex !important;
+        justify-content: space-between !important;
+        align-items: center !important;
+        width: 100% !important;
+    }
+    
+    /* Make sure logo doesn't push nav-right off screen */
+    .logo {
+        flex-shrink: 1 !important;
+        min-width: 0 !important;
+    }
+    
+    .logo-image {
+        max-width: 150px !important;
+        height: auto !important;
+    }
+}
+
+/* Dark mode specific - ensure white icon color */
+[data-theme="dark"] .menu-toggle {
+    color: white !important;
+}
+
+/* Light mode - ensure icon is visible against dark header */
+.menu-toggle {
+    color: white !important;
+}
+
+/* Hide hamburger on desktop */
+@media (min-width: 769px) {
+    .menu-toggle {
+        display: none !important;
+    }
+    
+    /* Reset theme toggle to normal position on desktop */
+    .theme-toggle {
+        position: relative !important;
+        bottom: auto !important;
+        right: auto !important;
+    }
+}	
     </style>
 </head>
 <body>
@@ -1997,6 +4045,7 @@ body::before{
         </div>
     </nav>
 </header>
+    </header>
 
     <!-- Hero Section with Carousel -->
     <section class="hero">
@@ -2123,11 +4172,16 @@ body::before{
         </div>
     </section>
 
-   <!-- Courses Carousel Section -->
+   <!-- ============================================
+     UPDATED COURSES SECTION WITH ALL UDISC IMAGES
+     Replace your existing #courses section with this
+     ============================================ -->
+
+<!-- Courses Carousel Section -->
 <section id="courses">
     <div class="courses-carousel-container">
         <div class="courses-carousel">
-            <!-- Slide 1: Local Courses -->
+            <!-- Slide 1 -->
             <div class="carousel-slide-courses">
                 <div class="slide-header">
                     <h3 class="slide-title">Our Courses</h3>
@@ -2146,9 +4200,18 @@ body::before{
                             </div>
                             <div class="course-location">📍 Greenville, NC</div>
                             <div class="course-info">
-                                <div class="info-item"><div class="info-label">Holes</div><div class="info-value">23</div></div>
-                                <div class="info-item"><div class="info-label">Rating</div><div class="info-value">4.4★</div></div>
-                                <div class="info-item"><div class="info-label">Time</div><div class="info-value">~2 hrs</div></div>
+                                <div class="info-item">
+                                    <div class="info-label">Holes</div>
+                                    <div class="info-value">23</div>
+                                </div>
+                                <div class="info-item">
+                                    <div class="info-label">Rating</div>
+                                    <div class="info-value">4.4★</div>
+                                </div>
+                                <div class="info-item">
+                                    <div class="info-label">Time</div>
+                                    <div class="info-value">~2 hrs</div>
+                                </div>
                             </div>
                             <p class="course-description">Well-maintained course with manicured fairways and great signage.</p>
                         </div>
@@ -2165,9 +4228,18 @@ body::before{
                             </div>
                             <div class="course-location">📍 Greenville, NC</div>
                             <div class="course-info">
-                                <div class="info-item"><div class="info-label">Holes</div><div class="info-value">18</div></div>
-                                <div class="info-item"><div class="info-label">Rating</div><div class="info-value">4.3★</div></div>
-                                <div class="info-item"><div class="info-label">Time</div><div class="info-value">~1 hr</div></div>
+                                <div class="info-item">
+                                    <div class="info-label">Holes</div>
+                                    <div class="info-value">18</div>
+                                </div>
+                                <div class="info-item">
+                                    <div class="info-label">Rating</div>
+                                    <div class="info-value">4.3★</div>
+                                </div>
+                                <div class="info-item">
+                                    <div class="info-label">Time</div>
+                                    <div class="info-value">~1 hr</div>
+                                </div>
                             </div>
                             <p class="course-description">Five layouts available! Great mix of open and wooded shots.</p>
                         </div>
@@ -2184,14 +4256,24 @@ body::before{
                             </div>
                             <div class="course-location">📍 Winterville, NC</div>
                             <div class="course-info">
-                                <div class="info-item"><div class="info-label">Holes</div><div class="info-value">18</div></div>
-                                <div class="info-item"><div class="info-label">Rating</div><div class="info-value">4.3★</div></div>
-                                <div class="info-item"><div class="info-label">Time</div><div class="info-value">~1 hr</div></div>
+                                <div class="info-item">
+                                    <div class="info-label">Holes</div>
+                                    <div class="info-value">18</div>
+                                </div>
+                                <div class="info-item">
+                                    <div class="info-label">Rating</div>
+                                    <div class="info-value">4.3★</div>
+                                </div>
+                                <div class="info-item">
+                                    <div class="info-label">Time</div>
+                                    <div class="info-value">~1 hr</div>
+                                </div>
                             </div>
                             <p class="course-description">Challenging wooded course with water holes and tight lines.</p>
                         </div>
                     </div>
                     
+                    <!-- Oakwood Eagles' Nest - NO IMAGE ON UDISC -->
                     <div class="course-card" data-course="The Oakwood Eagles' Nest" data-location="Greenville, NC" data-udisc="https://udisc.com/courses/the-oakwood-eagles-nest-TGSv" data-coords="35.621615,-77.448291" data-youtube="">
                         <div class="course-image no-image"></div>
                         <div class="course-content">
@@ -2201,9 +4283,18 @@ body::before{
                             </div>
                             <div class="course-location">📍 Greenville, NC</div>
                             <div class="course-info">
-                                <div class="info-item"><div class="info-label">Holes</div><div class="info-value">18</div></div>
-                                <div class="info-item"><div class="info-label">Rating</div><div class="info-value">4.0★</div></div>
-                                <div class="info-item"><div class="info-label">Time</div><div class="info-value">~1.5 hrs</div></div>
+                                <div class="info-item">
+                                    <div class="info-label">Holes</div>
+                                    <div class="info-value">18</div>
+                                </div>
+                                <div class="info-item">
+                                    <div class="info-label">Rating</div>
+                                    <div class="info-value">4.0★</div>
+                                </div>
+                                <div class="info-item">
+                                    <div class="info-label">Time</div>
+                                    <div class="info-value">~1.5 hrs</div>
+                                </div>
                             </div>
                             <p class="course-description">School campus course with cart-friendly paths.</p>
                         </div>
@@ -2220,9 +4311,18 @@ body::before{
                             </div>
                             <div class="course-location">📍 Greenville, NC</div>
                             <div class="course-info">
-                                <div class="info-item"><div class="info-label">Holes</div><div class="info-value">9</div></div>
-                                <div class="info-item"><div class="info-label">Rating</div><div class="info-value">3.7★</div></div>
-                                <div class="info-item"><div class="info-label">Time</div><div class="info-value">~30 min</div></div>
+                                <div class="info-item">
+                                    <div class="info-label">Holes</div>
+                                    <div class="info-value">9</div>
+                                </div>
+                                <div class="info-item">
+                                    <div class="info-label">Rating</div>
+                                    <div class="info-value">3.7★</div>
+                                </div>
+                                <div class="info-item">
+                                    <div class="info-label">Time</div>
+                                    <div class="info-value">~30 min</div>
+                                </div>
                             </div>
                             <p class="course-description">Quick 9-hole course perfect for a fast round.</p>
                         </div>
@@ -2230,11 +4330,11 @@ body::before{
                 </div>
             </div>
             
-            <!-- Slide 2: Nearby Courses -->
+            <!-- Slide 2 -->
             <div class="carousel-slide-courses">
                 <div class="slide-header">
                     <h3 class="slide-title">Nearby Courses</h3>
-                    <p class="slide-subtitle">Within 30 Minutes</p>
+                    
                 </div>
                 
                 <div class="courses-grid">
@@ -2249,9 +4349,18 @@ body::before{
                             </div>
                             <div class="course-location">📍 Farmville, NC • 15 min</div>
                             <div class="course-info">
-                                <div class="info-item"><div class="info-label">Holes</div><div class="info-value">18</div></div>
-                                <div class="info-item"><div class="info-label">Rating</div><div class="info-value">4.3★</div></div>
-                                <div class="info-item"><div class="info-label">Time</div><div class="info-value">~1.5 hrs</div></div>
+                                <div class="info-item">
+                                    <div class="info-label">Holes</div>
+                                    <div class="info-value">18</div>
+                                </div>
+                                <div class="info-item">
+                                    <div class="info-label">Rating</div>
+                                    <div class="info-value">4.3★</div>
+                                </div>
+                                <div class="info-item">
+                                    <div class="info-label">Time</div>
+                                    <div class="info-value">~1.5 hrs</div>
+                                </div>
                             </div>
                             <p class="course-description">Former farmland with woods, Blue and Red tee pads available.</p>
                         </div>
@@ -2268,9 +4377,18 @@ body::before{
                             </div>
                             <div class="course-location">📍 Ayden, NC • 20 min</div>
                             <div class="course-info">
-                                <div class="info-item"><div class="info-label">Holes</div><div class="info-value">18</div></div>
-                                <div class="info-item"><div class="info-label">Rating</div><div class="info-value">3.5★</div></div>
-                                <div class="info-item"><div class="info-label">Time</div><div class="info-value">~2 hrs</div></div>
+                                <div class="info-item">
+                                    <div class="info-label">Holes</div>
+                                    <div class="info-value">18</div>
+                                </div>
+                                <div class="info-item">
+                                    <div class="info-label">Rating</div>
+                                    <div class="info-value">3.5★</div>
+                                </div>
+                                <div class="info-item">
+                                    <div class="info-label">Time</div>
+                                    <div class="info-value">~2 hrs</div>
+                                </div>
                             </div>
                             <p class="course-description">Fun beginner-friendly open course in a public park.</p>
                         </div>
@@ -2287,14 +4405,24 @@ body::before{
                             </div>
                             <div class="course-location">📍 Kinston, NC • 30 min</div>
                             <div class="course-info">
-                                <div class="info-item"><div class="info-label">Holes</div><div class="info-value">18</div></div>
-                                <div class="info-item"><div class="info-label">Rating</div><div class="info-value">4.1★</div></div>
-                                <div class="info-item"><div class="info-label">Time</div><div class="info-value">~1.5 hrs</div></div>
+                                <div class="info-item">
+                                    <div class="info-label">Holes</div>
+                                    <div class="info-value">18</div>
+                                </div>
+                                <div class="info-item">
+                                    <div class="info-label">Rating</div>
+                                    <div class="info-value">4.1★</div>
+                                </div>
+                                <div class="info-item">
+                                    <div class="info-label">Time</div>
+                                    <div class="info-value">~1.5 hrs</div>
+                                </div>
                             </div>
                             <p class="course-description">Classic eastern NC wooded course with technical shots.</p>
                         </div>
                     </div>
                     
+                    <!-- Beaufort County CC - NOW HAS IMAGE! -->
                     <div class="course-card" data-course="Beaufort County CC" data-location="Washington, NC" data-udisc="https://udisc.com/courses/beaufort-county-community-college-ijIj" data-coords="35.5549,-77.0152" data-youtube="">
                         <div class="course-image">
                             <img src="https://d22ksth68ujgu2.cloudfront.net/024cd11e84bcdf7863ec22e4876a4e4f_m_IMG_0395.jpg" alt="Beaufort County Community College" loading="lazy">
@@ -2306,14 +4434,24 @@ body::before{
                             </div>
                             <div class="course-location">📍 Washington, NC • 25 min</div>
                             <div class="course-info">
-                                <div class="info-item"><div class="info-label">Holes</div><div class="info-value">18</div></div>
-                                <div class="info-item"><div class="info-label">Rating</div><div class="info-value">3.8★</div></div>
-                                <div class="info-item"><div class="info-label">Time</div><div class="info-value">~2 hrs</div></div>
+                                <div class="info-item">
+                                    <div class="info-label">Holes</div>
+                                    <div class="info-value">18</div>
+                                </div>
+                                <div class="info-item">
+                                    <div class="info-label">Rating</div>
+                                    <div class="info-value">3.8★</div>
+                                </div>
+                                <div class="info-item">
+                                    <div class="info-label">Time</div>
+                                    <div class="info-value">~2 hrs</div>
+                                </div>
                             </div>
                             <p class="course-description">College campus course with elevation and water hazards.</p>
                         </div>
                     </div>
                     
+                    <!-- Farm Life Disc Golf - NOW HAS IMAGE! -->
                     <div class="course-card" data-course="Farm Life Disc Golf" data-location="Williamston, NC" data-udisc="https://udisc.com/courses/farm-life-disc-golf-3IvE" data-coords="35.7416,-76.985603" data-youtube="">
                         <div class="course-image">
                             <img src="https://d22ksth68ujgu2.cloudfront.net/dc17882950ff11c0a7a2ee7a14438cf5_m_IMG_7564.jpg" alt="Farm Life Disc Golf" loading="lazy">
@@ -2325,9 +4463,19 @@ body::before{
                             </div>
                             <div class="course-location">📍 Williamston, NC • 30 min</div>
                             <div class="course-info">
-                                <div class="info-item"><div class="info-label">Holes</div><div class="info-value">18</div></div>
-                                <div class="info-item"><div class="info-label">Rating</div><div class="info-value">4.5★</div></div>
-                                <div class="info-item"><div class="info-label">Time</div><div class="info-value">~2 hrs</div></div>
+                                <div class="info-item">
+                                    <div class="info-label">Holes</div>
+                                    <div class="info-value">18</div>
+
+                                </div>
+                                <div class="info-item">
+                                    <div class="info-label">Rating</div>
+                                    <div class="info-value">4.5★</div>
+                                </div>
+                                <div class="info-item">
+                                    <div class="info-label">Time</div>
+                                    <div class="info-value">~2 hrs</div>
+                                </div>
                             </div>
                             <p class="course-description">Highly-rated scenic private course worth the drive.</p>
                         </div>
@@ -2335,7 +4483,7 @@ body::before{
                 </div>
             </div>
             
-            <!-- Slide 3: Worth The Drive -->
+            <!-- Slide 3 -->
             <div class="carousel-slide-courses">
                 <div class="slide-header">
                     <h3 class="slide-title">Worth The Drive</h3>
@@ -2343,6 +4491,7 @@ body::before{
                 </div>
                 
                 <div class="courses-grid">
+                    <!-- Glenburnie Park - NOW HAS IMAGE! -->
                     <div class="course-card" data-course="Glenburnie Park" data-location="New Bern, NC" data-udisc="https://udisc.com/courses/glenburnie-park-Rsnq" data-coords="35.138901,-77.061699" data-youtube="">
                         <div class="course-image">
                             <img src="https://d22ksth68ujgu2.cloudfront.net/20348b2697a1d34ef46a457ea19fb677_m_IMG_2080.jpg" alt="Glenburnie Park" loading="lazy">
@@ -2371,6 +4520,7 @@ body::before{
                         </div>
                     </div>
                     
+                    <!-- Creekside Park - NOW HAS IMAGE! -->
                     <div class="course-card" data-course="Creekside Park" data-location="New Bern, NC" data-udisc="https://udisc.com/courses/creekside-park-GaFZ" data-coords="35.061508,-77.044464" data-youtube="">
                         <div class="course-image">
                             <img src="https://d22ksth68ujgu2.cloudfront.net/1d99b20a6b23ab7bd5fc96edb0272862_m_IMG_0370.jpg" alt="Creekside Park" loading="lazy">
@@ -2380,6 +4530,7 @@ body::before{
                                 <h3 class="course-name">Creekside Park</h3>
                                 <span class="difficulty-badge difficulty-advanced">Moderate - Hard</span>
                             </div>
+
                             <div class="course-location">📍 New Bern, NC • 50 min</div>
                             <div class="course-info">
                                 <div class="info-item">
@@ -2399,6 +4550,7 @@ body::before{
                         </div>
                     </div>
                     
+                    <!-- Sunset Park DGC - NOW HAS IMAGE! -->
                     <div class="course-card" data-course="Sunset Park DGC" data-location="Rocky Mount, NC" data-udisc="https://udisc.com/courses/sunset-park-dgc-Z1wS" data-coords="35.953166,-77.813380" data-youtube="">
                         <div class="course-image">
                             <img src="https://d22ksth68ujgu2.cloudfront.net/e3547497c0aae8f215a1680d4080f1f0_m_IMG_5628.jpg" alt="Sunset Park DGC" loading="lazy">
@@ -2427,6 +4579,7 @@ body::before{
                         </div>
                     </div>
                     
+                    <!-- Battle Park DGC - NOW HAS IMAGE! -->
                     <div class="course-card" data-course="Battle Park DGC" data-location="Rocky Mount, NC" data-udisc="https://udisc.com/courses/battle-park-dgc-XD3h" data-coords="35.961804,-77.804932" data-youtube="">
                         <div class="course-image">
                             <img src="https://d22ksth68ujgu2.cloudfront.net/afbccd3914ebea747a7f303b5770ca05_m_IMG_5571.jpg" alt="Battle Park DGC" loading="lazy">
@@ -2455,6 +4608,7 @@ body::before{
                         </div>
                     </div>
                     
+                    <!-- Richlands-Steed Park - NOW HAS IMAGE! -->
                     <div class="course-card" data-course="Richlands-Steed Park" data-location="Richlands, NC" data-udisc="https://udisc.com/courses/richlands-steed-park-MaGt" data-coords="34.897999,-77.522202" data-youtube="">
                         <div class="course-image">
                             <img src="https://d22ksth68ujgu2.cloudfront.net/c8d3da5095beedd83e85fbdb67c4bce6_m_IMG_9398.jpg" alt="Richlands-Steed Park" loading="lazy">
@@ -2501,22 +4655,689 @@ body::before{
     <!-- Events Section -->
     <section id="events">
         <h2 class="section-title fade-in">Upcoming Events</h2>
-        
-        <!-- Event List Container - Events load here dynamically -->
-        <div class="event-list" id="eventList">
-            <div class="event-loading">
-                <div class="spinner"></div>
-                <p>Loading events...</p>
+        <div class="event-list">
+            <div class="event-item fade-in">
+                <div class="event-date">
+                    <div class="event-day">28</div>
+                    <div class="event-month">Dec</div>
+                </div>
+                <div class="event-info">
+                    <h3 class="event-title">Weekly Doubles</h3>
+                    <p class="event-description">Join us every Saturday at 10 AM for our weekly doubles tournament at River Park North. Random draw partners, all skill levels welcome. $5 entry includes ace pot contribution.</p>
+                </div>
+            </div>
+            
+            <div class="event-item fade-in">
+                <div class="event-date">
+                    <div class="event-day">15</div>
+                    <div class="event-month">Jan</div>
+                </div>
+                <div class="event-info">
+                    <h3 class="event-title">New Year Ice Bowl</h3>
+                    <p class="event-description">Our annual charity event supporting local food banks. Brave the cold for a great cause! Registration opens December 1st. All proceeds donated.</p>
+                </div>
+            </div>
+            
+            <div class="event-item fade-in">
+                <div class="event-date">
+                    <div class="event-day">10</div>
+                    <div class="event-month">Feb</div>
+                </div>
+                <div class="event-info">
+                    <h3 class="event-title">Beginner's Clinic</h3>
+                    <p class="event-description">Free clinic for new players covering basics: throwing techniques, rules, and etiquette. Loaner discs available. Bring a friend and discover disc golf!</p>
+                </div>
             </div>
         </div>
         
-        <!-- Optional: Link to full calendar -->
-        <div class="events-footer" style="text-align: center; margin-top: 2rem;">
-            <p style="color: var(--text-muted); font-size: 0.9rem;">
-                Want to host an event? <a href="#contact" style="color: var(--primary);">Contact us!</a>
-            </p>
+   <!-- 
+    TOURNAMENTS SECTION - Mobile Optimized
+    - Compact list view on mobile (shows 5 tournaments by default)
+    - "Show All" button expands to reveal rest
+    - Full card view on desktop
+    - Auto-updates from Google Sheet
+-->
+
+<section id="area-tournaments" class="section">
+    <div class="container">
+        <h2 class="section-title">🏆 Area Tournaments</h2>
+        <p class="section-subtitle">PDGA sanctioned events within 60 miles of Greenville, NC</p>
+        
+        <!-- Tournament List Container -->
+        <div id="tournament-list" class="tournament-list">
+            <div class="tournament-loading">
+                <div class="loading-spinner"></div>
+                <p>Loading tournaments...</p>
+            </div>
         </div>
-    </section>
+        
+        <!-- Show More/Less Button (hidden until loaded) -->
+        <div id="tournament-toggle" class="tournament-toggle" style="display: none;">
+            <button id="toggle-btn" class="toggle-btn">
+                <span class="toggle-text">Show All Tournaments</span>
+                <svg class="toggle-icon" xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <polyline points="6 9 12 15 18 9"></polyline>
+                </svg>
+            </button>
+        </div>
+        
+        <!-- Fallback link -->
+        <div class="tournament-footer">
+            <a href="https://www.discgolfscene.com/tournaments/search?filter%5Blocation%5D%5Bcountry%5D=USA&filter%5Blocation%5D%5Bname%5D=Greenville%2C+NC&filter%5Blocation%5D%5Blatitude%5D=35.589407&filter%5Blocation%5D%5Blongitude%5D=-77.351275&filter%5Blocation%5D%5Bdistance%5D=60&filter%5Blocation%5D%5Bunits%5D=mi&filter%5Bformat%5D%5B0%5D=s&filter%5Bformat%5D%5B1%5D=d&filter%5Bformat%5D%5B2%5D=t" 
+               target="_blank" 
+               rel="noopener" 
+               class="view-all-link">
+                View on Disc Golf Scene →
+            </a>
+        </div>
+    </div>
+</section>
+
+<style>
+/* ========================================
+   TOURNAMENTS SECTION - Mobile Optimized
+   ======================================== */
+
+#area-tournaments {
+    padding: 4rem 2rem;
+    background: var(--bg-secondary, #f8f9fa);
+}
+
+#area-tournaments .container {
+    max-width: 900px;
+    margin: 0 auto;
+}
+
+#area-tournaments .section-title {
+    text-align: center;
+    font-size: 2rem;
+    font-weight: 700;
+    margin-bottom: 0.5rem;
+    color: var(--text-primary, #333);
+}
+
+#area-tournaments .section-subtitle {
+    text-align: center;
+    color: var(--text-secondary, #666);
+    font-size: 1rem;
+    margin-bottom: 1.5rem;
+}
+
+/* Tournament List */
+.tournament-list {
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+}
+
+/* Individual Tournament Item - Compact List Style */
+.tournament-item {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+    padding: 0.875rem 1rem;
+    background: var(--card-bg, #ffffff);
+    border-radius: 10px;
+    text-decoration: none;
+    color: inherit;
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.08);
+    border: 1px solid var(--border-color, rgba(0, 0, 0, 0.06));
+    transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+
+.tournament-item:hover {
+    transform: translateX(4px);
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.12);
+}
+
+/* Date Badge - Compact */
+.tournament-date {
+    flex-shrink: 0;
+    width: 52px;
+    text-align: center;
+    padding: 0.5rem 0.25rem;
+    background: linear-gradient(135deg, #FF6B35 0%, #e85a28 100%);
+    border-radius: 8px;
+    color: white;
+}
+
+.tournament-date .month {
+    display: block;
+    font-size: 0.65rem;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    line-height: 1;
+}
+
+.tournament-date .day {
+    display: block;
+    font-size: 1.25rem;
+    font-weight: 700;
+    line-height: 1.2;
+}
+
+/* Tournament Info */
+.tournament-info {
+    flex: 1;
+    min-width: 0; /* Allows text truncation */
+}
+
+.tournament-name {
+    font-size: 0.95rem;
+    font-weight: 600;
+    color: var(--text-primary, #333);
+    margin: 0 0 0.2rem 0;
+    line-height: 1.3;
+    /* Truncate long names on mobile */
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+.tournament-meta {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    font-size: 0.8rem;
+    color: var(--text-secondary, #666);
+}
+
+.tournament-location {
+    display: flex;
+    align-items: center;
+    gap: 0.25rem;
+}
+
+.tournament-tier {
+    display: inline-block;
+    font-size: 0.65rem;
+    font-weight: 600;
+    padding: 0.15rem 0.4rem;
+    border-radius: 4px;
+    background: var(--tier-bg, #e8f4f8);
+    color: var(--tier-color, #004E89);
+    text-transform: uppercase;
+}
+
+/* Arrow indicator */
+.tournament-arrow {
+    flex-shrink: 0;
+    color: var(--text-secondary, #999);
+    opacity: 0.5;
+    transition: opacity 0.2s ease, transform 0.2s ease;
+}
+
+.tournament-item:hover .tournament-arrow {
+    opacity: 1;
+    transform: translateX(2px);
+}
+
+/* Hidden items (beyond first 5 on mobile) */
+.tournament-item.hidden-mobile {
+    display: none;
+}
+
+.tournament-list.expanded .tournament-item.hidden-mobile {
+    display: flex;
+}
+
+/* Show More/Less Toggle */
+.tournament-toggle {
+    text-align: center;
+    margin-top: 1rem;
+}
+
+.toggle-btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+    padding: 0.75rem 1.5rem;
+    background: transparent;
+    border: 2px solid #FF6B35;
+    border-radius: 8px;
+    color: #FF6B35;
+    font-size: 0.9rem;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.2s ease;
+}
+
+.toggle-btn:hover {
+    background: #FF6B35;
+    color: white;
+}
+
+.toggle-btn .toggle-icon {
+    transition: transform 0.3s ease;
+}
+
+.toggle-btn.expanded .toggle-icon {
+    transform: rotate(180deg);
+}
+
+/* Footer Link */
+.tournament-footer {
+    text-align: center;
+    margin-top: 1.5rem;
+}
+
+.view-all-link {
+    display: inline-block;
+    color: var(--text-secondary, #666);
+    font-size: 0.85rem;
+    text-decoration: none;
+    transition: color 0.2s ease;
+}
+
+.view-all-link:hover {
+    color: #FF6B35;
+}
+
+/* Loading State */
+.tournament-loading {
+    text-align: center;
+    padding: 2rem;
+    color: var(--text-secondary, #666);
+}
+
+.loading-spinner {
+    width: 36px;
+    height: 36px;
+    border: 3px solid var(--border-color, #e0e0e0);
+    border-top-color: #FF6B35;
+    border-radius: 50%;
+    animation: spin 1s linear infinite;
+    margin: 0 auto 0.75rem;
+}
+
+@keyframes spin {
+    to { transform: rotate(360deg); }
+}
+
+/* No Tournaments State */
+.no-tournaments {
+    text-align: center;
+    padding: 2rem;
+    color: var(--text-secondary, #666);
+}
+
+/* ========================================
+   DESKTOP STYLES - Larger cards
+   ======================================== */
+@media (min-width: 769px) {
+    .tournament-list {
+        gap: 0.75rem;
+    }
+    
+    .tournament-item {
+        padding: 1rem 1.25rem;
+    }
+    
+    .tournament-date {
+        width: 60px;
+        padding: 0.6rem 0.5rem;
+    }
+    
+    .tournament-date .month {
+        font-size: 0.7rem;
+    }
+    
+    .tournament-date .day {
+        font-size: 1.4rem;
+    }
+    
+    .tournament-name {
+        font-size: 1rem;
+        white-space: normal; /* Allow wrapping on desktop */
+    }
+    
+    .tournament-meta {
+        font-size: 0.85rem;
+    }
+    
+    /* Show all items on desktop by default */
+    .tournament-item.hidden-mobile {
+        display: flex;
+    }
+    
+    /* Hide toggle button on desktop */
+    .tournament-toggle {
+        display: none !important;
+    }
+}
+
+/* ========================================
+   MOBILE STYLES - Compact
+   ======================================== */
+@media (max-width: 768px) {
+    #area-tournaments {
+        padding: 3rem 1rem;
+    }
+    
+    #area-tournaments .section-title {
+        font-size: 1.5rem;
+    }
+    
+    #area-tournaments .section-subtitle {
+        font-size: 0.9rem;
+        margin-bottom: 1rem;
+    }
+    
+    .tournament-list {
+        gap: 0.4rem;
+    }
+    
+    .tournament-item {
+        padding: 0.75rem;
+        gap: 0.75rem;
+    }
+    
+    .tournament-date {
+        width: 46px;
+        padding: 0.4rem 0.2rem;
+    }
+    
+    .tournament-date .month {
+        font-size: 0.6rem;
+    }
+    
+    .tournament-date .day {
+        font-size: 1.1rem;
+    }
+    
+    .tournament-name {
+        font-size: 0.875rem;
+    }
+    
+    .tournament-meta {
+        font-size: 0.75rem;
+        gap: 0.4rem;
+    }
+    
+    .tournament-tier {
+        font-size: 0.6rem;
+        padding: 0.1rem 0.3rem;
+    }
+    
+    .tournament-arrow {
+        display: none; /* Hide arrow on mobile to save space */
+    }
+}
+
+/* ========================================
+   DARK THEME
+   ======================================== */
+[data-theme="dark"] #area-tournaments {
+    background: var(--bg-secondary, #1a1a2e);
+}
+
+[data-theme="dark"] #area-tournaments .section-title {
+    color: var(--text-primary, #ffffff);
+}
+
+[data-theme="dark"] #area-tournaments .section-subtitle {
+    color: var(--text-secondary, #a0a0a0);
+}
+
+[data-theme="dark"] .tournament-item {
+    background: var(--card-bg, #2a2a3e);
+    border-color: rgba(255, 255, 255, 0.08);
+}
+
+[data-theme="dark"] .tournament-item:hover {
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.3);
+}
+
+[data-theme="dark"] .tournament-name {
+    color: var(--text-primary, #ffffff);
+}
+
+[data-theme="dark"] .tournament-meta {
+    color: var(--text-secondary, #a0a0a0);
+}
+
+[data-theme="dark"] .tournament-tier {
+    background: rgba(0, 78, 137, 0.3);
+    color: #6cb4e8;
+}
+
+[data-theme="dark"] .toggle-btn {
+    border-color: #FF6B35;
+    color: #FF6B35;
+}
+
+[data-theme="dark"] .toggle-btn:hover {
+    background: #FF6B35;
+    color: white;
+}
+
+[data-theme="dark"] .view-all-link {
+    color: var(--text-secondary, #a0a0a0);
+}
+
+[data-theme="dark"] .loading-spinner {
+    border-color: rgba(255, 255, 255, 0.1);
+    border-top-color: #FF6B35;
+}
+</style>
+
+<script>
+/**
+ * Tournament List - Mobile Optimized
+ * Fetches from Google Sheet, shows 5 on mobile with expand option
+ */
+(function() {
+    const SHEET_CSV_URL = 'https://docs.google.com/spreadsheets/d/e/2PACX-1vRz6V6BAwII4eoqITz4MW5zmM_3mYJqrtqtZl9xB87lAZgDT1E0Do1r2cp2aa1tvEKWevnPhb2zQu4s/pub?gid=0&single=true&output=csv';
+    const MOBILE_LIMIT = 5; // Number of tournaments to show on mobile before "Show More"
+    
+    const container = document.getElementById('tournament-list');
+    const toggleContainer = document.getElementById('tournament-toggle');
+    const toggleBtn = document.getElementById('toggle-btn');
+    
+    let isExpanded = false;
+    let totalTournaments = 0;
+    
+    // Parse CSV
+    function parseCSV(csv) {
+        const lines = csv.trim().split('\n');
+        if (lines.length < 2) return [];
+        
+        const tournaments = [];
+        for (let i = 1; i < lines.length; i++) {
+            const values = parseCSVLine(lines[i]);
+            if (values.length >= 2 && values[1]) {
+                tournaments.push({
+                    date: values[0] || '',
+                    name: values[1] || '',
+                    location: values[2] || '',
+                    tier: values[3] || '',
+                    url: values[4] || ''
+                });
+            }
+        }
+        return tournaments;
+    }
+    
+    function parseCSVLine(line) {
+        const values = [];
+        let current = '';
+        let inQuotes = false;
+        
+        for (let i = 0; i < line.length; i++) {
+            const char = line[i];
+            if (char === '"') {
+                inQuotes = !inQuotes;
+            } else if (char === ',' && !inQuotes) {
+                values.push(current.trim());
+                current = '';
+            } else {
+                current += char;
+            }
+        }
+        values.push(current.trim());
+        return values;
+    }
+    
+    // Parse date string
+    function parseDate(dateStr) {
+        if (!dateStr) return null;
+        
+        const match = dateStr.match(/^(Jan|Feb|Mar|Apr|May|Jun|Jul|Aug|Sep|Oct|Nov|Dec)\s+(\d{1,2}),?\s*(\d{4})?/i);
+        if (!match) return null;
+        
+        return {
+            month: match[1].substring(0, 3),
+            day: parseInt(match[2]),
+            year: match[3] || new Date().getFullYear()
+        };
+    }
+    
+    // Render tournament item
+    function renderTournament(tournament, index) {
+        const dateInfo = parseDate(tournament.date);
+        const isHidden = index >= MOBILE_LIMIT;
+        
+        const item = document.createElement('a');
+        item.className = 'tournament-item' + (isHidden ? ' hidden-mobile' : '');
+        item.href = tournament.url || '#';
+        item.target = '_blank';
+        item.rel = 'noopener';
+        
+        // Date badge
+        let dateHTML = '';
+        if (dateInfo) {
+            dateHTML = `
+                <div class="tournament-date">
+                    <span class="month">${dateInfo.month}</span>
+                    <span class="day">${dateInfo.day}</span>
+                </div>
+            `;
+        } else {
+            dateHTML = `
+                <div class="tournament-date">
+                    <span class="month">TBD</span>
+                    <span class="day">--</span>
+                </div>
+            `;
+        }
+        
+        // Tier badge
+        let tierHTML = '';
+        if (tournament.tier) {
+            tierHTML = `<span class="tournament-tier">${escapeHtml(tournament.tier)}</span>`;
+        }
+        
+        // Location
+        let locationHTML = '';
+        if (tournament.location) {
+            locationHTML = `<span class="tournament-location">📍 ${escapeHtml(tournament.location)}</span>`;
+        }
+        
+        item.innerHTML = `
+            ${dateHTML}
+            <div class="tournament-info">
+                <h4 class="tournament-name">${escapeHtml(tournament.name)}</h4>
+                <div class="tournament-meta">
+                    ${locationHTML}
+                    ${tierHTML}
+                </div>
+            </div>
+            <svg class="tournament-arrow" xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <polyline points="9 18 15 12 9 6"></polyline>
+            </svg>
+        `;
+        
+        return item;
+    }
+    
+    function escapeHtml(str) {
+        const div = document.createElement('div');
+        div.textContent = str;
+        return div.innerHTML;
+    }
+    
+    // Toggle expand/collapse
+    function toggleExpand() {
+        isExpanded = !isExpanded;
+        container.classList.toggle('expanded', isExpanded);
+        toggleBtn.classList.toggle('expanded', isExpanded);
+        
+        const toggleText = toggleBtn.querySelector('.toggle-text');
+        if (isExpanded) {
+            toggleText.textContent = 'Show Less';
+        } else {
+            toggleText.textContent = `Show All ${totalTournaments} Tournaments`;
+        }
+    }
+    
+    // Check if mobile
+    function isMobile() {
+        return window.innerWidth <= 768;
+    }
+    
+    // Render no tournaments
+    function renderNoTournaments() {
+        container.innerHTML = `
+            <div class="no-tournaments">
+                <p>No upcoming tournaments found.</p>
+            </div>
+        `;
+    }
+    
+    // Render error
+    function renderError() {
+        container.innerHTML = `
+            <div class="no-tournaments">
+                <p>Unable to load tournaments.</p>
+            </div>
+        `;
+    }
+    
+    // Main load function
+    async function loadTournaments() {
+        try {
+            const response = await fetch(SHEET_CSV_URL);
+            if (!response.ok) throw new Error('Failed to fetch');
+            
+            const csv = await response.text();
+            const tournaments = parseCSV(csv);
+            
+            if (tournaments.length === 0) {
+                renderNoTournaments();
+                return;
+            }
+            
+            totalTournaments = tournaments.length;
+            
+            // Clear and render
+            container.innerHTML = '';
+            tournaments.forEach((tournament, index) => {
+                const item = renderTournament(tournament, index);
+                container.appendChild(item);
+            });
+            
+            // Show toggle button if more than MOBILE_LIMIT tournaments
+            if (tournaments.length > MOBILE_LIMIT) {
+                toggleContainer.style.display = 'block';
+                toggleBtn.querySelector('.toggle-text').textContent = `Show All ${totalTournaments} Tournaments`;
+                toggleBtn.addEventListener('click', toggleExpand);
+            }
+            
+        } catch (error) {
+            console.error('Error loading tournaments:', error);
+            renderError();
+        }
+    }
+    
+    // Initialize
+    if (document.readyState === 'loading') {
+        document.addEventListener('DOMContentLoaded', loadTournaments);
+    } else {
+        loadTournaments();
+    }
+})();
+</script>
 
     <!-- Membership Section -->
     <section id="membership">
@@ -2559,7 +5380,7 @@ body::before{
             <div class="contact-box fade-in">
                 <div class="contact-icon">📧</div>
                 <div class="contact-label">Email Us</div>
-                <div class="contact-detail"><a href="/cdn-cgi/l/email-protection#72150017171c041b1e1e1716151132151f131b1e5c111d1f"><span class="__cf_email__" data-cfemail="73140116161d051a1f1f1617141033141e121a1f5d101c1e">[email&#160;protected]</span></a></div>
+                <div class="contact-detail"><a href="/cdn-cgi/l/email-protection#432a2d252c03243126262d352a2f2f262724206d202c2e"><span class="__cf_email__" data-cfemail="ed84838b82ad8a9f8888839b84818188898a8ec38e8280">[email&#160;protected]</span></a></div>
             </div>
             <div class="contact-box fade-in">
                 <div class="contact-icon">📱</div>
@@ -2585,6 +5406,7 @@ body::before{
         const themeIcon = document.querySelector('.theme-icon');
         const html = document.documentElement;
         
+        // Check for saved theme preference or default to light mode
         const currentTheme = localStorage.getItem('theme') || 'light';
         html.setAttribute('data-theme', currentTheme);
         themeIcon.textContent = currentTheme === 'dark' ? '☀️' : '🌙';
@@ -2592,21 +5414,23 @@ body::before{
         themeToggle.addEventListener('click', () => {
             const currentTheme = html.getAttribute('data-theme');
             const newTheme = currentTheme === 'dark' ? 'light' : 'dark';
+            
             html.setAttribute('data-theme', newTheme);
             localStorage.setItem('theme', newTheme);
             themeIcon.textContent = newTheme === 'dark' ? '☀️' : '🌙';
         });
         
-        // Hero Carousel
+        // Enhanced Carousel with Touch Support
         let currentSlide = 0;
         const slides = document.querySelectorAll('.carousel-slide');
         const dots = document.querySelectorAll('.carousel-dot');
         const prevBtn = document.querySelector('.carousel-prev');
         const nextBtn = document.querySelector('.carousel-next');
-        const hero = document.querySelector('.hero');
         
+        // Touch events
         let touchStartX = 0;
         let touchEndX = 0;
+        const hero = document.querySelector('.hero');
         
         hero.addEventListener('touchstart', (e) => {
             touchStartX = e.changedTouches[0].screenX;
@@ -2620,9 +5444,13 @@ body::before{
         function handleSwipe() {
             const swipeThreshold = 50;
             const diff = touchStartX - touchEndX;
+            
             if (Math.abs(diff) > swipeThreshold) {
-                if (diff > 0) nextSlide();
-                else prevSlide();
+                if (diff > 0) {
+                    nextSlide();
+                } else {
+                    prevSlide();
+                }
             }
         }
         
@@ -2631,20 +5459,41 @@ body::before{
             else if (index < 0) currentSlide = slides.length - 1;
             else currentSlide = index;
             
-            slides.forEach((slide, i) => slide.classList.toggle('active', i === currentSlide));
-            dots.forEach((dot, i) => dot.classList.toggle('active', i === currentSlide));
+            slides.forEach((slide, i) => {
+                slide.classList.toggle('active', i === currentSlide);
+            });
+            
+            dots.forEach((dot, i) => {
+                dot.classList.toggle('active', i === currentSlide);
+            });
         }
         
-        function nextSlide() { showSlide(currentSlide + 1); }
-        function prevSlide() { showSlide(currentSlide - 1); }
+        function nextSlide() {
+            showSlide(currentSlide + 1);
+        }
+        
+        function prevSlide() {
+            showSlide(currentSlide - 1);
+        }
         
         nextBtn.addEventListener('click', nextSlide);
         prevBtn.addEventListener('click', prevSlide);
-        dots.forEach((dot, index) => dot.addEventListener('click', () => showSlide(index)));
         
+        dots.forEach((dot, index) => {
+            dot.addEventListener('click', () => showSlide(index));
+        });
+        
+        // Auto-advance carousel
         let autoSlide = setInterval(nextSlide, 5000);
-        hero.addEventListener('mouseenter', () => clearInterval(autoSlide));
-        hero.addEventListener('mouseleave', () => autoSlide = setInterval(nextSlide, 5000));
+        
+        hero.addEventListener('mouseenter', () => {
+            clearInterval(autoSlide);
+        });
+        
+        hero.addEventListener('mouseleave', () => {
+            autoSlide = setInterval(nextSlide, 5000);
+        });
+        
         
         // About Carousel
         (function() {
@@ -2661,7 +5510,11 @@ body::before{
             
             function updateCarousel() {
                 carousel.style.transform = `translateX(-${currentSlide * 100}%)`;
-                indicators.forEach((ind, i) => ind.classList.toggle('active', i === currentSlide));
+                
+                indicators.forEach((ind, i) => {
+                    ind.classList.toggle('active', i === currentSlide);
+                });
+                
                 if (prevBtn) prevBtn.disabled = currentSlide === 0;
                 if (nextBtn) nextBtn.disabled = currentSlide === slides.length - 1;
             }
@@ -2671,8 +5524,13 @@ body::before{
                 updateCarousel();
             }
             
-            if (prevBtn) prevBtn.addEventListener('click', () => goToSlide(currentSlide - 1));
-            if (nextBtn) nextBtn.addEventListener('click', () => goToSlide(currentSlide + 1));
+            if (prevBtn) {
+                prevBtn.addEventListener('click', () => goToSlide(currentSlide - 1));
+            }
+            
+            if (nextBtn) {
+                nextBtn.addEventListener('click', () => goToSlide(currentSlide + 1));
+            }
             
             indicators.forEach((ind) => {
                 ind.addEventListener('click', () => {
@@ -2681,15 +5539,20 @@ body::before{
                 });
             });
             
+            // Touch support
             if (container) {
                 let touchStartX = 0;
+                
                 container.addEventListener('touchstart', (e) => {
                     touchStartX = e.changedTouches[0].screenX;
                 }, { passive: true });
+                
                 container.addEventListener('touchend', (e) => {
                     const touchEndX = e.changedTouches[0].screenX;
                     const diff = touchStartX - touchEndX;
-                    if (Math.abs(diff) > 50) goToSlide(currentSlide + (diff > 0 ? 1 : -1));
+                    if (Math.abs(diff) > 50) {
+                        goToSlide(currentSlide + (diff > 0 ? 1 : -1));
+                    }
                 }, { passive: true });
             }
             
@@ -2711,7 +5574,11 @@ body::before{
             
             function updateCarousel() {
                 carousel.style.transform = `translateX(-${currentSlide * 100}%)`;
-                indicators.forEach((ind, i) => ind.classList.toggle('active', i === currentSlide));
+                
+                indicators.forEach((ind, i) => {
+                    ind.classList.toggle('active', i === currentSlide);
+                });
+                
                 if (prevBtn) prevBtn.disabled = currentSlide === 0;
                 if (nextBtn) nextBtn.disabled = currentSlide === slides.length - 1;
             }
@@ -2721,8 +5588,13 @@ body::before{
                 updateCarousel();
             }
             
-            if (prevBtn) prevBtn.addEventListener('click', () => goToSlide(currentSlide - 1));
-            if (nextBtn) nextBtn.addEventListener('click', () => goToSlide(currentSlide + 1));
+            if (prevBtn) {
+                prevBtn.addEventListener('click', () => goToSlide(currentSlide - 1));
+            }
+            
+            if (nextBtn) {
+                nextBtn.addEventListener('click', () => goToSlide(currentSlide + 1));
+            }
             
             indicators.forEach((ind) => {
                 ind.addEventListener('click', () => {
@@ -2731,21 +5603,25 @@ body::before{
                 });
             });
             
+            // Touch support
             if (container) {
                 let touchStartX = 0;
+                
                 container.addEventListener('touchstart', (e) => {
                     touchStartX = e.changedTouches[0].screenX;
                 }, { passive: true });
+                
                 container.addEventListener('touchend', (e) => {
                     const touchEndX = e.changedTouches[0].screenX;
                     const diff = touchStartX - touchEndX;
-                    if (Math.abs(diff) > 50) goToSlide(currentSlide + (diff > 0 ? 1 : -1));
+                    if (Math.abs(diff) > 50) {
+                        goToSlide(currentSlide + (diff > 0 ? 1 : -1));
+                    }
                 }, { passive: true });
             }
             
             updateCarousel();
         })();
-        
         // Mobile menu toggle
         const menuToggle = document.querySelector('.menu-toggle');
         const navLinks = document.querySelector('.nav-links');
@@ -2755,6 +5631,7 @@ body::before{
             menuToggle.textContent = navLinks.classList.contains('active') ? '✕' : '☰';
         });
         
+        // Close mobile menu when clicking a link
         document.querySelectorAll('.nav-links a').forEach(link => {
             link.addEventListener('click', () => {
                 navLinks.classList.remove('active');
@@ -2765,21 +5642,32 @@ body::before{
         // Header scroll effect
         const header = document.querySelector('header');
         window.addEventListener('scroll', () => {
-            if (window.scrollY > 100) header.classList.add('scrolled');
-            else header.classList.remove('scrolled');
+            if (window.scrollY > 100) {
+                header.classList.add('scrolled');
+            } else {
+                header.classList.remove('scrolled');
+            }
         });
         
-        // Scroll animations
-        const observerOptions = { threshold: 0.1, rootMargin: '0px 0px -50px 0px' };
+        // Enhanced scroll animations with stagger
+        const observerOptions = {
+            threshold: 0.1,
+            rootMargin: '0px 0px -50px 0px'
+        };
+
         const observer = new IntersectionObserver((entries) => {
-            entries.forEach((entry) => {
+            entries.forEach((entry, index) => {
                 if (entry.isIntersecting) {
+                    // Stagger animation for items in the same container
                     const delay = entry.target.dataset.delay || 0;
-                    setTimeout(() => entry.target.classList.add('visible'), delay);
+                    setTimeout(() => {
+                        entry.target.classList.add('visible');
+                    }, delay);
                 }
             });
         }, observerOptions);
-        
+
+        // Apply staggered delays to grid items
         document.querySelectorAll('.event-item').forEach((item, index) => {
             item.dataset.delay = index * 150;
             observer.observe(item);
@@ -2795,14 +5683,17 @@ body::before{
             observer.observe(perk);
         });
         
+
         document.querySelectorAll('.contact-box').forEach((box, index) => {
             box.dataset.delay = index * 150;
             observer.observe(box);
         });
+
+        document.querySelectorAll('.fade-in, .section-title').forEach(el => {
+            observer.observe(el);
+        });
         
-        document.querySelectorAll('.fade-in, .section-title').forEach(el => observer.observe(el));
-        
-        // Animated counters
+        // Animated counters for stats
         function animateCounter(element) {
             if (!element) return;
             const target = parseInt(element.dataset.count);
@@ -2815,13 +5706,18 @@ body::before{
                 const elapsed = currentTime - startTime;
                 const progress = Math.min(elapsed / duration, 1);
                 element.textContent = Math.floor(progress * target);
-                if (progress < 1) requestAnimationFrame(updateCounter);
-                else element.textContent = target;
+                
+                if (progress < 1) {
+                    requestAnimationFrame(updateCounter);
+                } else {
+                    element.textContent = target;
+                }
             };
             
             requestAnimationFrame(updateCounter);
         }
         
+        // Observe stat cards and trigger counter animation
         const statsObserver = new IntersectionObserver((entries) => {
             entries.forEach(entry => {
                 if (entry.isIntersecting && !entry.target.dataset.animated) {
@@ -2834,8 +5730,11 @@ body::before{
             });
         }, { threshold: 0.3 });
         
-        document.querySelectorAll('.stat-card').forEach(card => statsObserver.observe(card));
+        document.querySelectorAll('.stat-card').forEach(card => {
+            statsObserver.observe(card);
+        });
         
+        // Trigger animation for already visible cards
         setTimeout(() => {
             document.querySelectorAll('.stat-card').forEach(card => {
                 const rect = card.getBoundingClientRect();
@@ -2848,8 +5747,8 @@ body::before{
                 }
             });
         }, 500);
-        
-        // Smooth scrolling
+
+        // Smooth scrolling with offset for fixed header
         document.querySelectorAll('a[href^="#"]').forEach(anchor => {
             anchor.addEventListener('click', function (e) {
                 e.preventDefault();
@@ -2858,14 +5757,30 @@ body::before{
                     const headerOffset = 80;
                     const elementPosition = target.getBoundingClientRect().top;
                     const offsetPosition = elementPosition + window.pageYOffset - headerOffset;
-                    window.scrollTo({ top: offsetPosition, behavior: 'smooth' });
+
+                    window.scrollTo({
+                        top: offsetPosition,
+                        behavior: 'smooth'
+                    });
                 }
             });
         });
         
-        // Course Modal
+        // Prevent text selection on rapid mobile taps
+        let lastTap = 0;
+        document.addEventListener('touchend', (e) => {
+            const currentTime = new Date().getTime();
+            const tapLength = currentTime - lastTap;
+            if (tapLength < 500 && tapLength > 0) {
+                e.preventDefault();
+            }
+            lastTap = currentTime;
+        });
+        
+        // Course Modal Functionality
         (function() {
-            const modalHTML = \`
+            // Create modal HTML
+            const modalHTML = `
                 <div class="course-modal-overlay" id="courseModal">
                     <div class="course-modal">
                         <div class="course-modal-header">
@@ -2874,7 +5789,14 @@ body::before{
                         </div>
                         <div class="course-modal-options">
                             <a href="#" class="course-modal-btn" id="modalUdisc" target="_blank" rel="noopener noreferrer">
-                                <div class="course-modal-btn-icon udisc">🥏</div>
+                                <div class="course-modal-btn-icon udisc">
+                                    <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                                        <circle cx="12" cy="12" r="10" fill="white"/>
+                                        <circle cx="12" cy="12" r="7" fill="#FF6B00"/>
+                                        <circle cx="12" cy="12" r="3" fill="white"/>
+                                        <path d="M12 2C12 2 12 8 12 12" stroke="white" stroke-width="1.5" stroke-linecap="round"/>
+                                    </svg>
+                                </div>
                                 <div class="course-modal-btn-text">
                                     <div class="course-modal-btn-title">View on UDisc</div>
                                     <div class="course-modal-btn-subtitle">Course info, layouts & reviews</div>
@@ -2901,8 +5823,9 @@ body::before{
                         <button class="course-modal-close" id="modalClose">Close</button>
                     </div>
                 </div>
-            \`;
+            `;
             
+            // Inject modal into page
             document.body.insertAdjacentHTML('beforeend', modalHTML);
             
             const modal = document.getElementById('courseModal');
@@ -2913,10 +5836,12 @@ body::before{
             const modalYoutube = document.getElementById('modalYoutube');
             const modalClose = document.getElementById('modalClose');
             
+            // Open modal function
             function openModal(courseData) {
                 modalCourseName.textContent = courseData.course;
                 modalCourseLocation.textContent = '📍 ' + courseData.location;
                 
+                // Set UDisc link
                 if (courseData.udisc) {
                     modalUdisc.href = courseData.udisc;
                     modalUdisc.classList.remove('disabled');
@@ -2925,15 +5850,17 @@ body::before{
                     modalUdisc.classList.add('disabled');
                 }
                 
+                // Set directions link
                 if (courseData.coords) {
                     const [lat, lng] = courseData.coords.split(',');
-                    modalDirections.href = \`https://www.google.com/maps/dir/?api=1&destination=\${lat},\${lng}\`;
+                    modalDirections.href = `https://www.google.com/maps/dir/?api=1&destination=${lat},${lng}`;
                     modalDirections.classList.remove('disabled');
                 } else {
                     modalDirections.href = '#';
                     modalDirections.classList.add('disabled');
                 }
                 
+                // Set YouTube link
                 if (courseData.youtube && courseData.youtube.trim() !== '') {
                     modalYoutube.href = courseData.youtube;
                     modalYoutube.classList.remove('disabled');
@@ -2948,11 +5875,13 @@ body::before{
                 document.body.style.overflow = 'hidden';
             }
             
+            // Close modal function
             function closeModal() {
                 modal.classList.remove('active');
                 document.body.style.overflow = '';
             }
             
+            // Add click handlers to course cards
             document.querySelectorAll('.course-card[data-course]').forEach(card => {
                 card.style.cursor = 'pointer';
                 card.addEventListener('click', function(e) {
@@ -2968,199 +5897,516 @@ body::before{
                 });
             });
             
+            // Close modal handlers
             modalClose.addEventListener('click', closeModal);
+            
             modal.addEventListener('click', function(e) {
-                if (e.target === modal) closeModal();
+                if (e.target === modal) {
+                    closeModal();
+                }
             });
+            
             document.addEventListener('keydown', function(e) {
-                if (e.key === 'Escape' && modal.classList.contains('active')) closeModal();
+                if (e.key === 'Escape' && modal.classList.contains('active')) {
+                    closeModal();
+                }
+            });
+            
+            // Prevent disabled buttons from navigating
+            document.querySelectorAll('.course-modal-btn.disabled').forEach(btn => {
+                btn.addEventListener('click', function(e) {
+                    e.preventDefault();
+                });
             });
         })();
         
-        // Events Loader - Google Sheets Integration
+       // ============================================
+        // Tournament Feed from Disc Golf Scene
+        // Loads from tournaments.json (updated by GitHub Actions)
+        // Falls back to static data if fetch fails
+        // 
+        // v2.0 - Includes data cleaning to fix malformed scraper output
+        // ============================================
         (function() {
-            const SHEET_CSV_URL = 'https://docs.google.com/spreadsheets/d/e/2PACX-1vTLTq17Bwgy6uW_9pG7dQODTmahv7vjxo9Y5EShHaeQYo9xPB2m7Nf5de8EcZvKgcrTbBLb97msMg4Q/pub?output=csv';
-            const MAX_EVENTS = 5;
-            const SHOW_PAST_EVENTS = false;
-            
-            const eventList = document.getElementById('eventList');
-            if (!eventList) return;
-            
-            function parseCSV(csv) {
-                const lines = csv.trim().split('\n');
-                if (lines.length < 2) return [];
+            // Configuration
+            const CONFIG = {
+                // URL to your tournaments.json file
+                jsonUrl: 'https://raw.githubusercontent.com/mostlysober252/GVDG-DGS-Scraper-2.0/main/tournaments.json',
                 
-                const headers = parseCSVLine(lines[0]).map(h => h.toLowerCase().trim());
-                const events = [];
+                // How long to cache data in localStorage (in hours)
+                cacheHours: 6
+            };
+            
+            // ============================================
+            // DATA CLEANER - Fixes malformed scraper output
+            // ============================================
+            const TournamentCleaner = {
+                // Patterns indicating invalid data
+                INVALID_URL_PATTERNS: [
+                    'search-filter',
+                    'tournaments/search',
+                    'tournaments/mine',
+                    'tournaments/new'
+                ],
                 
-                for (let i = 1; i < lines.length; i++) {
-                    const values = parseCSVLine(lines[i]);
-                    const event = {};
-                    headers.forEach((header, index) => {
-                        event[header] = values[index] ? values[index].trim() : '';
-                    });
-                    if (event.active !== 'FALSE' && event.title && event.date) {
-                        events.push(event);
+                // Venue prefixes that accidentally got into city names
+                BAD_CITY_PREFIXES: [
+                    'Park ', 'Complex ', 'Course ', 'DGC ', 'Disc Golf ',
+                    'Recreation ', 'Recreational ', 'Municipal ', 'Campground '
+                ],
+                
+                /**
+                 * Clean a single tournament
+                 */
+                clean(t) {
+                    if (!t || !t.name || !t.url) return null;
+                    
+                    // Skip invalid URLs (search filters, etc.)
+                    if (this.INVALID_URL_PATTERNS.some(p => t.url.includes(p))) {
+                        console.log('[Cleaner] Skipping invalid URL:', t.url);
+                        return null;
                     }
+                    
+                    // Clean the name
+                    let name = this.cleanName(t.name);
+                    if (!name || name.length < 5 || name.length > 150) {
+                        console.log('[Cleaner] Invalid name:', t.name);
+                        return null;
+                    }
+                    
+                    // Clean the city
+                    let city = this.cleanCity(t.city);
+                    
+                    return {
+                        ...t,
+                        name: name,
+                        city: city
+                    };
+                },
+                
+                /**
+                 * Clean tournament name - handle concatenation issues
+                 */
+                cleanName(name) {
+                    if (!name) return '';
+                    let c = name;
+                    
+                    // Skip if starts with "PDGA" (search filter text)
+                    if (c.startsWith('PDGA')) return '';
+                    
+                    // Extract name before date if concatenated
+                    const dateMatch = c.match(/^(.+?)(?:Mon|Tue|Wed|Thu|Fri|Sat|Sun)(?:-(?:Mon|Tue|Wed|Thu|Fri|Sat|Sun))?,\s*[A-Za-z]{3}\s+\d/);
+                    if (dateMatch && dateMatch[1].length > 5) {
+                        c = dateMatch[1].trim();
+                    }
+                    
+                    // Take everything before interpunct (·)
+                    if (c.includes('·')) {
+                        c = c.split('·')[0].trim();
+                    }
+                    
+                    // Remove embedded PDGA tier info
+                    c = c.replace(/\s*PDGA\s*(Flex\s*)?(A|B|C|XC)-?[Tt]ier\s*/g, ' ');
+                    
+                    // Remove spots at end (14/72)
+                    c = c.replace(/\s*\d+\s*\/\s*\d+\s*$/, '');
+                    
+                    // Remove format indicators
+                    c = c.replace(/\s*\d*\s*(Doubles|Teams|Singles|Flex\s*start|Event|League)\s*$/i, '');
+                    
+                    // Remove trailing numbers (round counts)
+                    c = c.replace(/\s+\d\s*$/, '');
+                    
+                    // Remove registration dates at end
+                    c = c.replace(/\s*(?:Mon|Tue|Wed|Thu|Fri|Sat|Sun),\s*[A-Za-z]{3}\s+\d+\s+at\s+\d+:\d+[ap]m\s*[A-Z]{3,4}\s*$/i, '');
+                    
+                    // Clean up whitespace
+                    return c.replace(/\s+/g, ' ').trim();
+                },
+                
+                /**
+                 * Clean city name - remove venue prefixes
+                 */
+                cleanCity(city) {
+                    if (!city) return 'NC';
+                    let c = city;
+                    
+                    // Remove venue prefixes
+                    for (const prefix of this.BAD_CITY_PREFIXES) {
+                        if (c.startsWith(prefix)) {
+                            c = c.substring(prefix.length);
+                        }
+                    }
+                    
+                    // Ensure proper format: "City, NC"
+                    if (c.includes('NC') && !c.includes(', NC')) {
+                        c = c.replace(/\s*NC\s*$/, ', NC');
+                    }
+                    
+                    if (!c.includes(',')) {
+                        c = c.trim() + ', NC';
+                    }
+                    
+                    return c.trim();
+                },
+                
+                /**
+                 * Clean an array of tournaments
+                 */
+                cleanAll(tournaments) {
+                    if (!Array.isArray(tournaments)) return [];
+                    
+                    const cleaned = [];
+                    let removed = 0;
+                    
+                    for (const t of tournaments) {
+                        const result = this.clean(t);
+                        if (result) {
+                            cleaned.push(result);
+                        } else {
+                            removed++;
+                        }
+                    }
+                    
+                    if (removed > 0) {
+                        console.log(`[TournamentCleaner] Removed ${removed} invalid entries`);
+                    }
+                    
+                    return cleaned;
                 }
-                return events;
-            }
+            };
             
-            function parseCSVLine(line) {
-                const values = [];
-                let current = '';
-                let inQuotes = false;
-                for (let i = 0; i < line.length; i++) {
-                    const char = line[i];
-                    if (char === '"') inQuotes = !inQuotes;
-                    else if (char === ',' && !inQuotes) {
-                        values.push(current.trim().replace(/^"|"$/g, ''));
-                        current = '';
-                    } else current += char;
+            // ============================================
+            // FALLBACK DATA - Used if fetch fails
+            // ============================================
+            const FALLBACK_TOURNAMENTS = [
+                {
+                    name: "The Hangover 6 (Morning)",
+                    date: "2026-01-01",
+                    venue: "West Meadowbrook Park",
+                    city: "Greenville, NC",
+                    tier: "C",
+                    url: "https://www.discgolfscene.com/tournaments/The_Hangover_6_2026",
+                    distance: 0,
+                    isGVDG: true,
+                    spots: "12/72"
+                },
+                {
+                    name: "The Hangover 7 (Afternoon)",
+                    date: "2026-01-01",
+                    venue: "West Meadowbrook Park",
+                    city: "Greenville, NC",
+                    tier: "C",
+                    url: "https://www.discgolfscene.com/tournaments/The_Hangover_7_2026",
+                    distance: 0,
+                    isGVDG: true,
+                    spots: "10/72"
+                },
+                {
+                    name: "GVDG Frozen Bowl and Chili Cookoff",
+                    date: "2026-01-24",
+                    venue: "Farmville Municipal DGC",
+                    city: "Farmville, NC",
+                    tier: "Other",
+                    url: "https://www.discgolfscene.com/tournaments/GVDG_Frozen_Bowl_2025",
+                    distance: 10,
+                    isGVDG: true,
+                    spots: null
+                },
+                {
+                    name: "White Oak Gold Grand Opening",
+                    date: "2026-01-24",
+                    venue: "White Oak River Campground",
+                    city: "Maysville, NC",
+                    tier: "Other",
+                    url: "https://www.discgolfscene.com/tournaments/White_Oak_Gold_Grand_Opening_2025",
+                    distance: 50,
+                    isGVDG: false,
+                    spots: null
+                },
+                {
+                    name: "JDC of NC Membership Drive",
+                    date: "2026-01-25",
+                    venue: "Northeast Creek Park",
+                    city: "Jacksonville, NC",
+                    tier: "C",
+                    url: "https://www.discgolfscene.com/tournaments/JDC_of_NC_Membership_Drive_2026",
+                    distance: 50,
+                    isGVDG: false,
+                    spots: "15/72"
+                },
+                {
+                    name: "Kings Cup XXI Pro/Am",
+                    date: "2026-01-31",
+                    venue: "Barnet Park",
+                    city: "Kinston, NC",
+                    tier: "B",
+                    url: "https://www.discgolfscene.com/tournaments/Kings_Cup_XX_Pro_Am_2026",
+                    distance: 28,
+                    isGVDG: false,
+                    spots: "37/90"
+                },
+                {
+                    name: "16th Annual Rocky Mount Ice Bowl",
+                    date: "2026-02-07",
+                    venue: "Battle Park DGC",
+                    city: "Rocky Mount, NC",
+                    tier: "Other",
+                    url: "https://www.discgolfscene.com/tournaments/16th_Annual_Rocky_Mount_Ice_Bowl_2026",
+                    distance: 40,
+                    isGVDG: false,
+                    spots: "5/72"
+                },
+                {
+                    name: "Scallywag Showdown (USDGC Dubs Qualifier)",
+                    date: "2026-02-08",
+                    venue: "North Recreational Complex",
+                    city: "Greenville, NC",
+                    tier: "Doubles",
+                    url: "https://www.discgolfscene.com/tournaments/Scallywag_Showdown_USDGC_DUBS_QUALIFIER_2026",
+                    distance: 0,
+                    isGVDG: false,
+                    spots: "2/72"
                 }
-                values.push(current.trim().replace(/^"|"$/g, ''));
-                return values;
+            ];
+            
+            // ============================================
+            // DOM ELEMENTS
+            // ============================================
+            const grid = document.getElementById('tournamentGrid');
+            const filterBtns = document.querySelectorAll('.filter-tab');
+            let tournaments = [];
+            let currentFilter = 'all';
+            let lastUpdated = null;
+            
+            // ============================================
+            // HELPER FUNCTIONS
+            // ============================================
+            
+            function showLoading() {
+                grid.innerHTML = `
+                    <div class="tournament-loading" style="grid-column: 1 / -1;">
+                        <div class="spinner"></div>
+                        <p>Loading tournaments...</p>
+                    </div>
+                `;
             }
             
             function formatDate(dateStr) {
-                if (!dateStr || dateStr.toUpperCase().trim() === 'TBD') {
-                    return { day: 'TBD', month: '', year: '', isPast: false, isTBD: true, dateObj: new Date(9999, 11, 31) };
-                }
-                
-                let date;
-                if (dateStr.includes('/')) {
-                    const parts = dateStr.split('/');
-                    date = new Date(parts[2], parts[0] - 1, parts[1]);
-                } else if (dateStr.includes('-')) {
-                    date = new Date(dateStr + 'T12:00:00');
-                } else {
-                    date = new Date(dateStr);
-                }
-                
-                if (isNaN(date.getTime())) {
-                    return { day: 'TBD', month: '', isPast: false, isTBD: true, dateObj: new Date(9999, 11, 31) };
-                }
-                
+                const date = new Date(dateStr + 'T12:00:00');
                 const months = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
-                const today = new Date();
-                today.setHours(0, 0, 0, 0);
-                
                 return {
                     day: date.getDate(),
                     month: months[date.getMonth()],
-                    year: date.getFullYear(),
-                    isPast: date < today,
-                    isTBD: false,
-                    dateObj: date
+                    year: date.getFullYear()
                 };
             }
             
-            function escapeHtml(str) {
-                const div = document.createElement('div');
-                div.textContent = str;
-                return div.innerHTML;
+            function getTierClass(tier) {
+                const tierMap = {
+                    'A': 'tier-a',
+                    'B': 'tier-b',
+                    'C': 'tier-c',
+                    'XC': 'tier-xc',
+                    'League': 'tier-league',
+                    'Doubles': 'tier-other',
+                    'Teams': 'tier-other',
+                    'Other': 'tier-other'
+                };
+                return tierMap[tier] || 'tier-other';
             }
             
-            function renderEvent(event, index) {
-                const dateInfo = formatDate(event.date);
-                const hasLink = event.url && event.url.trim() !== '';
-                const isTBD = dateInfo.isTBD;
+            function getTierLabel(tier) {
+                if (tier === 'Other' || tier === 'Doubles' || tier === 'Teams') return tier;
+                if (tier === 'XC') return 'XC-Tier';
+                return tier + '-Tier';
+            }
+            
+            function createTournamentCard(tournament) {
+                const dateInfo = formatDate(tournament.date);
+                const isPast = new Date(tournament.date) < new Date();
                 
-                const classes = ['event-item', 'fade-in'];
-                if (hasLink) classes.push('has-link');
-                if (isTBD) classes.push('tbd-event');
+                return `
+                    <div class="tournament-card ${isPast ? 'past' : ''}" onclick="window.open('${tournament.url}', '_blank')">
+                        <div class="tournament-card-header">
+                            <div class="tournament-date-badge">
+                                <div class="day">${dateInfo.day}</div>
+                                <div class="month">${dateInfo.month}</div>
+                                <div class="year">${dateInfo.year}</div>
+                            </div>
+                            <div class="tournament-details">
+                                <h4 class="tournament-name">${tournament.name}</h4>
+                                <p class="tournament-location">📍 ${tournament.city}</p>
+                            </div>
+                        </div>
+                        <div class="tournament-card-footer">
+                            <span class="tournament-tier ${getTierClass(tournament.tier)}">
+                                ${tournament.isGVDG ? '⭐ GVDG' : getTierLabel(tournament.tier)}
+                            </span>
+                            <span class="tournament-distance">~${tournament.distance} mi</span>
+                            ${tournament.spots ? `<span class="tournament-spots">${tournament.spots}</span>` : ''}
+                        </div>
+                        <a href="${tournament.url}" target="_blank" rel="noopener noreferrer" class="tournament-card-link" onclick="event.stopPropagation()">
+                            View on Disc Golf Scene →
+                        </a>
+                    </div>
+                `;
+            }
+            
+            function filterTournaments(filter) {
+                let filtered = [...tournaments];
                 
-                const tag = hasLink ? 'a' : 'div';
-                const linkAttrs = hasLink ? \` href="\${escapeHtml(event.url)}" target="_blank" rel="noopener noreferrer"\` : '';
+                // Filter out past tournaments (more than 1 day ago)
+                const yesterday = new Date();
+                yesterday.setDate(yesterday.getDate() - 1);
+                filtered = filtered.filter(t => new Date(t.date) >= yesterday);
                 
-                let dateHTML;
-                if (isTBD) {
-                    dateHTML = \`<div class="event-date tbd"><div class="event-day">TBD</div></div>\`;
-                } else {
-                    dateHTML = \`<div class="event-date"><div class="event-day">\${dateInfo.day}</div><div class="event-month">\${dateInfo.month}</div></div>\`;
+                // Apply category filter
+                if (filter === 'gvdg') {
+                    filtered = filtered.filter(t => t.isGVDG);
+                } else if (filter === 'pdga') {
+                    filtered = filtered.filter(t => ['A', 'B', 'C', 'XC'].includes(t.tier));
                 }
                 
-                return \`
-                    <\${tag}\${linkAttrs} class="\${classes.join(' ')}" style="animation-delay: \${index * 0.1}s;">
-                        \${dateHTML}
-                        <div class="event-info">
-                            <h3 class="event-title">\${escapeHtml(event.title)}</h3>
-                            <p class="event-description">\${escapeHtml(event.description || '')}</p>
-                        </div>
-                    </\${tag}>
-                \`;
+                // Sort by date
+                filtered.sort((a, b) => new Date(a.date) - new Date(b.date));
+                
+                return filtered;
             }
             
-            async function loadEvents() {
-                if (SHEET_CSV_URL === 'YOUR_GOOGLE_SHEET_CSV_URL_HERE') {
-                    renderPlaceholderEvents();
+            function renderTournaments(filter = 'all') {
+                const filtered = filterTournaments(filter);
+                
+                if (filtered.length === 0) {
+                    grid.innerHTML = `
+                        <div class="no-tournaments" style="grid-column: 1 / -1;">
+                            <p>No upcoming tournaments found for this filter.</p>
+                            <p style="margin-top: 0.5rem;">
+                                <a href="https://www.discgolfscene.com/tournaments/North_Carolina" target="_blank" rel="noopener noreferrer" style="color: var(--primary);">
+                                    Browse all NC tournaments on Disc Golf Scene →
+                                </a>
+                            </p>
+                        </div>
+                    `;
+                } else {
+                    grid.innerHTML = filtered.map(createTournamentCard).join('');
+                }
+            }
+            
+            // ============================================
+            // CACHING
+            // ============================================
+            
+            function getCachedData() {
+                try {
+                    const cached = localStorage.getItem('gvdg_tournaments_v2');
+                    if (cached) {
+                        const data = JSON.parse(cached);
+                        const cacheAge = (Date.now() - data.cachedAt) / (1000 * 60 * 60);
+                        if (cacheAge < CONFIG.cacheHours) {
+                            return data;
+                        }
+                    }
+                } catch (e) {
+                    console.warn('Cache read error:', e);
+                }
+                return null;
+            }
+            
+            function setCachedData(data) {
+                try {
+                    data.cachedAt = Date.now();
+                    localStorage.setItem('gvdg_tournaments_v2', JSON.stringify(data));
+                } catch (e) {
+                    console.warn('Cache write error:', e);
+                }
+            }
+            
+            // ============================================
+            // MAIN LOADER
+            // ============================================
+            
+            async function loadTournaments() {
+                showLoading();
+                
+                // Check cache first
+                const cached = getCachedData();
+                if (cached && cached.tournaments) {
+                    console.log('Using cached tournament data');
+                    tournaments = cached.tournaments;
+                    lastUpdated = cached.lastUpdated;
+                    initializeUI();
                     return;
                 }
                 
+                // Try to fetch fresh data
                 try {
-                    const response = await fetch(SHEET_CSV_URL);
-                    if (!response.ok) throw new Error('HTTP error: ' + response.status);
+                    const response = await fetch(CONFIG.jsonUrl);
+                    if (!response.ok) throw new Error(`HTTP ${response.status}`);
                     
-                    const csv = await response.text();
-                    let events = parseCSV(csv);
+                    const data = await response.json();
                     
-                    if (!SHOW_PAST_EVENTS) {
-                        events = events.filter(e => !formatDate(e.date).isPast);
-                    }
+                    // CLEAN THE DATA - this fixes malformed scraper output
+                    const rawTournaments = data.tournaments || [];
+                    tournaments = TournamentCleaner.cleanAll(rawTournaments);
                     
-                    events.sort((a, b) => {
-                        const dateA = formatDate(a.date).dateObj || new Date(9999, 0, 1);
-                        const dateB = formatDate(b.date).dateObj || new Date(9999, 0, 1);
-                        return dateA - dateB;
+                    lastUpdated = data.lastUpdated;
+                    
+                    // Cache the cleaned data
+                    setCachedData({
+                        tournaments: tournaments,
+                        lastUpdated: lastUpdated
                     });
                     
-                    if (MAX_EVENTS > 0) events = events.slice(0, MAX_EVENTS);
-                    
-                    if (events.length === 0) {
-                        eventList.innerHTML = \`<div class="no-events"><h3>No Upcoming Events</h3><p>Check back soon for new events!</p></div>\`;
-                    } else {
-                        eventList.innerHTML = events.map((e, i) => renderEvent(e, i)).join('');
-                        setTimeout(() => {
-                            eventList.querySelectorAll('.event-item').forEach(item => item.classList.add('visible'));
-                        }, 100);
-                    }
+                    console.log(`Loaded and cleaned ${tournaments.length} tournaments (${rawTournaments.length - tournaments.length} invalid removed)`);
                 } catch (error) {
-                    console.error('Error loading events:', error);
-                    renderPlaceholderEvents();
+                    console.warn('Failed to load tournaments.json, using fallback:', error);
+                    tournaments = FALLBACK_TOURNAMENTS;
+                    lastUpdated = null;
+                }
+                
+                initializeUI();
+            }
+            
+            function initializeUI() {
+                // Render tournaments
+                renderTournaments(currentFilter);
+                
+                // Setup filter buttons
+                filterBtns.forEach(btn => {
+                    btn.addEventListener('click', function() {
+                        filterBtns.forEach(b => b.classList.remove('active'));
+                        this.classList.add('active');
+                        currentFilter = this.dataset.filter;
+                        renderTournaments(currentFilter);
+                    });
+                });
+                
+                // Add data freshness note
+                const feedHeader = document.querySelector('.tournament-feed-header');
+                if (feedHeader) {
+                    // Remove any existing note
+                    const existingNote = feedHeader.querySelector('.data-note');
+                    if (existingNote) existingNote.remove();
+                    
+                    const note = document.createElement('p');
+                    note.className = 'data-note';
+                    note.style.cssText = 'font-size: 0.75rem; color: var(--text-muted); margin-top: 0.5rem; opacity: 0.7;';
+                    
+                    let noteText = 'Data from <a href="https://www.discgolfscene.com" target="_blank" rel="noopener noreferrer" style="color: var(--primary);">discgolfscene.com</a>.';
+                    if (lastUpdated) {
+                        const updated = new Date(lastUpdated);
+                        noteText += ` Last updated: ${updated.toLocaleDateString()}.`;
+                    }
+                    noteText += ' For current info, visit event pages directly.';
+                    
+                    note.innerHTML = noteText;
+                    feedHeader.querySelector('div').appendChild(note);
                 }
             }
             
-            function renderPlaceholderEvents() {
-                const getNextSaturday = () => {
-                    const today = new Date();
-                    const daysUntilSat = (6 - today.getDay() + 7) % 7 || 7;
-                    const nextSat = new Date(today);
-                    nextSat.setDate(today.getDate() + daysUntilSat);
-                    return nextSat.toISOString().split('T')[0];
-                };
-                
-                const getDateInDays = (days) => {
-                    const date = new Date();
-                    date.setDate(date.getDate() + days);
-                    return date.toISOString().split('T')[0];
-                };
-                
-                const placeholders = [
-                    { date: getNextSaturday(), title: 'Weekly Doubles', description: 'Join us every Saturday at 10 AM for our weekly doubles tournament. Random draw partners, all skill levels welcome.' },
-                    { date: getDateInDays(14), title: 'Monthly Tournament', description: 'Our monthly singles tournament. Register online or day-of. All divisions welcome!' },
-                    { date: getDateInDays(30), title: 'Beginner Clinic', description: 'Free clinic for new players covering basics: throwing techniques, rules, and etiquette.' }
-                ];
-                
-                eventList.innerHTML = placeholders.map((e, i) => renderEvent(e, i)).join('');
-                setTimeout(() => {
-                    eventList.querySelectorAll('.event-item').forEach(item => item.classList.add('visible'));
-                }, 100);
-            }            
-            if (document.readyState === 'loading') {
-                document.addEventListener('DOMContentLoaded', loadEvents);
-            } else {
-                loadEvents();
-            }
+            // Start loading
+            loadTournaments();
         })();
     </script>
 </body>
