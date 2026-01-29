@@ -2438,74 +2438,357 @@ p {
    EVENTS SECTION
    ============================================ */
 
-@media (max-width: 768px) {
-  .events-list,
-  .events-grid,
-  #events .grid {
-    display: flex;
-    flex-direction: column;
-    gap: 1rem;
-    padding: 0 1rem;
-  }
+<!-- ============================================
+         EVENTS SECTION - Google Sheets Integration
+         
+         Replace your existing #events section with this code.
+         
+         SETUP: Update SHEET_CSV_URL in the script below
+         ============================================ -->
 
-  .event-card {
-    display: flex;
-    gap: 1rem;
-    padding: 1rem;
-    align-items: flex-start;
-  }
+    <!-- Events Section -->
+    <section id="events">
+        <h2 class="section-title fade-in">Upcoming Events</h2>
+        
+        <style>
+        /* TBD Event Styling */
+        .event-item.tbd-event .event-date.tbd {
+            background: linear-gradient(135deg, var(--accent, #F7B801), #e5a600);
+        }
+        
+        .event-date.tbd .event-day {
+            font-size: 1.2rem;
+            letter-spacing: 0.05em;
+        }
+        
+        /* Ensure TBD badge is centered properly */
+        .event-date.tbd {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        
+        @media (max-width: 480px) {
+            .event-date.tbd {
+                height: 60px;
+            }
+            
+            .event-date.tbd .event-day {
+                font-size: 1.5rem;
+            }
+        }
+        </style>
+        
+        <!-- Event List Container - Events load here dynamically -->
+        <div class="event-list" id="eventList">
+            <div class="event-loading">
+                <div class="spinner"></div>
+                <p>Loading events...</p>
+            </div>
+        </div>
+        
+        <!-- Optional: Link to full calendar -->
+        <div class="events-footer" style="text-align: center; margin-top: 2rem;">
+            <p style="color: var(--text-muted); font-size: 0.9rem;">
+                Want to host an event? <a href="#contact" style="color: var(--primary);">Contact us!</a>
+            </p>
+        </div>
+        
+        <!-- Tournament Feed (keep your existing tournament section below) -->
+        <!-- ... your existing tournament feed code stays here ... -->
+    </section>
 
-  .event-date {
-    flex: 0 0 auto;
-    min-width: 50px;
-    text-align: center;
-  }
-
-  .event-date .day {
-    font-size: 1.5rem;
-    font-weight: 700;
-    line-height: 1;
-  }
-
-  .event-date .month {
-    font-size: 0.75rem;
-    text-transform: uppercase;
-  }
-
-  .event-content {
-    flex: 1;
-  }
-
-  .event-content h3 {
-    font-size: 1rem;
-    margin-bottom: 0.5rem;
-  }
-
-  .event-content p {
-    font-size: 0.875rem;
-    line-height: 1.5;
-  }
-
-  /* Tournament filter tabs */
-  .event-filters,
-  .tournament-tabs {
-    display: flex;
-    overflow-x: auto;
-    gap: 0.5rem;
-    padding: 0 1rem 1rem;
-    -webkit-overflow-scrolling: touch;
-  }
-
-  .filter-btn,
-  .tab-btn {
-    flex: 0 0 auto;
-    padding: 0.5rem 1rem;
-    font-size: 0.875rem;
-    white-space: nowrap;
-    min-height: 44px;
-  }
-}
-
+    <script>
+    /**
+     * GVDG Events Loader - Google Sheets Integration
+     * Fetches events from a published Google Sheet CSV
+     */
+    (function() {
+        // ============================================
+        // CONFIGURATION - UPDATE THIS URL!
+        // ============================================
+        const SHEET_CSV_URL = 'YOUR_GOOGLE_SHEET_CSV_URL_HERE';
+        // Example: 'https://docs.google.com/spreadsheets/d/e/2PACX-1vR.../pub?gid=0&single=true&output=csv'
+        
+        // How many events to show (set to 0 for unlimited)
+        const MAX_EVENTS = 5;
+        
+        // Show past events?
+        const SHOW_PAST_EVENTS = false;
+        
+        // ============================================
+        // DOM ELEMENTS
+        // ============================================
+        const eventList = document.getElementById('eventList');
+        if (!eventList) return; // Exit if element not found
+        
+        // ============================================
+        // HELPER FUNCTIONS
+        // ============================================
+        
+        function parseCSV(csv) {
+            const lines = csv.trim().split('\n');
+            if (lines.length < 2) return [];
+            
+            const headers = parseCSVLine(lines[0]).map(h => h.toLowerCase().trim());
+            const events = [];
+            
+            for (let i = 1; i < lines.length; i++) {
+                const values = parseCSVLine(lines[i]);
+                const event = {};
+                
+                headers.forEach((header, index) => {
+                    event[header] = values[index] ? values[index].trim() : '';
+                });
+                
+                // Only include active events with required fields
+                if (event.active !== 'FALSE' && event.title && event.date) {
+                    events.push(event);
+                }
+            }
+            
+            return events;
+        }
+        
+        function parseCSVLine(line) {
+            const values = [];
+            let current = '';
+            let inQuotes = false;
+            
+            for (let i = 0; i < line.length; i++) {
+                const char = line[i];
+                if (char === '"') {
+                    inQuotes = !inQuotes;
+                } else if (char === ',' && !inQuotes) {
+                    values.push(current.trim().replace(/^"|"$/g, ''));
+                    current = '';
+                } else {
+                    current += char;
+                }
+            }
+            values.push(current.trim().replace(/^"|"$/g, ''));
+            return values;
+        }
+        
+        function formatDate(dateStr) {
+            // Handle TBD dates
+            if (!dateStr || dateStr.toUpperCase().trim() === 'TBD') {
+                return {
+                    day: 'TBD',
+                    month: '',
+                    year: '',
+                    isPast: false,
+                    isTBD: true,
+                    dateObj: new Date(9999, 11, 31) // Sort TBD dates to the end
+                };
+            }
+            
+            let date;
+            
+            if (dateStr.includes('/')) {
+                const parts = dateStr.split('/');
+                date = new Date(parts[2], parts[0] - 1, parts[1]);
+            } else if (dateStr.includes('-')) {
+                date = new Date(dateStr + 'T12:00:00');
+            } else {
+                date = new Date(dateStr);
+            }
+            
+            if (isNaN(date.getTime())) {
+                return { day: 'TBD', month: '', isPast: false, isTBD: true, dateObj: new Date(9999, 11, 31) };
+            }
+            
+            const months = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 
+                            'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
+            
+            const today = new Date();
+            today.setHours(0, 0, 0, 0);
+            
+            return {
+                day: date.getDate(),
+                month: months[date.getMonth()],
+                year: date.getFullYear(),
+                isPast: date < today,
+                isTBD: false,
+                dateObj: date
+            };
+        }
+        
+        function escapeHtml(str) {
+            const div = document.createElement('div');
+            div.textContent = str;
+            return div.innerHTML;
+        }
+        
+        function renderEvent(event, index) {
+            const dateInfo = formatDate(event.date);
+            const hasLink = event.url && event.url.trim() !== '';
+            const isPast = dateInfo.isPast;
+            const isTBD = dateInfo.isTBD;
+            
+            const classes = ['event-item', 'fade-in'];
+            if (hasLink) classes.push('has-link');
+            if (isPast) classes.push('past-event');
+            if (isTBD) classes.push('tbd-event');
+            
+            const tag = hasLink ? 'a' : 'div';
+            const linkAttrs = hasLink ? ` href="${escapeHtml(event.url)}" target="_blank" rel="noopener noreferrer"` : '';
+            
+            // Build date display - handle TBD differently
+            let dateHTML;
+            if (isTBD) {
+                dateHTML = `
+                    <div class="event-date tbd">
+                        <div class="event-day">TBD</div>
+                    </div>
+                `;
+            } else {
+                dateHTML = `
+                    <div class="event-date">
+                        <div class="event-day">${dateInfo.day}</div>
+                        <div class="event-month">${dateInfo.month}</div>
+                    </div>
+                `;
+            }
+            
+            return `
+                <${tag}${linkAttrs} class="${classes.join(' ')}" style="animation-delay: ${index * 0.1}s;">
+                    ${dateHTML}
+                    <div class="event-info">
+                        <h3 class="event-title">${escapeHtml(event.title)}</h3>
+                        <p class="event-description">${escapeHtml(event.description || '')}</p>
+                    </div>
+                </${tag}>
+            `;
+        }
+        
+        function renderNoEvents() {
+            eventList.innerHTML = `
+                <div class="no-events" style="text-align: center; padding: 3rem 2rem; color: var(--text-muted); background: var(--bg-primary); border-radius: 15px; border: 2px dashed var(--border-color);">
+                    <h3 style="color: var(--text-primary); margin-bottom: 0.5rem;">No Upcoming Events</h3>
+                    <p>Check back soon for new events, or follow us on social media for updates!</p>
+                </div>
+            `;
+        }
+        
+        function renderError() {
+            eventList.innerHTML = `
+                <div class="no-events" style="text-align: center; padding: 3rem 2rem; color: var(--text-muted); background: var(--bg-primary); border-radius: 15px;">
+                    <h3 style="color: var(--text-primary); margin-bottom: 0.5rem;">Unable to Load Events</h3>
+                    <p>Please check back later or follow us on <a href="#contact" style="color: var(--primary);">social media</a> for updates.</p>
+                </div>
+            `;
+        }
+        
+        async function loadEvents() {
+            // Check if URL is configured
+            if (SHEET_CSV_URL === 'YOUR_GOOGLE_SHEET_CSV_URL_HERE') {
+                console.warn('Events: Google Sheet URL not configured. Showing placeholder events.');
+                renderPlaceholderEvents();
+                return;
+            }
+            
+            try {
+                const response = await fetch(SHEET_CSV_URL);
+                if (!response.ok) throw new Error(`HTTP error: ${response.status}`);
+                
+                const csv = await response.text();
+                let events = parseCSV(csv);
+                
+                // Filter past events
+                if (!SHOW_PAST_EVENTS) {
+                    events = events.filter(e => !formatDate(e.date).isPast);
+                }
+                
+                // Sort by date
+                events.sort((a, b) => {
+                    const dateA = formatDate(a.date).dateObj || new Date(9999, 0, 1);
+                    const dateB = formatDate(b.date).dateObj || new Date(9999, 0, 1);
+                    return dateA - dateB;
+                });
+                
+                // Limit events
+                if (MAX_EVENTS > 0) {
+                    events = events.slice(0, MAX_EVENTS);
+                }
+                
+                // Render
+                if (events.length === 0) {
+                    renderNoEvents();
+                } else {
+                    eventList.innerHTML = events.map((e, i) => renderEvent(e, i)).join('');
+                    
+                    setTimeout(() => {
+                        eventList.querySelectorAll('.event-item').forEach(item => {
+                            item.classList.add('visible');
+                        });
+                    }, 100);
+                }
+                
+            } catch (error) {
+                console.error('Error loading events:', error);
+                renderError();
+            }
+        }
+        
+        function renderPlaceholderEvents() {
+            const getNextSaturday = () => {
+                const today = new Date();
+                const daysUntilSat = (6 - today.getDay() + 7) % 7 || 7;
+                const nextSat = new Date(today);
+                nextSat.setDate(today.getDate() + daysUntilSat);
+                return nextSat.toISOString().split('T')[0];
+            };
+            
+            const getDateInDays = (days) => {
+                const date = new Date();
+                date.setDate(date.getDate() + days);
+                return date.toISOString().split('T')[0];
+            };
+            
+            const placeholders = [
+                {
+                    date: getNextSaturday(),
+                    title: 'Weekly Doubles',
+                    description: 'Join us every Saturday at 10 AM for our weekly doubles tournament. Random draw partners, all skill levels welcome. $5 entry.',
+                    url: ''
+                },
+                {
+                    date: getDateInDays(14),
+                    title: 'Monthly Tournament',
+                    description: 'Our monthly singles tournament. Register online or day-of. All divisions welcome!',
+                    url: ''
+                },
+                {
+                    date: getDateInDays(30),
+                    title: 'Beginner Clinic',
+                    description: 'Free clinic for new players covering basics: throwing techniques, rules, and etiquette.',
+                    url: ''
+                }
+            ];
+            
+            eventList.innerHTML = placeholders.map((e, i) => renderEvent(e, i)).join('');
+            eventList.innerHTML += `
+                <div style="text-align: center; padding: 1rem; color: var(--text-muted); font-size: 0.8rem; border-top: 1px dashed var(--border-color); margin-top: 1rem;">
+                    ⚠️ Placeholder events. Configure your Google Sheet URL to load real data.
+                </div>
+            `;
+            
+            setTimeout(() => {
+                eventList.querySelectorAll('.event-item').forEach(item => {
+                    item.classList.add('visible');
+                });
+            }, 100);
+        }
+        
+        // Initialize
+        if (document.readyState === 'loading') {
+            document.addEventListener('DOMContentLoaded', loadEvents);
+        } else {
+            loadEvents();
+        }
+    })();
+    </script>
 /* ============================================
    MEMBERSHIP SECTION
    ============================================ */
@@ -6411,6 +6694,7 @@ h3 {
     </script>
 </body>
 </html>
+
 
 
 
