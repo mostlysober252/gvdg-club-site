@@ -1398,6 +1398,54 @@ body::before{
         [data-theme="dark"] #events {
             border-color: rgba(255, 255, 255, 0.05);
         }
+		/* Event Loading State */
+.event-loading {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    padding: 3rem;
+    color: var(--text-muted);
+}
+
+.event-loading .spinner {
+    width: 40px;
+    height: 40px;
+    border: 3px solid var(--border-color);
+    border-top-color: var(--primary);
+    border-radius: 50%;
+    animation: spin 1s linear infinite;
+    margin-bottom: 1rem;
+}
+
+.no-events {
+    text-align: center;
+    padding: 3rem 2rem;
+    color: var(--text-muted);
+    background: var(--bg-primary);
+    border-radius: 15px;
+    border: 2px dashed var(--border-color);
+}
+
+/* TBD Event Styling */
+.event-item.tbd-event .event-date.tbd {
+    background: linear-gradient(135deg, var(--accent), #e5a600);
+}
+
+.event-date.tbd .event-day {
+    font-size: 1.2rem;
+    letter-spacing: 0.05em;
+}
+
+.event-date.tbd {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+@media (max-width: 480px) {
+    .event-date.tbd { height: 60px; }
+    .event-date.tbd .event-day { font-size: 1.5rem; }
+}
         
         /* Tournament Feed Styles */
         .tournament-feed {
@@ -6390,4 +6438,5 @@ h3 {
     </script>
 </body>
 </html>
+
 
