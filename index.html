@@ -1169,98 +1169,7 @@ body::before{
             gap: 2rem;
             margin-top: 2.5rem;
         }
-        /* Courses Carousel Side Arrows */
-        .courses-arrow {
-            position: absolute;
-            top: 50%;
-            transform: translateY(-50%);
-            background: var(--primary);
-            border: none;
-            color: white;
-            width: 50px;
-            height: 50px;
-            min-width: 50px;
-            min-height: 50px;
-            border-radius: 50%;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            cursor: pointer;
-            font-size: 1.5rem;
-            transition: all 0.3s ease;
-            z-index: 10;
-            -webkit-tap-highlight-color: transparent;
-            box-shadow: 0 4px 15px rgba(255, 107, 53, 0.3);
-        }
         
-        .courses-arrow:hover {
-            background: var(--secondary);
-            transform: translateY(-50%) scale(1.1);
-            box-shadow: 0 6px 20px rgba(0, 78, 137, 0.4);
-        }
-        
-        .courses-arrow:active {
-            transform: translateY(-50%) scale(0.95);
-        }
-        
-        .courses-arrow:disabled {
-            opacity: 0.3;
-            cursor: not-allowed;
-        }
-        
-        .courses-arrow:disabled:hover {
-            background: var(--primary);
-            transform: translateY(-50%);
-        }
-        
-        .courses-arrow-prev {
-            left: -25px;
-        }
-        
-        .courses-arrow-next {
-            right: -25px;
-        }
-        
-        /* Hide the old bottom nav arrows */
-        .courses-carousel-nav .carousel-btn {
-            display: none;
-        }
-        
-        @media (max-width: 768px) {
-            .courses-arrow {
-                width: 44px;
-                height: 44px;
-                min-width: 44px;
-                min-height: 44px;
-                font-size: 1.2rem;
-            }
-            
-            .courses-arrow-prev {
-                left: 10px;
-            }
-            
-            .courses-arrow-next {
-                right: 10px;
-            }
-            
-            #courses .courses-carousel-container {
-                padding: 0 50px;
-            }
-        }
-        
-        @media (max-width: 480px) {
-            .courses-arrow-prev {
-                left: 5px;
-            }
-            
-            .courses-arrow-next {
-                right: 5px;
-            }
-            
-            #courses .courses-carousel-container {
-                padding: 0 40px;
-            }
-        }
         .carousel-btn {
             background: var(--primary);
             color: white;
@@ -4318,12 +4227,7 @@ h3 {
 
 <!-- Courses Carousel Section -->
 <section id="courses">
-    <h2 class="section-title fade-in">Local Courses</h2>
     <div class="courses-carousel-container">
-        <!-- Side Navigation Arrows -->
-        <button class="courses-arrow courses-arrow-prev" id="coursesArrowPrev" aria-label="Previous courses">‹</button>
-        <button class="courses-arrow courses-arrow-next" id="coursesArrowNext" aria-label="Next courses">›</button>
-        
         <div class="courses-carousel">
             <!-- Slide 1 -->
             <div class="carousel-slide-courses">
@@ -5843,8 +5747,8 @@ h3 {
             const carousel = document.querySelector('.courses-carousel');
             const slides = document.querySelectorAll('.carousel-slide-courses');
             const indicators = document.querySelectorAll('.courses-carousel-nav .carousel-indicator');
-            const prevBtn = document.getElementById('coursesArrowPrev');
-            const nextBtn = document.getElementById('coursesArrowNext');
+            const prevBtn = document.getElementById('coursesPrevBtn');
+            const nextBtn = document.getElementById('coursesNextBtn');
             const container = document.querySelector('.courses-carousel-container');
             
             if (!carousel || slides.length === 0) return;
@@ -6690,10 +6594,6 @@ h3 {
     </script>
 </body>
 </html>
-
-
-
-
 
 
 
