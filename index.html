@@ -4066,6 +4066,79 @@ h3 {
         right: auto !important;
     }
 }	
+	/* ============================================
+   DEFINITIVE MOBILE MENU FIX
+   Must be at the VERY END of all CSS
+   ============================================ */
+@media (max-width: 768px) {
+    .nav-links {
+        position: fixed !important;
+        top: 70px !important;
+        left: 0 !important;
+        right: 0 !important;
+        bottom: auto !important;
+        background: rgba(26, 26, 46, 0.98) !important;
+        flex-direction: column !important;
+        justify-content: flex-start !important;
+        align-items: center !important;
+        gap: 0 !important;
+        padding: 1rem 2rem 2rem !important;
+        transform: translate3d(0, -100%, 0) !important;
+        opacity: 0 !important;
+        transition: transform 0.3s ease-in-out, opacity 0.3s ease-in-out !important;
+        pointer-events: none !important;
+        max-height: calc(100vh - 70px) !important;
+        overflow-y: auto !important;
+        z-index: 999 !important;
+        display: flex !important;
+    }
+
+    [data-theme="dark"] .nav-links {
+        background: rgba(15, 15, 30, 0.98) !important;
+    }
+
+    .nav-links.active {
+        transform: translate3d(0, 0, 0) !important;
+        opacity: 1 !important;
+        pointer-events: all !important;
+    }
+
+    .nav-links li {
+        padding: 1.25rem 0 !important;
+        border-bottom: 1px solid rgba(255, 255, 255, 0.1) !important;
+        width: 100% !important;
+        text-align: center !important;
+        list-style: none !important;
+    }
+
+    .nav-links li:last-child {
+        border-bottom: none !important;
+    }
+
+    .nav-links a {
+        font-size: 1.1rem !important;
+        display: block !important;
+        padding: 0.5rem 0 !important;
+        color: white !important;
+        text-decoration: none !important;
+    }
+
+    .theme-toggle {
+        position: relative !important;
+        bottom: auto !important;
+        right: auto !important;
+    }
+
+    .menu-toggle {
+        display: flex !important;
+        align-items: center !important;
+        justify-content: center !important;
+        color: white !important;
+        opacity: 1 !important;
+        visibility: visible !important;
+        z-index: 1001 !important;
+    }
+}
     </style>
 </head>
 <body>
@@ -6594,6 +6667,7 @@ h3 {
     </script>
 </body>
 </html>
+
 
 
 
