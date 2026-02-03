@@ -4139,6 +4139,55 @@ h3 {
         z-index: 1001 !important;
     }
 }
+.back-to-top {
+    display: none;
+    position: fixed;
+    bottom: 2rem;
+    left: 1.5rem;
+    z-index: 999;
+    width: 48px;
+    height: 48px;
+    border-radius: 50%;
+    border: none;
+    background: linear-gradient(135deg, var(--primary), var(--secondary));
+    color: white;
+    font-size: 1.4rem;
+    cursor: pointer;
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.3);
+    opacity: 0;
+    visibility: hidden;
+    transform: translateY(20px);
+    transition: opacity 0.3s ease, visibility 0.3s ease, transform 0.3s ease, background 0.3s ease;
+    -webkit-tap-highlight-color: transparent;
+    align-items: center;
+    justify-content: center;
+}
+
+.back-to-top.visible {
+    opacity: 1;
+    visibility: visible;
+    transform: translateY(0);
+}
+
+.back-to-top:active {
+    transform: translateY(0) scale(0.92);
+}
+
+/* Only shows on mobile screens */
+@media (max-width: 768px) {
+    .back-to-top {
+        display: flex;
+    }
+}
+
+/* iPhone notch/safe area support */
+@supports (padding: env(safe-area-inset-bottom)) {
+    .back-to-top {
+        bottom: calc(2rem + env(safe-area-inset-bottom));
+        left: calc(1.5rem + env(safe-area-inset-left));
+    }
+}
+		
     </style>
 </head>
 <body>
@@ -5650,7 +5699,8 @@ h3 {
             </div>
         </div>
     </section>
-
+<!-- Back to Top Button (Mobile) -->
+    <button class="back-to-top" id="backToTop" aria-label="Back to top">↑</button>
     <!-- Footer -->
     <footer>
         <p>&copy; 2024 Greenville Disc Golf Club. All rights reserved. | Greenville, NC</p>
@@ -6664,9 +6714,35 @@ h3 {
             // Start loading
             loadTournaments();
         })();
+	// Back to Top Button
+        (function() {
+            const backToTopBtn = document.getElementById('backToTop');
+            if (!backToTopBtn) return;
+
+            let ticking = false;
+
+            window.addEventListener('scroll', function() {
+                if (!ticking) {
+                    window.requestAnimationFrame(function() {
+                        if (window.scrollY > 600) {
+                            backToTopBtn.classList.add('visible');
+                        } else {
+                            backToTopBtn.classList.remove('visible');
+                        }
+                        ticking = false;
+                    });
+                    ticking = true;
+                }
+            }, { passive: true });
+
+            backToTopBtn.addEventListener('click', function() {
+                window.scrollTo({ top: 0, behavior: 'smooth' });
+            });
+        })();	
     </script>
 </body>
 </html>
+
 
 
 
