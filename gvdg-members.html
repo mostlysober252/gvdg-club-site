@@ -216,6 +216,11 @@
         .member-card.founding { background: var(--secondary); border-left: 4px solid var(--primary); }
         .member-card.founding:hover { transform: translateY(-3px); }
         .member-card.special-badge::before { content: attr(data-badge); position: absolute; top: 12px; right: -32px; background: var(--accent); color: var(--dark); padding: 0.25rem 2.5rem; font-size: 0.6rem; font-weight: 700; transform: rotate(45deg); text-transform: uppercase; }
+        .member-card.active-player { border: 2px solid #22c55e; }
+        .member-card.active-player .member-avatar { background: rgba(34, 197, 94, 0.35); }
+        .active-badge { display: inline-flex; align-items: center; gap: 0.35rem; background: rgba(34, 197, 94, 0.2); color: #22c55e; padding: 0.2rem 0.55rem; border-radius: 4px; font-size: 0.75rem; font-weight: 700; margin-bottom: 0.5rem; text-transform: uppercase; letter-spacing: 0.03em; }
+        .active-dot { width: 7px; height: 7px; border-radius: 50%; background: #22c55e; animation: activePulse 2s ease-in-out infinite; }
+        @keyframes activePulse { 0%, 100% { opacity: 1; box-shadow: 0 0 0 0 rgba(34,197,94,0.5); } 50% { opacity: 0.7; box-shadow: 0 0 0 4px rgba(34,197,94,0); } }
         .member-avatar { width: 48px; height: 48px; border-radius: 50%; background: rgba(255, 255, 255, 0.2); display: flex; align-items: center; justify-content: center; font-size: 1.1rem; margin-bottom: 0.875rem; font-weight: 700; font-family: 'Bebas Neue', sans-serif; }
         .member-name { font-family: 'Bebas Neue', sans-serif; font-size: 1.35rem; margin-bottom: 0.35rem; }
         .member-since { font-size: 0.85rem; opacity: 0.9; margin-bottom: 0.75rem; }
@@ -456,6 +461,7 @@
                 <button class="members-filter-btn active" data-filter="all">All Members</button>
                 <button class="members-filter-btn" data-filter="founding">Founding (2004)</button>
                 <button class="members-filter-btn" data-filter="pdga">PDGA Members</button>
+                <button class="members-filter-btn" data-filter="active">Active (2025 Doubles)</button>
             </div>
 
             <div class="members-grid" id="membersGrid"></div>
@@ -774,6 +780,21 @@
 
             const yearData = {2004:25,2005:5,2006:6,2007:7,2008:2,2009:11,2010:19,2011:14,2012:41,2013:20,2014:21,2015:18,2016:10,2017:9,2018:15,2019:13,2020:40,2021:18,2022:21,2023:17,2024:8,2025:6};
 
+            // Set of member full names (lowercase) who played in 2025 Doubles League
+            const activeDoublesPlayers = new Set([
+                "alex schwarga","billy bauer","blake poland","blake sargent","chandler harrell",
+                "drew nyman","eder hernandez","eric davis","eric laroque","jarrett wallace",
+                "jay morris","jesus mares","jonathan edwards","josh sandy","joshua willoughby",
+                "juan martinez","leo brown","leo hernandez","michael ellis","p.j. corbett",
+                "paul morgan","richard biggs","tj braley","tj williams","travis sherrod",
+                "tyler jernigan","whitney graham","daniel castro"
+            ]);
+            function isActiveMember(m) {
+                const fn = m.firstName.replace(/\s*"[^"]*"\s*/g,' ').trim();
+                const ln = m.lastName.replace(/\s*RIP$/i,'').trim();
+                return activeDoublesPlayers.has((fn + ' ' + ln).toLowerCase());
+            }
+
             let currentFilter = 'all';
             let searchTerm = '';
             let displayCount = 12;
@@ -819,6 +840,7 @@
                     let matchesFilter = true;
                     if (currentFilter === 'founding') matchesFilter = m.yearJoined === 2004;
                     else if (currentFilter === 'pdga') matchesFilter = m.pdga !== null;
+                    else if (currentFilter === 'active') matchesFilter = isActiveMember(m);
                     return matchesSearch && matchesFilter;
                 }).sort((a, b) => a.lastName.localeCompare(b.lastName));
             }
@@ -837,13 +859,16 @@
                     const initials = (m.firstName[0] || '') + (m.lastName[0] || '');
                     const isFounding = m.yearJoined === 2004;
                     const hasSpecial = m.special !== null;
+                    const isActive = isActiveMember(m);
                     let cardClasses = 'member-card';
                     if (isFounding) cardClasses += ' founding';
                     if (hasSpecial) cardClasses += ' special-badge';
+                    if (isActive) cardClasses += ' active-player';
                     let html = '<div class="' + cardClasses + '"';
                     if (hasSpecial) html += ' data-badge="' + m.special + '"';
                     html += '><div class="member-avatar">' + initials + '</div>';
                     html += '<div class="member-name">' + m.firstName + ' ' + m.lastName + '</div>';
+                    if (isActive) html += '<div class="active-badge"><span class="active-dot"></span>Active – 2025 Doubles</div>';
                     html += '<div class="member-since">Member since ' + m.yearJoined + '</div>';
                     if (m.pdga) html += '<div class="member-pdga"><a href="https://www.pdga.com/player/' + m.pdga + '" target="_blank">PDGA #' + m.pdga + '</a></div>';
                     html += '</div>';
