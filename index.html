@@ -4187,7 +4187,83 @@ h3 {
         left: calc(1.5rem + env(safe-area-inset-left));
     }
 }
-		
+/* ============================================
+COURSES SECTION - HEADER NAVIGATION ARROWS
+============================================ */
+.slide-header-nav {
+display: flex;
+align-items: center;
+justify-content: center;
+gap: 1rem;
+margin-bottom: 2.5rem;
+}
+.slide-header-nav .slide-header {
+margin-bottom: 0;
+flex: 0 1 auto;
+text-align: center;
+min-width: 0;
+}
+.slide-nav-arrow {
+flex-shrink: 0;
+width: 44px;
+height: 44px;
+min-width: 44px;
+min-height: 44px;
+border-radius: 50%;
+border: 2px solid var(--primary);
+background: transparent;
+color: var(--primary);
+font-size: 1.4rem;
+cursor: pointer;
+display: flex;
+align-items: center;
+justify-content: center;
+transition: all 0.3s ease;
+-webkit-tap-highlight-color: transparent;
+line-height: 1;
+}
+.slide-nav-arrow:hover:not(:disabled) {
+background: var(--primary);
+color: white;
+transform: scale(1.1);
+}
+.slide-nav-arrow:active:not(:disabled) {
+transform: scale(0.95);
+}
+.slide-nav-arrow:disabled {
+opacity: 0.2;
+cursor: not-allowed;
+transform: none !important;
+background: transparent !important;
+color: var(--primary) !important;
+}
+[data-theme="dark"] .slide-nav-arrow {
+border-color: var(--primary);
+color: var(--primary);
+}
+[data-theme="dark"] .slide-nav-arrow:hover:not(:disabled) {
+background: var(--primary);
+color: white;
+}
+@media (max-width: 480px) {
+.slide-header-nav {
+gap: 0.5rem;
+margin-bottom: 1.5rem;
+}
+.slide-nav-arrow {
+width: 38px;
+height: 38px;
+min-width: 38px;
+min-height: 38px;
+font-size: 1.2rem;
+}
+.slide-header-nav .slide-title {
+font-size: 1.5rem;
+}
+.slide-header-nav .slide-subtitle {
+font-size: 0.8rem;
+}
+}		
     </style>
 </head>
 <body>
@@ -4353,10 +4429,14 @@ h3 {
         <div class="courses-carousel">
             <!-- Slide 1 -->
             <div class="carousel-slide-courses">
+                <div class="slide-header-nav">
+                <button class="slide-nav-arrow slide-nav-prev" aria-label="Previous courses slide">&#8249;</button>
                 <div class="slide-header">
                     <h3 class="slide-title">Our Courses</h3>
                     <p class="slide-subtitle">5 Courses in Greenville, NC</p>
                 </div>
+                <button class="slide-nav-arrow slide-nav-next" aria-label="Next courses slide">&#8250;</button>
+            </div>
                 
                 <div class="courses-grid">
                     <div class="course-card" data-course="ECU North Rec Complex" data-location="Greenville, NC" data-udisc="https://udisc.com/courses/ecu-north-recreational-complex-HbME" data-coords="35.631092,-77.319923" data-youtube="">
@@ -4501,11 +4581,14 @@ h3 {
             </div>
             
             <!-- Slide 2 -->
-            <div class="carousel-slide-courses">
+            <div class="slide-header-nav">
+                <button class="slide-nav-arrow slide-nav-prev" aria-label="Previous courses slide">&#8249;</button>
                 <div class="slide-header">
                     <h3 class="slide-title">Nearby Courses</h3>
-                    
+                    <p class="slide-subtitle">Within 30 Minutes of Greenville</p>
                 </div>
+                <button class="slide-nav-arrow slide-nav-next" aria-label="Next courses slide">&#8250;</button>
+            </div>
                 
                 <div class="courses-grid">
                     <div class="course-card" data-course="Farmville DiscGolfPark" data-location="Farmville, NC" data-udisc="https://udisc.com/courses/farmville-disc-golf-park-YCBv" data-coords="35.604686,-77.576533" data-youtube="">
@@ -4655,10 +4738,14 @@ h3 {
             
             <!-- Slide 3 -->
             <div class="carousel-slide-courses">
+                <div class="slide-header-nav">
+                <button class="slide-nav-arrow slide-nav-prev" aria-label="Previous courses slide">&#8249;</button>
                 <div class="slide-header">
                     <h3 class="slide-title">Worth The Drive</h3>
                     <p class="slide-subtitle">Top-Rated Courses Within 60 Miles</p>
                 </div>
+                <button class="slide-nav-arrow slide-nav-next" aria-label="Next courses slide">&#8250;</button>
+            </div>
                 
                 <div class="courses-grid">
                     <!-- Glenburnie Park - NOW HAS IMAGE! -->
@@ -5865,69 +5952,85 @@ h3 {
             updateCarousel();
         })();
         
-        // Courses Carousel
-        (function() {
-            const carousel = document.querySelector('.courses-carousel');
-            const slides = document.querySelectorAll('.carousel-slide-courses');
-            const indicators = document.querySelectorAll('.courses-carousel-nav .carousel-indicator');
-            const prevBtn = document.getElementById('coursesPrevBtn');
-            const nextBtn = document.getElementById('coursesNextBtn');
-            const container = document.querySelector('.courses-carousel-container');
+        // Courses Carousel (with header arrow navigation)
+    (function() {
+        const carousel = document.querySelector('.courses-carousel');
+        const slides = document.querySelectorAll('.carousel-slide-courses');
+        const indicators = document.querySelectorAll('.courses-carousel-nav .carousel-indicator');
+        const prevBtn = document.getElementById('coursesPrevBtn');
+        const nextBtn = document.getElementById('coursesNextBtn');
+        const container = document.querySelector('.courses-carousel-container');
+        
+        // Header arrows (all slides)
+        const headerPrevBtns = document.querySelectorAll('#courses .slide-nav-prev');
+        const headerNextBtns = document.querySelectorAll('#courses .slide-nav-next');
+        
+        if (!carousel || slides.length === 0) return;
+        
+        let currentSlide = 0;
+        
+        function updateCarousel() {
+            carousel.style.transform = `translateX(-${currentSlide * 100}%)`;
             
-            if (!carousel || slides.length === 0) return;
-            
-            let currentSlide = 0;
-            
-            function updateCarousel() {
-                carousel.style.transform = `translateX(-${currentSlide * 100}%)`;
-                
-                indicators.forEach((ind, i) => {
-                    ind.classList.toggle('active', i === currentSlide);
-                });
-                
-                if (prevBtn) prevBtn.disabled = currentSlide === 0;
-                if (nextBtn) nextBtn.disabled = currentSlide === slides.length - 1;
-            }
-            
-            function goToSlide(index) {
-                currentSlide = Math.max(0, Math.min(index, slides.length - 1));
-                updateCarousel();
-            }
-            
-            if (prevBtn) {
-                prevBtn.addEventListener('click', () => goToSlide(currentSlide - 1));
-            }
-            
-            if (nextBtn) {
-                nextBtn.addEventListener('click', () => goToSlide(currentSlide + 1));
-            }
-            
-            indicators.forEach((ind) => {
-                ind.addEventListener('click', () => {
-                    const slideIndex = parseInt(ind.getAttribute('data-slide'));
-                    if (!isNaN(slideIndex)) goToSlide(slideIndex);
-                });
+            indicators.forEach((ind, i) => {
+                ind.classList.toggle('active', i === currentSlide);
             });
             
-            // Touch support
-            if (container) {
-                let touchStartX = 0;
-                
-                container.addEventListener('touchstart', (e) => {
-                    touchStartX = e.changedTouches[0].screenX;
-                }, { passive: true });
-                
-                container.addEventListener('touchend', (e) => {
-                    const touchEndX = e.changedTouches[0].screenX;
-                    const diff = touchStartX - touchEndX;
-                    if (Math.abs(diff) > 50) {
-                        goToSlide(currentSlide + (diff > 0 ? 1 : -1));
-                    }
-                }, { passive: true });
-            }
+            // Bottom nav
+            if (prevBtn) prevBtn.disabled = currentSlide === 0;
+            if (nextBtn) nextBtn.disabled = currentSlide === slides.length - 1;
             
+            // Header arrows (all slides)
+            headerPrevBtns.forEach(btn => {
+                btn.disabled = currentSlide === 0;
+            });
+            headerNextBtns.forEach(btn => {
+                btn.disabled = currentSlide === slides.length - 1;
+            });
+        }
+        
+        function goToSlide(index) {
+            currentSlide = Math.max(0, Math.min(index, slides.length - 1));
             updateCarousel();
-        })();
+        }
+        
+        // Bottom nav buttons
+        if (prevBtn) prevBtn.addEventListener('click', () => goToSlide(currentSlide - 1));
+        if (nextBtn) nextBtn.addEventListener('click', () => goToSlide(currentSlide + 1));
+        
+        // Header arrows
+        headerPrevBtns.forEach(btn => {
+            btn.addEventListener('click', () => goToSlide(currentSlide - 1));
+        });
+        headerNextBtns.forEach(btn => {
+            btn.addEventListener('click', () => goToSlide(currentSlide + 1));
+        });
+        
+        // Dot indicators
+        indicators.forEach((ind) => {
+            ind.addEventListener('click', () => {
+                const slideIndex = parseInt(ind.getAttribute('data-slide'));
+                if (!isNaN(slideIndex)) goToSlide(slideIndex);
+            });
+        });
+        
+        // Touch/swipe support
+        if (container) {
+            let touchStartX = 0;
+            container.addEventListener('touchstart', (e) => {
+                touchStartX = e.changedTouches[0].screenX;
+            }, { passive: true });
+            container.addEventListener('touchend', (e) => {
+                const touchEndX = e.changedTouches[0].screenX;
+                const diff = touchStartX - touchEndX;
+                if (Math.abs(diff) > 50) {
+                    goToSlide(currentSlide + (diff > 0 ? 1 : -1));
+                }
+            }, { passive: true });
+        }
+        
+        updateCarousel();
+    })();
         // Mobile menu toggle
         const menuToggle = document.querySelector('.menu-toggle');
         const navLinks = document.querySelector('.nav-links');
@@ -6742,6 +6845,7 @@ h3 {
     </script>
 </body>
 </html>
+
 
 
 
