@@ -118,6 +118,14 @@ body::before{
         .cta-button { display: inline-block; background: var(--primary); color: white; padding: 1rem 2.5rem; min-height: 44px; border-radius: 50px; text-decoration: none; font-weight: 700; font-size: 1.1rem; text-transform: uppercase; letter-spacing: 0.05em; transition: all 0.3s ease; box-shadow: 0 5px 20px rgba(255, 107, 53, 0.4); -webkit-tap-highlight-color: transparent; }
         .cta-button:hover { transform: translateY(-3px); box-shadow: 0 8px 25px rgba(255, 107, 53, 0.5); background: #ff7f4d; }
         .cta-button:active { transform: translateY(-1px); }
+
+        /* Donate */
+        .nav-donate { background: var(--green); color: #fff !important; padding: 0.5rem 1.1rem; border-radius: 50px; font-size: 0.82rem !important; box-shadow: 0 3px 12px rgba(45, 80, 22, 0.35); transition: transform 0.2s ease, box-shadow 0.2s ease; }
+        .nav-donate::after { display: none !important; }
+        .nav-donate:hover { transform: translateY(-2px); color: #fff !important; box-shadow: 0 5px 16px rgba(45, 80, 22, 0.45); }
+        .donate-cta { display: inline-block; margin-top: 1rem; background: var(--accent); color: var(--dark); padding: 0.9rem 2.25rem; min-height: 44px; border-radius: 50px; text-decoration: none; font-weight: 700; text-transform: uppercase; letter-spacing: 0.05em; transition: transform 0.2s ease, box-shadow 0.2s ease; box-shadow: 0 5px 20px rgba(247, 184, 1, 0.4); -webkit-tap-highlight-color: transparent; }
+        .donate-cta:hover { transform: translateY(-3px); box-shadow: 0 8px 25px rgba(247, 184, 1, 0.5); }
+        .donate-note { font-size: 1.05rem; margin-top: 2rem; opacity: 0.95; }
         .scroll-indicator { position: absolute; bottom: 80px; left: 50%; transform: translateX(-50%); z-index: 10; animation: bounce 2s infinite; }
         @keyframes bounce { 0%, 20%, 50%, 80%, 100% { transform: translateX(-50%) translateY(0); } 40% { transform: translateX(-50%) translateY(-10px); } 60% { transform: translateX(-50%) translateY(-5px); } }
         .scroll-indicator::after { content: '↓'; display: block; color: white; font-size: 2rem; opacity: 0.7; }
@@ -463,6 +471,7 @@ p { font-size: clamp(0.9375rem, 2.5vw, 1.0625rem); }
             <li><a href="gvdg-members.html">Members</a></li>
             <li><a href="#membership">Join</a></li>
             <li><a href="#contact">Contact</a></li>
+            <li><a href="https://www.paypal.com/paypalme/greenvillediscgolf" class="nav-donate" target="_blank" rel="noopener noreferrer">💚 Donate</a></li>
         </ul>
        <div class="nav-right">
             <button class="menu-toggle" aria-label="Toggle menu">☰</button>
@@ -683,6 +692,8 @@ p { font-size: clamp(0.9375rem, 2.5vw, 1.0625rem); }
             </div>
             <div class="price">$15 / Year</div>
           <a href="https://www.paypal.com/cgi-bin/webscr?cmd=_xclick&business=greenvillediscgolf@gmail.com&currency_code=USD&amount=15&item_name=GVDG+Membership" class="cta-button" target="_blank" rel="noopener noreferrer">Get Started Today</a>
+            <p class="donate-note">Not ready to join? You can still help maintain our courses and run events:</p>
+            <a href="https://www.paypal.com/paypalme/greenvillediscgolf" class="donate-cta" target="_blank" rel="noopener noreferrer">💚 Donate via PayPal</a>
         </div>
     </section>
 
