@@ -8,6 +8,13 @@ export function assignShotgun(players: string[], holes: number[], groupSize = 4)
   return players.map((p, i) => ({ player: p, hole: holes[Math.floor(i / size) % holes.length]! }));
 }
 
+/** Card assignment: split players into sequential cards of `size` (default 4) → "Card 1", "Card 2", …
+ *  Randomness is injected by the caller (pre-shuffle), so this stays deterministic + unit-testable. */
+export function assignCards(players: string[], size = 4): { player: string; card: string }[] {
+  const n = Math.max(1, size);
+  return players.map((p, i) => ({ player: p, card: "Card " + (Math.floor(i / n) + 1) }));
+}
+
 /** Team assignment: fixed-size teams (opts.size, e.g. doubles=2) or round-robin into opts.count teams. */
 export function assignTeams(players: string[], opts: { size?: number; count?: number }): { player: string; team: string }[] {
   if (opts.size && opts.size > 0) {

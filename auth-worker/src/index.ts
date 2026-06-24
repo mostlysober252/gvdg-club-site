@@ -19,7 +19,7 @@ import { enrichHoles, type LayoutHole } from "./layouts.js";
 import { buildMessages, generateReply, MAX_HISTORY, type ChatTurn, type ChatMessage, type ReplyProvider } from "./assistant.js";
 import { computeLeagueStandings } from "./scoring.js";
 import { computeOwed, paypalBase, createOrder as ppCreateOrder, captureOrder as ppCaptureOrder } from "./payments.js";
-import { assignShotgun, assignTeams } from "./assign.js";
+import { assignShotgun, assignTeams, assignCards } from "./assign.js";
 
 // Fisher-Yates shuffle (Workers runtime permits Math.random) — used for random shotgun/team assignment.
 function shuffle<T>(arr: T[]): T[] {
@@ -980,12 +980,15 @@ async function clubApi(request: Request, env: Env, origin: string | null, pathna
       return json({ ace_pot: row }, 200, origin);
     }
     // Assign starting holes (shotgun) / teams — random (default) or keep order
-    if ((seg[3] === "assign-starting-holes" || seg[3] === "assign-teams") && id != null && method === "POST") {
+    if ((seg[3] === "assign-starting-holes" || seg[3] === "assign-teams" || seg[3] === "assign-cards") && id != null && method === "POST") {
       const b = (await readJson(request)) ?? {};
       const regs = (await db.listRegistrations(env.DB, id)) as { id: number }[];
       let order = regs.map((r) => r.id);
       if (b.shuffle !== false) order = shuffle(order); // random by default
-      if (seg[3] === "assign-starting-holes") {
+      if (seg[3] === "assign-cards") {
+        const assigned = assignCards(order.map(String), asInt(b.size) || 4);
+        await Promise.all(order.map((rid, i) => db.adminUpdateRegistration(env.DB, rid, { card_label: assigned[i]!.card })));
+      } else if (seg[3] === "assign-starting-holes") {
         const ev = (await db.getEvent(env.DB, id)) as { layout_id?: number | null } | null;
         let holes = (await db.getLayoutHoles(env.DB, ev?.layout_id)).map((h) => h.hole);
         if (!holes.length) holes = Array.from({ length: asInt(b.holeCount) || 18 }, (_, i) => i + 1);

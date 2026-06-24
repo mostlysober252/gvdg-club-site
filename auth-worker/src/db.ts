@@ -375,14 +375,14 @@ export async function markRegistrationPaid(db: D1Like, id: number, paymentRef: s
 export async function adminUpdateRegistration(
   db: D1Like,
   id: number,
-  p: { division?: string | null; team?: string | null; starting_hole?: number | null; checked_in?: number | null; paid_entry?: number | null },
+  p: { division?: string | null; team?: string | null; starting_hole?: number | null; checked_in?: number | null; paid_entry?: number | null; card_label?: string | null },
 ) {
   return db
     .prepare(
       `UPDATE registrations SET division=COALESCE(?,division), team=COALESCE(?,team), starting_hole=COALESCE(?,starting_hole),
-        checked_in=COALESCE(?,checked_in), paid_entry=COALESCE(?,paid_entry) WHERE id=? RETURNING *`,
+        checked_in=COALESCE(?,checked_in), paid_entry=COALESCE(?,paid_entry), card_label=COALESCE(?,card_label) WHERE id=? RETURNING *`,
     )
-    .bind(p.division ?? null, p.team ?? null, p.starting_hole ?? null, p.checked_in ?? null, p.paid_entry ?? null, id)
+    .bind(p.division ?? null, p.team ?? null, p.starting_hole ?? null, p.checked_in ?? null, p.paid_entry ?? null, p.card_label ?? null, id)
     .first();
 }
 

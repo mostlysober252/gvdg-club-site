@@ -1,5 +1,5 @@
 import { describe, it, expect } from "vitest";
-import { assignShotgun, assignTeams } from "../src/assign.js";
+import { assignShotgun, assignTeams, assignCards } from "../src/assign.js";
 
 describe("assignShotgun (starting holes)", () => {
   it("groups players onto holes by group size (shotgun start)", () => {
@@ -23,5 +23,16 @@ describe("assignTeams", () => {
   it("distributes players round-robin into N teams", () => {
     const out = assignTeams(["a", "b", "c", "d"], { count: 2 });
     expect(out.map((x) => x.team)).toEqual(["Team 1", "Team 2", "Team 1", "Team 2"]);
+  });
+});
+
+describe("assignCards", () => {
+  it("splits players into sequential cards of the given size", () => {
+    const out = assignCards(["a", "b", "c", "d", "e"], 2);
+    expect(out.map((x) => x.card)).toEqual(["Card 1", "Card 1", "Card 2", "Card 2", "Card 3"]);
+  });
+  it("defaults to cards of 4", () => {
+    const out = assignCards(["a", "b", "c", "d", "e"]);
+    expect(out.map((x) => x.card)).toEqual(["Card 1", "Card 1", "Card 1", "Card 1", "Card 2"]);
   });
 });

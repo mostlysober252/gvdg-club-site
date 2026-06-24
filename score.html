@@ -8,6 +8,8 @@
     <meta name="apple-mobile-web-app-title" content="GVDG Score">
     <title>Live Scoring · Greenville Disc Golf Club</title>
     <link rel="icon" type="image/png" href="img/logo.png">
+    <link rel="manifest" href="site.webmanifest">
+    <link rel="apple-touch-icon" href="img/logo.png">
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Archivo:wght@400;600;700&display=swap" rel="stylesheet">
@@ -72,6 +74,7 @@
         label.lbl { font-size: 0.78rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.5px; color: var(--text-muted); display: block; margin: 0 0 0.3rem 0.2rem; }
         .pill { display: inline-block; font-size: 0.68rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.4px; padding: 0.2rem 0.5rem; border-radius: 999px; background: var(--bg-tertiary); color: var(--text-secondary); }
         .pill.live { background: var(--primary); color: #fff; }
+        .offline-bar { position: fixed; top: 0; left: 0; right: 0; z-index: 60; background: var(--over); color: #fff; text-align: center; font-size: 0.78rem; font-weight: 700; padding: calc(0.3rem + var(--safe-top)) 0.5rem 0.3rem; }
         .toast {
             position: fixed; left: 50%; bottom: calc(1.2rem + var(--safe-bottom)); transform: translateX(-50%);
             background: var(--text-primary); color: var(--bg-secondary); padding: 0.7rem 1.1rem; border-radius: 12px;
@@ -182,6 +185,39 @@
         }
         function fmtToPar(n) { n = n || 0; return n === 0 ? "E" : (n > 0 ? "+" + n : String(n)); }
         function relClass(n) { return n < 0 ? "under" : (n > 0 ? "over" : "even"); }
+
+        // ---- offline-tolerant scoring (on-course cell coverage is spotty) ----
+        // Score writes that fail offline are queued in localStorage and flushed on reconnect; the optimistic
+        // overlay keeps showing them meanwhile. The last snapshot is cached so the app survives an offline reload.
+        const QKEY = "gvdg_score_queue";
+        function loadQ() { try { return JSON.parse(localStorage.getItem(QKEY) || "[]"); } catch (e) { return []; } }
+        function saveQ(q) { try { localStorage.setItem(QKEY, JSON.stringify(q)); } catch (e) {} }
+        function enqueueScore(url, body) { const q = loadQ(); q.push({ url: url, body: body }); saveQ(q); setOffline(true); }
+        function snapKey() { return "gvdg_snap_" + S.kind + "_" + S.id; }
+        function cacheSnap() { try { if (S.id && S.snap) localStorage.setItem(snapKey(), JSON.stringify(S.snap)); } catch (e) {} }
+        function cachedSnap() { try { return JSON.parse(localStorage.getItem(snapKey()) || "null"); } catch (e) { return null; } }
+        let offlineBar = null;
+        function setOffline(on) {
+            if (on && !offlineBar) { offlineBar = el("div", "offline-bar", "● Offline — scores are saved and will sync when you reconnect"); document.body.appendChild(offlineBar); }
+            else if (!on && offlineBar) { offlineBar.remove(); offlineBar = null; }
+        }
+        async function flushQueue() {
+            let q = loadQ();
+            if (!q.length) { setOffline(false); return; }
+            const rest = [];
+            for (const item of q) {
+                try {
+                    const r = await fetch(API_BASE + item.url, { method: "POST", headers: { "Content-Type": "application/json", "Authorization": "Bearer " + token() }, body: JSON.stringify(item.body) });
+                    if (!r.ok && r.status >= 500) rest.push(item); // keep server errors to retry; drop 4xx (won't succeed on retry)
+                } catch (e) { rest.push(item); } // still offline
+            }
+            saveQ(rest);
+            setOffline(rest.length > 0);
+            if (!rest.length && S.id) { await refreshSnap(); if (S.screen === "scoring") renderScoring(true); else if (S.screen === "event") renderEvent(); }
+        }
+        window.addEventListener("online", function () { flushQueue(); });
+        window.addEventListener("offline", function () { setOffline(true); });
+        if ("serviceWorker" in navigator) { window.addEventListener("load", function () { navigator.serviceWorker.register("sw.js").catch(function () {}); }); }
 
         // ---- app state ----
         const S = { screen: "boot", kind: "event", id: null, ctxName: "", snap: null, cardId: null, holeIdx: 0, roster: [], ws: null, pending: {} };
@@ -392,8 +428,15 @@
             else renderEvent();
         }
         async function refreshSnap() {
-            const r = await api(snapPath(), { auth: false });
-            S.snap = r.data || { status: "none", cards: [], players: [], standings: [], holes: [] };
+            try {
+                const r = await api(snapPath(), { auth: false });
+                S.snap = r.data || { status: "none", cards: [], players: [], standings: [], holes: [] };
+                cacheSnap(); setOffline(loadQ().length > 0);
+            } catch (e) {
+                // offline: fall back to the last cached snapshot so the app still works in a dead zone
+                S.snap = cachedSnap() || { status: "none", cards: [], players: [], standings: [], holes: [] };
+                setOffline(true);
+            }
         }
         function myCard() {
             const me = myId(); if (!me || !S.snap) return null;
@@ -584,14 +627,17 @@
         async function sendScore(cd, p, h, strokes) {
             strokes = Math.max(1, Math.min(30, strokes));
             const k = pkey(p.pid, h.hole);
-            S.pending[k] = strokes;            // optimistic overlay (survives WS echoes until confirmed)
+            const url = liveUrl() + "/score";
+            const body = { cardId: cd.id, pid: p.pid, hole: h.hole, strokes: strokes };
+            S.pending[k] = strokes;            // optimistic overlay (survives WS echoes + offline until confirmed)
             renderScoring(true);
-            const r = await api(liveUrl() + "/score", { method: "POST", body: { cardId: cd.id, pid: p.pid, hole: h.hole, strokes: strokes } });
-            if (r.ok && r.data) { S.snap = r.data; reconcilePending(); }
-            else {
-                delete S.pending[k];
-                toast(r.status === 403 ? "You can only score your own card" : "Score didn’t save — try again");
-                await refreshSnap();
+            try {
+                const r = await api(url, { method: "POST", body: body });
+                if (r.ok && r.data) { S.snap = r.data; reconcilePending(); cacheSnap(); }
+                else { delete S.pending[k]; toast(r.status === 403 ? "You can only score your own card" : "Score didn’t save — try again"); await refreshSnap(); }
+            } catch (e) {
+                // network failure → queue it; the optimistic value stays visible until it syncs on reconnect
+                enqueueScore(url, body);
             }
             renderScoring(true);
         }
@@ -752,9 +798,12 @@
         // ============ boot ============
         (async function boot() {
             showBoot();
+            flushQueue(); // push up anything queued in a prior session (no-op if empty or still offline)
             if (!token()) return renderLogin();
-            const me = await api("/me");
+            let me;
+            try { me = await api("/me"); } catch (e) { me = { status: 0 }; } // offline cold start
             if (me.status === 401) { sessionStorage.removeItem(TOKEN_KEY); return renderLogin(); }
+            if (me.status === 0) setOffline(true); // offline — deep links fall back to the cached snapshot
             if (me.data && me.data.mustChangePin) return renderLogin("Set your own PIN on the Members page first, then come back to score.");
             // deep links: #event/:id (live event) or #round/:id (CardCast casual-round share)
             const ev = (location.hash || "").match(/^#event\/(\d+)/);

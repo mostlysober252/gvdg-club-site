@@ -386,6 +386,8 @@
                         <button type="button" class="admin-btn secondary" id="rgAssignHoles">🎯 Assign starting holes (shotgun)</button>
                         <button type="button" class="admin-btn secondary" id="rgAssignTeams">👥 Assign teams</button>
                         <span class="al-note">players/team <input id="rgTeamSize" type="number" min="1" value="2" style="width:3rem"></span>
+                        <button type="button" class="admin-btn secondary" id="rgAssignCards">🃏 Assign cards</button>
+                        <span class="al-note">players/card <input id="rgCardSize" type="number" min="1" value="4" style="width:3rem"></span>
                     </div>
                     <div class="al-section" style="margin-top:1rem;">
                         <h4 class="al-h">CTPs (closest to pin)</h4>
@@ -1190,15 +1192,16 @@
             $('rgCount').textContent = String(regs.length);
             const grid = $('rgRoster'); grid.replaceChildren();
             const thead = document.createElement('thead'); const htr = document.createElement('tr');
-            ['Player', 'Division', 'Team', 'Start hole', 'In?', 'Paid?', ''].forEach((h) => htr.appendChild(elx('th', null, h)));
+            ['Player', 'Division', 'Team', 'Card', 'Start hole', 'In?', 'Paid?', ''].forEach((h) => htr.appendChild(elx('th', null, h)));
             thead.appendChild(htr); grid.appendChild(thead);
             const tbody = document.createElement('tbody');
-            if (!regs.length) { const tr = document.createElement('tr'); const td = elx('td', null, 'No registrations yet.'); td.colSpan = 7; tr.appendChild(td); tbody.appendChild(tr); }
+            if (!regs.length) { const tr = document.createElement('tr'); const td = elx('td', null, 'No registrations yet.'); td.colSpan = 8; tr.appendChild(td); tbody.appendChild(tr); }
             regs.forEach((rg) => {
                 const tr = document.createElement('tr');
                 tr.appendChild(elx('td', 'lb-name', rg.name));
                 tr.appendChild(elx('td', null, rg.division || '—'));
                 tr.appendChild(elx('td', null, rg.team || '—'));
+                tr.appendChild(elx('td', null, rg.card_label || '—'));
                 const shTd = document.createElement('td'); const sh = document.createElement('input'); sh.type = 'number'; sh.min = '1'; sh.style.width = '3.5rem'; if (rg.starting_hole != null) sh.value = rg.starting_hole; sh.addEventListener('change', () => rgPatch(rg.id, { starting_hole: parseInt(sh.value, 10) || null })); shTd.appendChild(sh); tr.appendChild(shTd);
                 tr.appendChild(rgToggleCell(rg.checked_in, (v) => rgPatch(rg.id, { checked_in: v })));
                 tr.appendChild(rgToggleCell(rg.paid_entry, (v) => rgPatch(rg.id, { paid_entry: v })));
@@ -1286,6 +1289,7 @@
             $('rgSaveBtn').addEventListener('click', rgSaveConfig);
             $('rgAssignHoles').addEventListener('click', () => rgAssign('assign-starting-holes', { shuffle: true, groupSize: 4 }));
             $('rgAssignTeams').addEventListener('click', () => rgAssign('assign-teams', { shuffle: true, size: parseInt($('rgTeamSize').value, 10) || 2 }));
+            $('rgAssignCards').addEventListener('click', () => rgAssign('assign-cards', { shuffle: true, size: parseInt($('rgCardSize').value, 10) || 4 }));
             $('rgCtpAdd').addEventListener('click', rgAddCtp);
             $('rgAceSave').addEventListener('click', () => rgAcePut({ carryover_in_cents: Math.round((parseFloat($('rgAceCarry').value) || 0) * 100), status: 'active' }));
             $('rgAcePayout').addEventListener('click', () => rgAcePut({ status: 'paid_out', winner_name: $('rgAceWinner').value.trim() || null, carryover_in_cents: Math.round((parseFloat($('rgAceCarry').value) || 0) * 100) }));
