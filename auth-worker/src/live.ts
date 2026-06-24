@@ -23,6 +23,7 @@ interface StartBody {
   holes: { hole: number; par: number }[];
   seed?: cards.SeedPlayer[];
   startedAt?: string;
+  force?: boolean; // restart a live round that already has scores (admin-confirmed)
 }
 
 const j = (o: unknown, status = 200): Response =>
@@ -46,6 +47,7 @@ export class LiveEventDO {
     this.loaded = true;
   }
   private async persist(): Promise<void> {
+    if (this.container) this.container.meta.updatedAt = new Date().toISOString(); // advance "last updated"
     await this.state.storage.put("state", this.container);
   }
 
@@ -62,38 +64,44 @@ export class LiveEventDO {
     if (action === "ws") return this.handleWs();
     if (request.method === "GET") return j(this.snap());
 
-    if (action === "start") return this.start((await request.json().catch(() => ({}))) as StartBody);
-    if (action === "finalize") return this.finalize();
-
-    // Card / score mutations — all authorized inside cards.ts from the injected identity.
-    if (!this.container) return j({ error: "not_started" }, 409);
+    // Read the body + identity BEFORE entering the critical section: request.json() is non-storage I/O,
+    // so it opens the DO input gate and would let another event (a concurrent start/finalize) interleave.
     const auth = this.authOf(request);
     const b = (await request.json().catch(() => ({}))) as Record<string, any>;
-    const s = this.container;
 
-    let res: cards.OpResult;
-    let extra: Record<string, unknown> = {};
-    switch (action) {
-      case "score": res = cards.applyScore(s, auth, b as cards.ScoreInput); break;
-      case "card": {
-        const r = cards.createCard(s, auth, { label: b.label, name: String(b.name ?? "Player"), division: b.division ?? null });
-        res = r; if (!cards.isErr(r)) extra = { cardId: r.cardId }; break;
-      }
-      case "join": res = cards.joinCard(s, auth, String(b.cardId), { name: String(b.name ?? "Player"), division: b.division ?? null }); break;
-      case "cardmate": res = cards.addMember(s, auth, String(b.cardId), { memberId: String(b.memberId), name: String(b.name ?? "Player"), division: b.division ?? null }); break;
-      case "guest": {
-        const r = cards.addGuest(s, auth, String(b.cardId), String(b.name ?? ""));
-        res = r; if (!cards.isErr(r)) extra = { pid: r.pid }; break;
-      }
-      case "leave": res = cards.removePlayer(s, auth, String(b.cardId), String(b.pid)); break;
-      case "scorekeeper": res = cards.setScorekeeper(s, auth, String(b.cardId), String(b.pid)); break;
-      default: return j({ error: "not_found" }, 404);
-    }
+    // Serialize the entire mutate → persist → broadcast (and finalize's D1 writes) so concurrent
+    // start/score/finalize requests cannot interleave and corrupt state. The input gate reopens on every
+    // await (incl. D1 calls); blockConcurrencyWhile holds it shut for the whole critical section.
+    return this.state.blockConcurrencyWhile<Response>(async () => {
+      if (action === "start") return this.start(b as StartBody);
+      if (action === "finalize") return this.finalize();
 
-    if (cards.isErr(res)) return j({ error: res.error }, res.status);
-    await this.persist();
-    this.broadcast();
-    return j({ ...this.snap(), ...extra });
+      if (!this.container) return j({ error: "not_started" }, 409);
+      const s = this.container;
+      let res: cards.OpResult;
+      let extra: Record<string, unknown> = {};
+      switch (action) {
+        case "score": res = cards.applyScore(s, auth, b as cards.ScoreInput); break;
+        case "card": {
+          const r = cards.createCard(s, auth, { label: b.label, name: String(b.name ?? "Player"), division: b.division ?? null });
+          res = r; if (!cards.isErr(r)) extra = { cardId: r.cardId }; break;
+        }
+        case "join": res = cards.joinCard(s, auth, String(b.cardId), { name: String(b.name ?? "Player"), division: b.division ?? null }); break;
+        case "cardmate": res = cards.addMember(s, auth, String(b.cardId), { memberId: String(b.memberId), name: String(b.name ?? "Player"), division: b.division ?? null }); break;
+        case "guest": {
+          const r = cards.addGuest(s, auth, String(b.cardId), String(b.name ?? ""));
+          res = r; if (!cards.isErr(r)) extra = { pid: r.pid }; break;
+        }
+        case "leave": res = cards.removePlayer(s, auth, String(b.cardId), String(b.pid)); break;
+        case "scorekeeper": res = cards.setScorekeeper(s, auth, String(b.cardId), String(b.pid)); break;
+        default: return j({ error: "not_found" }, 404);
+      }
+
+      if (cards.isErr(res)) return j({ error: res.error }, res.status);
+      await this.persist();
+      this.broadcast();
+      return j({ ...this.snap(), ...extra });
+    });
   }
 
   private snap(): Record<string, unknown> {
@@ -106,6 +114,12 @@ export class LiveEventDO {
       .filter((h) => h && typeof h.hole === "number" && typeof h.par === "number")
       .map((h) => ({ hole: h.hole, par: h.par }));
     if (holes.length === 0) return j({ error: "invalid_start" }, 400);
+    // Don't silently wipe a live round that already has scores — an accidental re-start would erase the
+    // card. Require an explicit force flag to restart in that case.
+    if (this.container && this.container.meta.status === "live" && !b.force) {
+      const hasScores = this.container.cards.some((c) => c.players.some((p) => Object.keys(p.scores).length > 0));
+      if (hasScores) return j({ error: "already_live", hint: "scores exist — pass force:true to restart" }, 409);
+    }
     this.container = cards.initContainer(
       {
         type: b.type === "casual" ? "casual" : "event",
@@ -125,6 +139,9 @@ export class LiveEventDO {
 
   private async finalize(): Promise<Response> {
     if (!this.container) return j({ error: "not_started" }, 409);
+    // Idempotent re-entry: a second finalize (admin double-click / retry) returns the standings without
+    // re-running the clear+insert. Combined with blockConcurrencyWhile, two finalizes cannot interleave.
+    if (this.container.meta.status === "final") return j({ status: "final", standings: cards.finalize(this.container) });
     const standings = cards.finalize(this.container);
     const meta = this.container.meta;
     if (meta.type === "event" && meta.eventId != null) {

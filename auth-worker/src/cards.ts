@@ -42,6 +42,7 @@ export interface ContainerMeta {
   holes: { hole: number; par: number }[];
   status: "live" | "final";
   startedAt: string;
+  updatedAt: string; // advances on every write (the DO stamps it) — drives "last updated" in the snapshot
   cardSeq: number; // monotonic id source
   playerSeq: number;
 }
@@ -92,10 +93,16 @@ export function initContainer(
     holes: base.holes,
     status: "live",
     startedAt: base.startedAt,
+    updatedAt: base.startedAt,
     cardSeq: 0,
     playerSeq: 0,
   };
   const state: ContainerState = { meta, cards: [] };
+
+  // Dedup the seed by memberId (keep first) so a member registered twice / present in both registrations
+  // and event_players can never be seeded onto two cards and double-counted. Guests (no id) are kept.
+  const seenSeed = new Set<string>();
+  seed = seed.filter((p) => (p.memberId ? (seenSeed.has(p.memberId) ? false : (seenSeed.add(p.memberId), true)) : true));
 
   if (!seed.length) return state;
 
@@ -107,7 +114,9 @@ export function initContainer(
   const groups = new Map<string, SeedPlayer[]>();
   for (const p of seed) {
     const key = useLabel ? String(p.cardLabel ?? "Card") : useHole ? "Hole " + String(p.startingHole ?? "?") : "Card";
-    (groups.get(key) ?? groups.set(key, []).get(key)!).push(p);
+    let group = groups.get(key);
+    if (!group) groups.set(key, (group = []));
+    group.push(p);
   }
   for (const [label, players] of groups) {
     for (let off = 0, part = 0; off < players.length; off += MAX_PLAYERS_PER_CARD, part++) {
@@ -326,7 +335,7 @@ export function snapshot(state: ContainerState): Record<string, unknown> {
     })),
     players: flat.map((p, index) => ({ index, pid: p.pid, cardId: p.cardId, memberId: p.memberId, name: p.name, division: p.division, startingHole: p.startingHole, scores: p.scores })),
     standings: computeLeaderboard(state.meta.holes, flat),
-    updatedAt: state.meta.startedAt,
+    updatedAt: state.meta.updatedAt,
   };
 }
 

@@ -52,6 +52,19 @@ describe("initContainer seeding", () => {
     expect(s.cards).toHaveLength(1);
   });
 
+  it("dedups the seed by memberId so a member is never on two cards", () => {
+    const s = cards.initContainer(base, [
+      { name: "A", memberId: "pdga:100", startingHole: 1 },
+      { name: "A again", memberId: "pdga:100", startingHole: 5 }, // duplicate registration / event_players overlap
+      { name: "B", memberId: "pdga:200", startingHole: 1 },
+      { name: "Guest", memberId: null, startingHole: 1 },
+      { name: "Guest2", memberId: null, startingHole: 1 },
+    ]);
+    const all = s.cards.flatMap((c) => c.players);
+    expect(all.filter((p) => p.memberId === "pdga:100")).toHaveLength(1); // deduped to one
+    expect(all.filter((p) => p.memberId == null)).toHaveLength(2); // guests not deduped
+  });
+
   it("chunks an oversized group into cards of at most MAX_PLAYERS_PER_CARD (no player dropped)", () => {
     const seed = Array.from({ length: 8 }, (_, i) => ({ name: "P" + i, memberId: "pdga:" + i }));
     const s = cards.initContainer(base, seed);

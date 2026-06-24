@@ -568,6 +568,18 @@ async function clubApi(request: Request, env: Env, origin: string | null, pathna
     return ev ? json({ event: ev }, 200, origin) : json({ error: "not_found" }, 404, origin);
   }
 
+  // members-authed: the registered roster for an event — powers the "add a cardmate" picker in score.html.
+  if (method === "GET" && seg[0] === "events" && seg.length === 3 && seg[2] === "roster") {
+    const eid = asInt(seg[1]);
+    if (eid == null) return json({ error: "not_found" }, 404, origin);
+    const who = await requireMember(request, env, origin);
+    if (who instanceof Response) return who;
+    // Only event participants (or an admin) may read the roster — it's the cardmate picker, not public data.
+    if (!who.isAdmin && !(await db.getMyRegistration(env.DB, eid, who.memberId))) return json({ error: "not_registered" }, 403, origin);
+    const regs = (await db.listRegistrations(env.DB, eid)) as { member_id?: string; name?: string; division?: string | null; checked_in?: number }[];
+    return json({ roster: regs.map((r) => ({ memberId: r.member_id ?? null, name: r.name ?? "Player", division: r.division ?? null, checkedIn: !!r.checked_in })) }, 200, origin);
+  }
+
   // ---- live scoring (Durable Object): /events/:id/live[/{start,finalize,score,ws}] + /live/cards/* ----
   // Reads (snapshot, ws) are public. start/finalize are admin-gated (official lifecycle + results).
   // score + card operations are MEMBER-authed and authorized inside the DO by card membership — this
@@ -588,6 +600,7 @@ async function clubApi(request: Request, env: Env, origin: string | null, pathna
       if (gate instanceof Response) return gate;
       if (sub === "finalize") return liveForward(stub, "/finalize", {}, { memberId: gate.adminId, isAdmin: true }, origin);
 
+      const startBody = (await readJson(request)) ?? {};
       const ev = (await db.getEvent(env.DB, eid)) as (Record<string, unknown> & { course_id?: number | null; layout_id?: number | null; players?: Record<string, unknown>[] }) | null;
       if (!ev) return json({ error: "not_found" }, 404, origin);
       const holes = await db.getLayoutHoles(env.DB, ev.layout_id);
@@ -601,7 +614,7 @@ async function clubApi(request: Request, env: Env, origin: string | null, pathna
           : (Array.isArray(ev.players) ? ev.players : []).map((p) => ({ memberId: (p.member_id as string) ?? null, name: String(p.name ?? "Player"), division: (p.division as string) ?? null, startingHole: null, cardLabel: null }));
       const r = await stub.fetch("https://do/start", {
         method: "POST",
-        body: JSON.stringify({ type: "event", eventId: eid, courseId: ev.course_id ?? null, layoutId: ev.layout_id ?? null, holes, seed, startedAt: new Date().toISOString() }),
+        body: JSON.stringify({ type: "event", eventId: eid, courseId: ev.course_id ?? null, layoutId: ev.layout_id ?? null, holes, seed, startedAt: new Date().toISOString(), force: startBody.force === true }),
       });
       const data = await r.json().catch(() => ({}));
       if (r.status === 200) await db.updateEvent(env.DB, eid, { status: "live" });
@@ -611,6 +624,8 @@ async function clubApi(request: Request, env: Env, origin: string | null, pathna
     // ---- member-authed: score + card formation ----
     const who = await requireMember(request, env, origin);
     if (who instanceof Response) return who;
+    // Per-member flood guard on live writes (generous: ~3/sec covers fast tapping, blocks abuse of the DO).
+    if (await kvRateLimited(env, "live:" + who.memberId, 180, 60)) return json({ error: "rate_limited" }, 429, origin);
 
     if (sub === "score") {
       const body = (await readJson(request)) ?? {};

@@ -853,7 +853,14 @@
         async function scStart() {
             const layoutId = $('scLayout').value ? Number($('scLayout').value) : null;
             if (layoutId) await adminApi('/admin/events/' + scEventId, { method: 'PATCH', body: { layout_id: layoutId } });
-            const r = await adminApi('/events/' + scEventId + '/live/start', { method: 'POST' });
+            let r = await adminApi('/events/' + scEventId + '/live/start', { method: 'POST' });
+            if (r.status === 409) { // a live round with scores already exists — confirm before wiping it
+                const e2 = await r.json().catch(() => ({}));
+                if (e2.error === 'already_live') {
+                    if (!confirm('This event already has live scores. Restart and CLEAR them?')) return;
+                    r = await adminApi('/events/' + scEventId + '/live/start', { method: 'POST', body: { force: true } });
+                }
+            }
             if (r.ok) { adminMsg('Live scoring started', true); $('scEvent').selectedOptions[0].dataset.status = 'live'; await scRefresh(); }
             else { const e = await r.json().catch(() => ({})); adminMsg(e.error === 'no_layout_holes' ? 'That event has no layout with pars — pick one above (or build one on the Layouts tab).' : 'Start failed (' + r.status + ')', false); }
         }
@@ -886,7 +893,7 @@
                     const td = document.createElement('td');
                     const inp = document.createElement('input'); inp.type = 'number'; inp.min = '1'; inp.max = '30'; inp.style.width = '3rem';
                     const v = p.scores ? p.scores[h.hole] : null; if (v != null) { inp.value = v; tot += v; }
-                    inp.addEventListener('change', () => scPostScore(p.index, h.hole, inp.value));
+                    inp.addEventListener('change', () => scPostScore(p.pid, h.hole, inp.value));
                     td.appendChild(inp); tr.appendChild(td);
                 });
                 tr.appendChild(elx('td', null, tot ? String(tot) : '—'));
@@ -895,10 +902,10 @@
             grid.appendChild(tbody);
         }
 
-        async function scPostScore(index, hole, value) {
+        async function scPostScore(pid, hole, value) {
             const strokes = parseInt(value, 10);
             if (!(strokes >= 1 && strokes <= 30)) { adminMsg('Strokes must be 1–30', false); return; }
-            const r = await adminApi('/events/' + scEventId + '/live/score', { method: 'POST', body: { index, hole, strokes } });
+            const r = await adminApi('/events/' + scEventId + '/live/score', { method: 'POST', body: { pid, hole, strokes } });
             if (r.ok) { scSnap = await r.json(); scUpdateTotals(); scRenderBoard(); } else { adminMsg('Score save failed', false); }
         }
         // Update each grid row's running Total cell without re-rendering inputs (keeps focus).
