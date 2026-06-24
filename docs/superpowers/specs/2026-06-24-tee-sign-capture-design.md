@@ -56,8 +56,12 @@ graphic. This documents **all** layouts with minimal manual entry and stays enti
    photo extracts a per-layout table; the system auto-matches/auto-creates layouts; admin overrides.
 5. **One official photo per (course, hole)**, shared by all layouts of that hole; par/distance are stored
    per layout.
-6. **Ship T0 first** — the (multi-layout) SVG tee-sign render is dependency-free and works today.
-7. **Scope = one program, slices T0–T4.**
+6. **Default layouts = Long / Short** (auto-created per course); admin can add more. **Tees and targets
+   carry an admin-assignable color** (`course_positions.color`, e.g. Blue tee / Red basket) — rendered as
+   swatches on the tee-sign graphic and editable in the SAFARI layout editor. Color lives on the position,
+   not the layout name.
+7. **Ship T0 first** — the (multi-layout, color-aware) SVG tee-sign render is dependency-free and works today.
+8. **Scope = one program, slices T0–T4.**
 
 ## Architecture
 
@@ -99,6 +103,9 @@ CREATE TABLE tee_signs (
 );
 CREATE INDEX idx_tee_signs_hole ON tee_signs(course_id, hole_number, status);
 CREATE INDEX idx_tee_signs_status ON tee_signs(status);
+
+-- Tees & targets gain an admin-assignable color (course_positions shipped in migration 0003).
+ALTER TABLE course_positions ADD COLUMN color TEXT;
 ```
 
 `tee_signs` is the **capture/moderation ledger** — one row per uploaded photo. `extracted_json` holds the
@@ -111,11 +118,14 @@ existing `course_layouts.holes` JSON (one `course_layouts` row per layout). On a
 
 Scoring never reads a candidate row directly — that is what keeps two-tier clean.
 
-**Layouts:** `course_layouts` already exists (name + holes JSON + pars). New helpers:
-`matchLayout(courseId, label)` (normalize label — lowercase, strip "tees/layout", map common color/tier
-names — and fuzzy-match existing layout names) and `createLayout(courseId, name)` for unmatched labels.
-Auto-match runs at extraction time and pre-fills the admin mapping; the admin can remap, rename, merge, or
-create.
+**Layouts & colors:** `course_layouts` already exists (name + holes JSON + pars). Courses **default to two
+layouts, "Long" and "Short"** (auto-created on first capture via `ensureDefaultLayouts`); admins can add
+more. `matchLayout(courseId, label)` normalizes an extracted label and maps it to a layout — **defaulting to
+Long/Short** (an explicit Long/Short label matches directly; otherwise the longest-distance row → Long and
+the shortest → Short), with `createLayout(courseId, name)` for anything the admin adds. Tees and targets
+(`course_positions`) gain an admin-assignable **`color`** (e.g. Blue tee, Red basket); a layout's hole
+references a tee/target position, so each rendered layout row inherits its tee's color as a swatch.
+Auto-match pre-fills the admin mapping; the admin can remap, rename, recolor, merge, or create.
 
 ### Storage — R2
 
@@ -143,7 +153,7 @@ Mirrors `assistant.ts`'s provider chain, multimodal, **multi-layout output**:
 ```
 extractTeeSign(env, dataUrl) -> {
   hole: int | null,
-  layouts: [ { label: string, par: int|null, distance_ft: int|null, tee: string|null, target: string|null } ]
+  layouts: [ { label, color: string|null, par: int|null, distance_ft: int|null, tee: string|null, target: string|null } ]
 }
   try OpenRouter VL model (env.OPENROUTER_VISION_MODEL, default a current free VL id,
       runtime-query openrouter /models for a :free image-input model if the default 404s/429s)
@@ -151,11 +161,14 @@ extractTeeSign(env, dataUrl) -> {
   → else {hole:null, layouts:[]}  (manual entry)
 ```
 
-- Strict prompt: "Read this disc golf tee sign. It may list several layouts/tee positions. Return ONLY JSON
-  `{hole:int|null, layouts:[{label, par:int|null, distance_ft:int|null, tee, target}]}`. One entry per
-  layout/tee shown; null any field not clearly visible." Parse defensively; **clamp** each `par`∈[1,10],
-  `distance_ft`∈[20,2000]; drop malformed rows. Model text is never rendered as HTML and never auto-applied
-  (human confirms), so tee-sign text cannot become a prompt-injection/scoring attack.
+- Strict prompt: "Read this disc golf tee sign. It may list several layouts/tee positions, often color-coded.
+  Return ONLY JSON `{hole:int|null, layouts:[{label, color, par:int|null, distance_ft:int|null, tee,
+  target}]}`. One entry per layout/tee shown; `color` = the tee's color word if shown (e.g. blue/red), else
+  null; null any field not clearly visible." Parse defensively; **clamp** each `par`∈[1,10],
+  `distance_ft`∈[20,2000]; drop malformed rows; **default the layout mapping to Long/Short** (explicit labels
+  win; else longest→Long, shortest→Short). An extracted `color` pre-fills the tee's `course_positions.color`
+  for admin confirm. Model text is never rendered as HTML and never auto-applied (human confirms), so
+  tee-sign text cannot become a prompt-injection/scoring attack.
 - Image to model: the Worker holds the bytes → base64 data URL. Client pre-resizes to ≤ ~1024 px (bigger
   than the 256 px profile thumb — OCR needs detail).
 - Runs in `ctx.waitUntil(...)` after the upload response so the row + auto-matched mapping populate within
@@ -173,10 +186,11 @@ Member-authed (`requireAuth`):
 
 Admin (`adminGate`):
 - `GET /admin/tee-signs?status=candidate` — review queue, each with its auto-matched layout mapping.
-- `POST /admin/tee-signs/:id/approve` — body `{ rows: [{ layoutId? , newLayoutName?, par, distance_ft,
-  tee?, target? }] }`. Each row targets an existing layout (`layoutId`) or creates one (`newLayoutName`),
-  auto-filled from extraction + auto-match and **fully editable**. Writes every row's hole; records the
-  official photo for `(course, hole)`; demotes prior official.
+- `POST /admin/tee-signs/:id/approve` — body `{ rows: [{ layoutId?, newLayoutName?, par, distance_ft,
+  tee?, target?, color? }] }`. Each row targets an existing layout (`layoutId`, default Long/Short) or
+  creates one (`newLayoutName`); `color` sets the tee/target position color. Auto-filled from extraction +
+  auto-match and **fully editable**. Writes every row's hole; records the official photo for `(course,
+  hole)`; demotes prior official.
 - `POST /admin/tee-signs/:id/reject`, `DELETE /admin/tee-signs/:id`.
 - `POST /admin/tee-signs/:id/extract` — re-run vision (when a free model was unavailable at upload time).
 
@@ -185,22 +199,25 @@ Admin (`adminGate`):
 - **`src/photos.ts`** (new) — R2 put/get + image validation: **magic-byte sniff** (jpeg/png/webp only,
   **reject SVG**), size cap, UUID key generation. Keeps `index.ts` (already ~1080 lines) from growing.
 - **`src/vision.ts`** (new) — the multi-layout extraction provider chain above.
-- **`src/db.ts`** — `tee_signs` CRUD; `matchLayout(courseId,label)`, `createLayout(courseId,name)` (extend
-  existing layout helpers); `applyTeeSignRows(courseId, hole, rows, teeSignKey)` (per-layout hole writes +
+- **`src/db.ts`** — `tee_signs` CRUD; `ensureDefaultLayouts(courseId)` (Long/Short), `matchLayout(courseId,
+  label)`, `createLayout(courseId,name)`; extend the `course_positions` helpers (from L2) to read/write
+  `color`; `applyTeeSignRows(courseId, hole, rows, teeSignKey)` (per-layout hole writes + position color +
   official-photo bookkeeping).
 - **`src/index.ts`** — route wiring + thin handlers (logic in the modules above); thread `ctx`.
 
 ### Frontend
 
-- **`tee-sign.js`** (new, T0) — pure `teeSignSvg({hole, courseName, layouts:[{label,par,distance_ft,
+- **`tee-sign.js`** (new, T0) — pure `teeSignSvg({hole, courseName, layouts:[{label,color,par,distance_ft,
   distance_source,tee,target}]})` → themed (light/dark), XSS-safe SVG showing the hole number and a row per
-  layout (like a real sign). Reused everywhere a hole is shown. Works **today** from existing
-  `course_layouts` rows.
+  layout with the tee's **color swatch** (like a real color-coded sign). Colors pass a sanitizer — a CSS
+  named-color allowlist + `#RGB`/`#RRGGBB` hex regex — never raw into markup. Reused everywhere a hole is
+  shown. Works **today** from existing `course_layouts` rows.
 - **`gvdg-members.html`** — "📸 Capture a tee sign" flow: pick course + hole (camera capture on mobile),
   client resize/EXIF-strip (canvas re-encode), upload, show Crotts' multi-layout guess, list my candidates.
 - **`admin.html`** — "Tee Signs" review tab: candidate queue grouped by course/hole; photo + the
-  **auto-matched layout-mapping table** (label → layout, par, distance) — editable, with inline "create
-  layout"; Approve / Edit+Approve / Reject / Delete.
+  **auto-matched layout-mapping table** (label → layout (default Long/Short), color, par, distance) —
+  editable, with inline "create layout" + a tee/target **color picker**; Approve / Edit+Approve / Reject /
+  Delete. The SAFARI layout editor (Layouts tab) also gains a color field per tee/target position.
 - **`events.html` + `admin.html` live scoring** — render the official tee-sign photo + the **selected
   layout's** par/distance overlay for the current hole; SVG fallback from layout data; placeholder + capture
   CTA when neither.
@@ -219,16 +236,19 @@ Admin (`adminGate`):
 
 ## Slicing (each slice = one PR through `/simplify` → `/code-review` → `/security-review` + live-verify)
 
-- **T0 — Multi-layout SVG tee-sign render.** `tee-sign.js` pure component (hole + a row per layout) +
-  render it in event detail and a layout/hole preview from existing data. No backend.
-  *Live-verify:* light+dark, XSS-safe, correct for seeded multi-layout courses.
-- **T1 — Storage + upload backbone.** R2 binding, `0007` migration, `src/photos.ts`, `POST /tee-signs`,
-  image serve, `GET /my-tee-signs`, admin list/approve(manual rows)/reject/delete + `applyTeeSignRows`
-  writing multiple layouts. **No AI yet.** *Live-verify:* upload → R2 → D1 → serve (official public /
-  candidate authed) → approve writes 2+ layouts' holes.
-- **T2 — Crotts vision + auto-match.** `src/vision.ts` multi-layout extraction + `matchLayout`/auto-create +
-  `ctx.waitUntil` + re-extract; admin queue shows the auto-filled, editable mapping. *Live-verify with real
-  multi-layout tee-sign photos:* extraction populates rows, labels auto-match/auto-create, fallbacks fire.
+- **T0 — Multi-layout, color-aware SVG tee-sign render.** `tee-sign.js` pure component (hole + a row per
+  layout with the tee's color swatch from a sanitized palette) + render it in event detail and a layout/hole
+  preview from existing data. No backend.
+  *Live-verify:* light+dark, XSS-safe (incl. color sanitization), correct for seeded multi-layout courses.
+- **T1 — Storage + upload backbone.** R2 binding, `0007` migration (tee_signs + `course_positions.color`),
+  `ensureDefaultLayouts` (Long/Short), `src/photos.ts`, `POST /tee-signs`, image serve, `GET /my-tee-signs`,
+  admin list/approve(manual rows incl. color)/reject/delete + `applyTeeSignRows` writing multiple layouts +
+  position colors. **No AI yet.** *Live-verify:* upload → R2 → D1 → serve (official public / candidate
+  authed) → approve writes 2+ layouts' holes + tee colors.
+- **T2 — Crotts vision + auto-match.** `src/vision.ts` multi-layout + color extraction + `matchLayout`
+  defaulting to Long/Short + auto-create + `ctx.waitUntil` + re-extract; admin queue shows the auto-filled,
+  editable mapping (layout, color, par, distance). *Live-verify with real color-coded multi-layout signs:*
+  rows populate, labels default-map to Long/Short, tee colors pre-fill, fallbacks fire.
 - **T3 — Member capture UI.** Mobile course+hole pick, camera capture, client resize/EXIF-strip, show the
   multi-layout guess, my-candidates. Optional guided "capture each hole" walk for a course.
   *Live-verify on a mobile viewport* (real camera/file input → upload → appears as candidate).
