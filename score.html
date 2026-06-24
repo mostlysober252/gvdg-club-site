@@ -184,7 +184,11 @@
         function relClass(n) { return n < 0 ? "under" : (n > 0 ? "over" : "even"); }
 
         // ---- app state ----
-        const S = { screen: "boot", eventId: null, eventName: "", snap: null, cardId: null, holeIdx: 0, roster: [], ws: null, pending: {} };
+        const S = { screen: "boot", kind: "event", id: null, ctxName: "", snap: null, cardId: null, holeIdx: 0, roster: [], ws: null, pending: {} };
+        // Path helpers unify events and casual rounds: events live at /events/:id/live, casual rounds at
+        // /rounds/:id (snapshot) + /rounds/:id/live/* (ops + ws).
+        function liveUrl() { return S.kind === "casual" ? "/rounds/" + encodeURIComponent(S.id) + "/live" : "/events/" + encodeURIComponent(S.id) + "/live"; }
+        function snapPath() { return S.kind === "casual" ? "/rounds/" + encodeURIComponent(S.id) : "/events/" + encodeURIComponent(S.id) + "/live"; }
         // Optimistic score overlay keyed `pid:hole` -> strokes. Survives WebSocket echoes (which may carry an
         // OLDER state) until the server snapshot confirms the same value, then the key is cleared. This is what
         // keeps rapid taps correct when our own writes and other cardmates' writes interleave over the socket.
@@ -212,10 +216,10 @@
         function teardownWs() { if (S.ws) { try { S.ws.onclose = null; S.ws.close(); } catch (e) {} S.ws = null; } }
         function connectWs() {
             teardownWs();
-            if (!S.eventId) return;
-            const eid = S.eventId;
+            if (!S.id) return;
+            const eid = S.id;
             try {
-                const ws = new WebSocket(API_BASE.replace(/^http/, "ws") + "/events/" + encodeURIComponent(eid) + "/live/ws");
+                const ws = new WebSocket(API_BASE.replace(/^http/, "ws") + liveUrl() + "/ws");
                 S.ws = ws;
                 ws.onopen = function () { wsRetry = 0; };
                 ws.onmessage = function (e) {
@@ -231,9 +235,9 @@
                 };
                 // Auto-reconnect with capped backoff — mobile screens sleep/background and drop the socket.
                 ws.onclose = function () {
-                    if (S.ws !== ws || S.eventId !== eid || (S.screen !== "event" && S.screen !== "scoring")) return;
+                    if (S.ws !== ws || S.id !== eid || (S.screen !== "event" && S.screen !== "scoring")) return;
                     wsRetry = Math.min(wsRetry + 1, 6);
-                    setTimeout(function () { if (S.eventId === eid && (S.screen === "event" || S.screen === "scoring")) connectWs(); }, 400 * Math.pow(2, wsRetry - 1));
+                    setTimeout(function () { if (S.id === eid && (S.screen === "event" || S.screen === "scoring")) connectWs(); }, 400 * Math.pow(2, wsRetry - 1));
                 };
             } catch (e) {}
         }
@@ -279,7 +283,7 @@
 
         // ---- pick a live event ----
         async function pickEvent() {
-            S.screen = "pickEvent"; teardownWs(); lbBtn.hidden = true; S.eventId = null; S.cardId = null;
+            S.screen = "pickEvent"; teardownWs(); lbBtn.hidden = true; S.id = null; S.cardId = null;
             setBar("Live Scoring", "Choose what to score"); showBoot();
             const r = await api("/events?status=live", { auth: false });
             const events = (r.data && r.data.events) || [];
@@ -305,10 +309,12 @@
                     c.appendChild(row);
                 });
             }
-            // Casual round (Track N3)
+            // Casual round (Track N3) — play any club course anytime, with cardmates via a share link
             c.appendChild(el("h2", "section", "Casual round"));
+            c.appendChild(el("p", "muted", "Just out playing? Start a round on any club course and keep score with your group — no event needed."));
             const casual = el("button", "btn ghost", "🥏 Start a casual round");
-            casual.addEventListener("click", function () { toast("Casual rounds arrive in the next update"); });
+            casual.style.marginTop = "0.5rem";
+            casual.addEventListener("click", startCasualRound);
             c.appendChild(casual);
             const logout = el("button", "btn secondary small", "Sign out"); logout.style.marginTop = "1.2rem";
             logout.addEventListener("click", function () { sessionStorage.removeItem(TOKEN_KEY); renderLogin(); });
@@ -317,14 +323,76 @@
 
         // ---- open an event: load snapshot, decide card vs chooser ----
         async function openEvent(eventId, name) {
-            S.eventId = eventId; S.eventName = name; S.screen = "event"; lbBtn.hidden = false; S.pending = {};
+            S.kind = "event"; S.id = eventId; S.ctxName = name; S.screen = "event"; lbBtn.hidden = false; S.pending = {};
             setBar(name, "Live event"); showBoot();
             await refreshSnap();
             connectWs();
             renderEvent();
         }
+        async function openRound(roundId) {
+            S.kind = "casual"; S.id = roundId; S.ctxName = "Casual round"; S.screen = "event"; lbBtn.hidden = false; S.pending = {};
+            setBar("Casual round", "Tap a card to keep score"); showBoot();
+            await refreshSnap();
+            if (!S.snap || S.snap.status === "none") { toast("That round wasn't found"); return pickEvent(); }
+            connectWs();
+            renderEvent();
+        }
+        // ---- start a casual round: pick a course → a layout → POST /rounds ----
+        async function startCasualRound() {
+            S.screen = "casualSetup"; teardownWs(); lbBtn.hidden = true; setBar("Casual round", "Pick a course"); showBoot();
+            const r = await api("/courses", { auth: false });
+            const courses = (r.data && r.data.courses) || [];
+            const c = clear(app);
+            c.appendChild(el("h2", "section", "Pick a course"));
+            if (!courses.length) { c.appendChild(el("div", "card", "No courses available.")); }
+            courses.forEach(function (co) {
+                const row = el("button", "tap-row");
+                const g = el("div", "grow"); g.appendChild(el("div", "title", co.name || "Course"));
+                if (co.location) g.appendChild(el("div", "sub", co.location));
+                row.appendChild(g); row.appendChild(el("span", "chev", "›"));
+                row.addEventListener("click", function () { pickCasualLayout(co); });
+                c.appendChild(row);
+            });
+            const back = el("button", "btn secondary small", "‹ Back"); back.style.marginTop = "1rem";
+            back.addEventListener("click", pickEvent); c.appendChild(back);
+        }
+        async function pickCasualLayout(course) {
+            setBar("Casual round", course.name); showBoot();
+            const r = await api("/courses/" + encodeURIComponent(course.id) + "/layouts", { auth: false });
+            const layouts = (r.data && r.data.layouts) || [];
+            const c = clear(app);
+            c.appendChild(el("h2", "section", "Pick a layout"));
+            if (!layouts.length) {
+                const none = el("div", "card stack");
+                none.appendChild(el("p", "muted", "This course has no layout with pars yet. An organizer can add one on the admin Layouts tab (tee/target/par)."));
+                c.appendChild(none);
+            }
+            layouts.forEach(function (lay) {
+                let holes = []; try { holes = JSON.parse(lay.holes || "[]"); } catch (e) {}
+                const row = el("button", "tap-row");
+                const g = el("div", "grow"); g.appendChild(el("div", "title", lay.name || "Layout"));
+                g.appendChild(el("div", "sub", holes.length + " holes · par " + (lay.total_par != null ? lay.total_par : "?")));
+                row.appendChild(g); row.appendChild(el("span", "chev", "›"));
+                row.addEventListener("click", function () { createCasualRound(course, lay); });
+                c.appendChild(row);
+            });
+            const back = el("button", "btn secondary small", "‹ Back"); back.style.marginTop = "1rem";
+            back.addEventListener("click", startCasualRound); c.appendChild(back);
+        }
+        async function createCasualRound(course, layout) {
+            showBoot();
+            const r = await api("/rounds", { method: "POST", body: { course_id: course.id, layout_id: layout.id } });
+            if (r.status === 400) return (toast("That layout has no pars"), pickCasualLayout(course));
+            if (!r.ok || !r.data || !r.data.roundId) return (toast("Could not start the round"), pickEvent());
+            S.kind = "casual"; S.id = r.data.roundId; S.ctxName = course.name; S.snap = r.data; S.pending = {};
+            S.screen = "event"; lbBtn.hidden = false; connectWs();
+            // creator is already seeded onto a card → jump straight into scoring
+            const mine = myCard();
+            if (mine) { S.cardId = mine.id; S.holeIdx = 0; S.screen = "scoring"; renderScoring(); }
+            else renderEvent();
+        }
         async function refreshSnap() {
-            const r = await api("/events/" + encodeURIComponent(S.eventId) + "/live", { auth: false });
+            const r = await api(snapPath(), { auth: false });
             S.snap = r.data || { status: "none", cards: [], players: [], standings: [], holes: [] };
         }
         function myCard() {
@@ -402,13 +470,13 @@
         }
 
         async function createCard() {
-            const r = await api("/events/" + encodeURIComponent(S.eventId) + "/live/cards", { method: "POST", body: {} });
+            const r = await api(liveUrl() + "/cards", { method: "POST", body: {} });
             if (r.status === 403) return toast(r.data && r.data.error === "not_registered" ? "Register & check in for this event first" : "Not allowed");
             if (!r.ok) return toast("Could not start a card");
             S.snap = r.data; S.cardId = r.data && r.data.cardId; S.holeIdx = 0; S.screen = "scoring"; renderScoring();
         }
         async function joinCard(cardId) {
-            const r = await api("/events/" + encodeURIComponent(S.eventId) + "/live/cards/" + encodeURIComponent(cardId) + "/join", { method: "POST", body: {} });
+            const r = await api(liveUrl() + "/cards/" + encodeURIComponent(cardId) + "/join", { method: "POST", body: {} });
             if (r.status === 403) return toast("Register & check in for this event first");
             if (r.status === 409) return toast("That card is full");
             if (!r.ok) return toast("Could not join");
@@ -431,7 +499,7 @@
             const hs = holes();
             if (S.holeIdx < 0) S.holeIdx = 0; if (S.holeIdx >= hs.length) S.holeIdx = hs.length - 1;
             const h = hs[S.holeIdx] || { hole: 1, par: 3 };
-            setBar(cd.label || "Card", S.eventName);
+            setBar(cd.label || "Card", S.ctxName);
             const c = clear(app);
 
             // hole header + nav
@@ -482,13 +550,26 @@
 
             // card actions
             const actions = el("div", "card stack");
-            const addMate = el("button", "btn secondary", "➕ Add a cardmate");
-            addMate.addEventListener("click", openAddCardmate);
+            if (S.kind === "event") { // event cardmates come from the checked-in roster
+                const addMate = el("button", "btn secondary", "➕ Add a cardmate");
+                addMate.addEventListener("click", openAddCardmate);
+                actions.appendChild(addMate);
+            } else { // casual: cardmates join via the share link
+                const share = el("button", "btn secondary", "🔗 Share / invite cardmates");
+                share.addEventListener("click", shareRound);
+                actions.appendChild(share);
+            }
             const addGuest = el("button", "btn secondary", "👤 Add a guest");
             addGuest.addEventListener("click", addGuestFlow);
+            actions.appendChild(addGuest);
+            if (S.kind === "casual") {
+                const finish = el("button", "btn", "🏁 Finish round");
+                finish.addEventListener("click", finishRound);
+                actions.appendChild(finish);
+            }
             const leave = el("button", "btn ghost", "Leave this card");
             leave.addEventListener("click", leaveFlow);
-            actions.appendChild(addMate); actions.appendChild(addGuest); actions.appendChild(leave);
+            actions.appendChild(leave);
             c.appendChild(actions);
 
             const back = el("button", "btn secondary small", "‹ Back"); back.style.marginTop = "0.4rem";
@@ -505,7 +586,7 @@
             const k = pkey(p.pid, h.hole);
             S.pending[k] = strokes;            // optimistic overlay (survives WS echoes until confirmed)
             renderScoring(true);
-            const r = await api("/events/" + encodeURIComponent(S.eventId) + "/live/score", { method: "POST", body: { cardId: cd.id, pid: p.pid, hole: h.hole, strokes: strokes } });
+            const r = await api(liveUrl() + "/score", { method: "POST", body: { cardId: cd.id, pid: p.pid, hole: h.hole, strokes: strokes } });
             if (r.ok && r.data) { S.snap = r.data; reconcilePending(); }
             else {
                 delete S.pending[k];
@@ -533,7 +614,7 @@
         }
 
         async function openAddCardmate() {
-            const r = await api("/events/" + encodeURIComponent(S.eventId) + "/roster");
+            const r = await api("/events/" + encodeURIComponent(S.id) + "/roster");
             const roster = (r.data && r.data.roster) || [];
             const onCard = {}; ((curCard() || {}).players || []).forEach(function (p) { if (p.memberId) onCard[p.memberId] = true; });
             const avail = roster.filter(function (m) { return m.memberId && !onCard[m.memberId]; });
@@ -546,7 +627,7 @@
                     g.appendChild(el("div", "sub", (m.division || "") + (m.checkedIn ? " · checked in" : "")));
                     row.appendChild(el("div", "ava", initials(m.name))); row.appendChild(g);
                     row.addEventListener("click", async function () {
-                        const rr = await api("/events/" + encodeURIComponent(S.eventId) + "/live/cards/" + encodeURIComponent(S.cardId) + "/cardmate", { method: "POST", body: { memberId: m.memberId } });
+                        const rr = await api(liveUrl() + "/cards/" + encodeURIComponent(S.cardId) + "/cardmate", { method: "POST", body: { memberId: m.memberId } });
                         closeSheet();
                         if (rr.status === 403) return toast("They need to be registered for this event");
                         if (rr.status === 409) return toast("Card is full or they’re on another card");
@@ -559,7 +640,7 @@
         }
         function addGuestFlow() {
             promptSheet("Add a guest", "Guest name", "Someone without the app", "Add guest", async function (name) {
-                const r = await api("/events/" + encodeURIComponent(S.eventId) + "/live/cards/" + encodeURIComponent(S.cardId) + "/guest", { method: "POST", body: { name: name } });
+                const r = await api(liveUrl() + "/cards/" + encodeURIComponent(S.cardId) + "/guest", { method: "POST", body: { name: name } });
                 if (r.status === 409) return toast("Card is full");
                 if (!r.ok) return toast("Could not add guest");
                 S.snap = r.data; renderScoring(true);
@@ -569,10 +650,38 @@
             confirmSheet("Leave this card?", "Your scores on this card will be removed.", "Leave card", async function () {
                 const me = myId(); const cd = curCard(); const meP = cd && (cd.players || []).find(function (p) { return p.memberId === me; });
                 if (!meP) { S.screen = "event"; return renderEvent(); }
-                const r = await api("/events/" + encodeURIComponent(S.eventId) + "/live/cards/" + encodeURIComponent(S.cardId) + "/leave", { method: "POST", body: { pid: meP.pid } });
+                const r = await api(liveUrl() + "/cards/" + encodeURIComponent(S.cardId) + "/leave", { method: "POST", body: { pid: meP.pid } });
                 if (!r.ok) return toast("Could not leave");
                 S.snap = r.data; S.cardId = null; S.screen = "event"; renderEvent();
             });
+        }
+        // ---- casual-round share (CardCast) + finish ----
+        function roundLink() { return location.origin + location.pathname + "#round/" + S.id; }
+        async function shareRound() {
+            const url = roundLink();
+            if (navigator.share) { try { await navigator.share({ title: "Join my GVDG round", text: "Keep score with me on UDisc-style live scoring", url: url }); return; } catch (e) { /* fall through to copy */ } }
+            try { await navigator.clipboard.writeText(url); toast("Share link copied — send it to your group"); }
+            catch (e) { promptSheet("Share this round", "Copy this link", url, "Done", function () {}); const inp = document.querySelector(".sheet input.field"); if (inp) { inp.value = url; inp.select(); } }
+        }
+        function finishRound() {
+            confirmSheet("Finish this round?", "This posts everyone's scores to their round history. You can't keep scoring after.", "Finish round", async function () {
+                const r = await api(liveUrl() + "/finish", { method: "POST", body: {} });
+                if (!r.ok) return toast(r.status === 403 ? "Only players on a card can finish" : "Could not finish");
+                await refreshSnap();
+                renderRoundDone();
+            });
+        }
+        function renderRoundDone() {
+            S.screen = "done"; teardownWs(); lbBtn.hidden = false; setBar("Round complete", S.ctxName);
+            const c = clear(app);
+            const card = el("div", "card center stack");
+            card.appendChild(el("h2", "section", "🏁 Round complete!"));
+            card.appendChild(el("p", "muted", "Your scores are saved to everyone's round history."));
+            const lb = el("button", "btn", "See final standings"); lb.addEventListener("click", openLeaderboard); card.appendChild(lb);
+            const hist = el("a", "link", "View my round history →"); hist.href = "gvdg-members.html"; hist.style.display = "inline-block"; hist.style.marginTop = "0.6rem"; card.appendChild(hist);
+            c.appendChild(card);
+            const again = el("button", "btn secondary", "🥏 Start another round"); again.addEventListener("click", startCasualRound); c.appendChild(again);
+            const back = el("button", "btn secondary small", "‹ Back to events"); back.style.marginTop = "0.6rem"; back.addEventListener("click", pickEvent); c.appendChild(back);
         }
 
         // ---- leaderboard sheet ----
@@ -647,9 +756,11 @@
             const me = await api("/me");
             if (me.status === 401) { sessionStorage.removeItem(TOKEN_KEY); return renderLogin(); }
             if (me.data && me.data.mustChangePin) return renderLogin("Set your own PIN on the Members page first, then come back to score.");
-            // deep link: #event/:id
-            const m = (location.hash || "").match(/^#event\/(\d+)/);
-            if (m) return openEvent(Number(m[1]), "Live event");
+            // deep links: #event/:id (live event) or #round/:id (CardCast casual-round share)
+            const ev = (location.hash || "").match(/^#event\/(\d+)/);
+            if (ev) return openEvent(Number(ev[1]), "Live event");
+            const rd = (location.hash || "").match(/^#round\/([\w-]+)/);
+            if (rd) return openRound(rd[1]);
             pickEvent();
         })();
     })();

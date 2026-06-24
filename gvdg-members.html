@@ -541,6 +541,7 @@
                     <img id="dashAvatar" class="dash-avatar" alt="" style="display:none;">
                     <h3 class="my-dashboard-title">📊 My Player Dashboard</h3>
                 </div>
+                <a href="score.html" style="display:flex;align-items:center;justify-content:center;gap:.5rem;background:var(--primary);color:#fff;font-weight:700;text-decoration:none;border-radius:13px;min-height:50px;margin:0 0 1rem;padding:0 1rem;">🥏 Score a round — live event or casual</a>
                 <div class="passkey-row" id="passkeyRow" style="display:none;">
                     <button type="button" class="passkey-btn" id="enablePasskeyBtn">🔑 Add a passkey for faster login</button>
                     <button type="button" class="passkey-btn" id="editProfileBtn">✏️ Edit profile</button>
@@ -563,6 +564,10 @@
                 <div id="clubHistory" style="display:none;">
                     <h4 class="dash-subtitle">🥏 GVDG Event History</h4>
                     <div id="clubHistoryList"></div>
+                </div>
+                <div id="myRounds" style="display:none;">
+                    <h4 class="dash-subtitle">⛳ My Casual Rounds</h4>
+                    <div id="myRoundsList"></div>
                 </div>
             </div>
 
@@ -993,6 +998,29 @@
             });
             wrap.style.display = '';
         }
+        async function loadMyRounds() {
+            const wrap = $('myRounds'), list = $('myRoundsList');
+            const token = sessionStorage.getItem(TOKEN_KEY);
+            if (!token) { wrap.style.display = 'none'; return; }
+            let rounds = [];
+            try { const r = await api('/my-rounds', { token }); if (r.ok) rounds = (await r.json()).rounds || []; } catch (_e) {}
+            list.textContent = '';
+            if (!rounds.length) { wrap.style.display = 'none'; return; }
+            rounds.forEach((rd) => {
+                const row = document.createElement('div'); row.className = 'dash-event';
+                const left = document.createElement('div');
+                const name = document.createElement('div'); name.className = 'dash-event-name';
+                name.textContent = (rd.course_name || 'Casual round');
+                const date = document.createElement('div'); date.className = 'dash-event-date';
+                date.textContent = (rd.round_date ? String(rd.round_date).slice(0, 10) : '') + (rd.total != null ? ' • ' + rd.total + ' (' + fmtClubToPar(rd.to_par) + ')' : '');
+                left.appendChild(name); left.appendChild(date);
+                const score = document.createElement('div'); score.className = 'dash-event-ratings';
+                score.textContent = rd.to_par != null ? fmtClubToPar(rd.to_par) : '—';
+                row.appendChild(left); row.appendChild(score);
+                list.appendChild(row);
+            });
+            wrap.style.display = '';
+        }
 
         // ---- Club meetings & minutes (Phase 4) — XSS-safe markdown ----
         function mdInline(parent, text) {
@@ -1228,6 +1256,7 @@
             const loading = $('dashLoading'), empty = $('dashEmpty'), body = $('dashBody');
             $('myDashboard').style.display = '';
             loadClubHistory(); // GVDG results are keyed by memberId, so they show even without a PDGA#
+            loadMyRounds();    // casual-round history (also memberId-keyed)
             loadRegister();
             loadMeetings();
             loadBoard();

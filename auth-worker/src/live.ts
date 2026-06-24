@@ -74,7 +74,7 @@ export class LiveEventDO {
     // await (incl. D1 calls); blockConcurrencyWhile holds it shut for the whole critical section.
     return this.state.blockConcurrencyWhile<Response>(async () => {
       if (action === "start") return this.start(b as StartBody);
-      if (action === "finalize") return this.finalize();
+      if (action === "finalize") return this.finalize(auth);
 
       if (!this.container) return j({ error: "not_started" }, 409);
       const s = this.container;
@@ -137,11 +137,17 @@ export class LiveEventDO {
     return j(this.snap());
   }
 
-  private async finalize(): Promise<Response> {
+  private async finalize(auth: cards.Auth): Promise<Response> {
     if (!this.container) return j({ error: "not_started" }, 409);
     // Idempotent re-entry: a second finalize (admin double-click / retry) returns the standings without
     // re-running the clear+insert. Combined with blockConcurrencyWhile, two finalizes cannot interleave.
     if (this.container.meta.status === "final") return j({ status: "final", standings: cards.finalize(this.container) });
+    // Casual rounds: only a participant (someone on a card) or an admin may finish. Events are pre-gated
+    // admin-only by the Worker (which forwards isAdmin=1), so this only constrains casual rounds.
+    if (this.container.meta.type === "casual" && !auth.isAdmin) {
+      const onCard = auth.memberId != null && this.container.cards.some((c) => c.players.some((p) => p.memberId === auth.memberId));
+      if (!onCard) return j({ error: "forbidden" }, 403);
+    }
     const standings = cards.finalize(this.container);
     const meta = this.container.meta;
     if (meta.type === "event" && meta.eventId != null) {

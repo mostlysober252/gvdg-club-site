@@ -138,3 +138,29 @@ describe("live route — member scoring + cards (the new delegation)", () => {
     expect((await call("/events/5/live/cards/c1/cardmate", "POST", await tok("m_jane"), { memberId: "nope" }, fakeLive(), new Set(["m_jane"]))).status).toBe(404);
   });
 });
+
+describe("casual rounds (N3)", () => {
+  it("starting a round requires auth", async () => {
+    expect((await call("/rounds", "POST", undefined, { course_id: 1, layout_id: 7 }, fakeLive())).status).toBe(401);
+  });
+  it("a member starts a casual round → DO start with type 'casual' + a roundId", async () => {
+    const live = fakeLive();
+    const r = await call("/rounds", "POST", await tok("m_jane"), { course_id: 1, layout_id: 7 }, live);
+    expect(r.status).toBe(200);
+    const start = live.calls.find((c) => c.url === "https://do/start")!;
+    const sent = JSON.parse(start.body);
+    expect(sent.type).toBe("casual");
+    expect(sent.seed[0].name).toBe("Jane"); // creator seeded, roster-resolved name
+  });
+  it("scoring a casual round requires auth and injects identity (no registration gate)", async () => {
+    expect((await call("/rounds/abc/live/score", "POST", undefined, { cardId: "c1", hole: 1, strokes: 3 }, fakeLive())).status).toBe(401);
+    const live = fakeLive();
+    await call("/rounds/abc/live/score", "POST", await tok("m_jane"), { cardId: "c1", hole: 1, strokes: 3 }, live);
+    expect(live.calls.find((c) => c.url === "https://do/score")!.headers["x-auth-member"]).toBe("m_jane");
+  });
+  it("the round snapshot is public (CardCast)", async () => {
+    const live = fakeLive();
+    expect((await call("/rounds/abc", "GET", undefined, null, live)).status).toBe(200);
+    expect(live.calls[0]!.url).toBe("https://do/snapshot");
+  });
+});

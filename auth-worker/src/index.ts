@@ -214,6 +214,12 @@ async function handleMyResults(request: Request, env: Env, origin: string | null
   return json({ results: await db.listMemberResults(env.DB, claims.sub) }, 200, origin);
 }
 
+async function handleMyRounds(request: Request, env: Env, origin: string | null): Promise<Response> {
+  const claims = await requireAuth(request, env);
+  if (!claims) return json({ error: "unauthorized" }, 401, origin);
+  return json({ rounds: await db.listMemberRoundResults(env.DB, claims.sub) }, 200, origin);
+}
+
 // A member's own event registrations (across events) — for the dashboard sign-up section.
 async function handleMyRegistrations(request: Request, env: Env, origin: string | null): Promise<Response> {
   const claims = await requireAuth(request, env);
@@ -668,6 +674,63 @@ async function clubApi(request: Request, env: Env, origin: string | null, pathna
     }
     return json({ error: "not_found" }, 404, origin);
   }
+
+  // ---- casual rounds (UDisc-style anytime play): /rounds + /rounds/:id[/live/{score,cards/*,finish,ws}] ----
+  // A casual round's id is an unguessable uuid that doubles as the CardCast share token + DO key. The
+  // snapshot is public (anyone with the link can watch); writes require card membership (enforced in the DO).
+  // No registration gate (casual). Finish writes each player's casual round_results (personal history).
+  if (seg[0] === "rounds") {
+    if (method === "POST" && seg.length === 1) {
+      const who = await requireMember(request, env, origin);
+      if (who instanceof Response) return who;
+      if (await kvRateLimited(env, "newround:" + who.memberId, 10, 60)) return json({ error: "rate_limited" }, 429, origin);
+      const body = (await readJson(request)) ?? {};
+      const layoutId = asInt(body.layout_id ?? body.layoutId);
+      const courseId = asInt(body.course_id ?? body.courseId);
+      const holes = await db.getLayoutHoles(env.DB, layoutId);
+      if (!holes.length) return json({ error: "no_layout_holes" }, 400, origin); // a round needs a layout with pars
+      const roundId = crypto.randomUUID();
+      await db.createRound(env.DB, { id: roundId, course_id: courseId, layout_id: layoutId, created_by: who.memberId });
+      const stub = env.LIVE.get(env.LIVE.idFromName("round:" + roundId));
+      const r = await stub.fetch("https://do/start", {
+        method: "POST",
+        body: JSON.stringify({ type: "casual", roundId, courseId, layoutId, holes, seed: [{ memberId: who.memberId, name: who.name }], startedAt: new Date().toISOString() }),
+      });
+      const data = await r.json().catch(() => ({}));
+      return json({ ...data, roundId }, r.status, origin);
+    }
+    const rid = seg[1];
+    if (!rid) return json({ error: "not_found" }, 404, origin);
+    const stub = env.LIVE.get(env.LIVE.idFromName("round:" + rid));
+    if (method === "GET" && seg.length === 2) return liveProxy(stub, "/snapshot", undefined, origin); // public CardCast snapshot
+    if (seg[2] === "live" && seg[3] === "ws") return stub.fetch(request); // public WebSocket viewer
+    if (seg[2] === "live" && method === "POST") {
+      const sub = seg[3]; // score | cards | finish
+      const who = await requireMember(request, env, origin);
+      if (who instanceof Response) return who;
+      if (await kvRateLimited(env, "live:" + who.memberId, 180, 60)) return json({ error: "rate_limited" }, 429, origin);
+      if (sub === "finish") return liveForward(stub, "/finalize", {}, who, origin); // DO checks the requester is on a card
+      if (sub === "score") return liveForward(stub, "/score", (await readJson(request)) ?? {}, who, origin);
+      if (sub === "cards") {
+        const cid = seg[4];
+        const cardAct = seg[5];
+        const body = (await readJson(request)) ?? {};
+        if (!cid) return liveForward(stub, "/card", { label: body.label, name: who.name, division: null }, who, origin);
+        if (cardAct === "join") return liveForward(stub, "/join", { cardId: cid, name: who.name, division: null }, who, origin);
+        if (cardAct === "guest") return liveForward(stub, "/guest", { cardId: cid, name: body.name }, who, origin);
+        if (cardAct === "leave") return liveForward(stub, "/leave", { cardId: cid, pid: body.pid }, who, origin);
+        if (cardAct === "scorekeeper") return liveForward(stub, "/scorekeeper", { cardId: cid, pid: body.pid }, who, origin);
+        if (cardAct === "cardmate") {
+          const targetId = typeof body.memberId === "string" ? body.memberId : "";
+          const m = targetId ? await getMember(env.ROSTER, targetId) : null;
+          if (!m) return json({ error: "no_member" }, 404, origin);
+          return liveForward(stub, "/cardmate", { cardId: cid, memberId: targetId, name: m.name, division: null }, who, origin);
+        }
+      }
+    }
+    return json({ error: "not_found" }, 404, origin);
+  }
+
   if (method === "GET" && seg[0] === "events" && seg.length === 3 && seg[2] === "results") {
     const eid = asInt(seg[1]); // public: final results for a past event (club archive)
     return eid == null ? json({ error: "not_found" }, 404, origin) : json({ results: await db.listResults(env.DB, eid) }, 200, origin);
@@ -1093,6 +1156,7 @@ export default {
     if (pathname === "/login" && method === "POST") return handleLogin(request, env, origin);
     if (pathname === "/me" && method === "GET") return handleMe(request, env, origin);
     if (pathname === "/my-results" && method === "GET") return handleMyResults(request, env, origin);
+    if (pathname === "/my-rounds" && method === "GET") return handleMyRounds(request, env, origin);
     if (pathname === "/board" || pathname.startsWith("/board/")) return handleBoard(request, env, origin);
     if (pathname === "/my-registrations" && method === "GET") return handleMyRegistrations(request, env, origin);
     if (pathname === "/set-pin" && method === "POST") return handleSetPin(request, env, origin);
