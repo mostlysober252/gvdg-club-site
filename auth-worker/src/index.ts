@@ -348,12 +348,23 @@ const validLat = (n: number | null): number | null => (n != null && n >= -90 && 
 const validLng = (n: number | null): number | null => (n != null && n >= -180 && n <= 180 ? n : null);
 
 /** Sanitize a tee/target position object ({label, lat?, lng?}); null if no usable label. */
-function cleanPosition(raw: unknown): { label: string; lat: number | null; lng: number | null } | null {
+// Tee/target colors a sign might use. Allowlist of named colors + #RGB/#RRGGBB hex; anything else → null.
+// (Matches the tee-sign spec's sanitizer so the two tracks render the same swatches safely — never raw
+// into markup.)
+const TEE_COLORS = new Set(["blue", "red", "white", "gold", "yellow", "black", "green", "orange", "purple", "silver", "gray", "grey", "brown", "pink", "teal", "navy"]);
+function safeColor(v: unknown): string | null {
+  if (typeof v !== "string") return null;
+  const s = v.trim().toLowerCase();
+  if (!s) return null;
+  if (TEE_COLORS.has(s)) return s;
+  return /^#([0-9a-f]{3}|[0-9a-f]{6})$/.test(s) ? s : null;
+}
+function cleanPosition(raw: unknown): { label: string; lat: number | null; lng: number | null; color: string | null } | null {
   if (!raw || typeof raw !== "object") return null;
   const o = raw as Record<string, unknown>;
   const label = asStr(o.label, 80);
   if (!label) return null;
-  return { label, lat: validLat(asNum(o.lat)), lng: validLng(asNum(o.lng)) };
+  return { label, lat: validLat(asNum(o.lat)), lng: validLng(asNum(o.lng)), color: safeColor(o.color) };
 }
 
 /** Sanitize a layout's holes (incl. SAFARI tee/target + manual distance). Returns null if any
@@ -773,8 +784,20 @@ async function clubApi(request: Request, env: Env, origin: string | null, pathna
         const kind = b && asStr(b.kind, 10);
         const pos = b && cleanPosition(b);
         if (!b || (kind !== "tee" && kind !== "target") || !pos) return json({ error: "invalid_position" }, 400, origin);
-        const row = await db.createPosition(env.DB, { course_id: id, kind, label: pos.label, lat: pos.lat, lng: pos.lng });
+        const row = await db.createPosition(env.DB, { course_id: id, kind, label: pos.label, lat: pos.lat, lng: pos.lng, color: pos.color });
         return json({ position: row }, 201, origin);
+      }
+      if (method === "PATCH" && seg[4] != null) {
+        // map editor: patch one position (drag → lat/lng, recolor, rename). Only provided fields change.
+        const pid = asInt(seg[4]);
+        if (pid == null) return json({ error: "not_found" }, 404, origin);
+        const b = (await readJson(request)) ?? {};
+        const patch: { label?: string; lat?: number | null; lng?: number | null; color?: string | null } = {};
+        if (b.label !== undefined) { const l = asStr(b.label, 80); if (!l) return json({ error: "invalid_label" }, 400, origin); patch.label = l; }
+        if (b.lat !== undefined) patch.lat = validLat(asNum(b.lat));
+        if (b.lng !== undefined) patch.lng = validLng(asNum(b.lng));
+        if (b.color !== undefined) patch.color = safeColor(b.color);
+        return json({ position: await db.updatePosition(env.DB, id, pid, patch) }, 200, origin);
       }
       if (method === "PUT") {
         // bulk replace the pool (e.g. from a UDisc import)
@@ -785,7 +808,7 @@ async function clubApi(request: Request, env: Env, origin: string | null, pathna
           const o = r as Record<string, unknown>;
           const kind = asStr(o?.kind, 10);
           const pos = cleanPosition(o);
-          if ((kind === "tee" || kind === "target") && pos) positions.push({ course_id: id, kind, label: pos.label, lat: pos.lat, lng: pos.lng });
+          if ((kind === "tee" || kind === "target") && pos) positions.push({ course_id: id, kind, label: pos.label, lat: pos.lat, lng: pos.lng, color: pos.color });
         }
         return json({ positions: await db.replacePositions(env.DB, id, positions) }, 200, origin);
       }

@@ -117,6 +117,7 @@ export interface PositionInput {
   label: string;
   lat?: number | null;
   lng?: number | null;
+  color?: string | null;
 }
 
 export async function listPositions(db: D1Like, courseId: number, kind?: PositionKind) {
@@ -128,20 +129,36 @@ export async function listPositions(db: D1Like, courseId: number, kind?: Positio
 }
 export async function createPosition(db: D1Like, p: PositionInput) {
   return db
-    .prepare("INSERT INTO course_positions (course_id, kind, label, lat, lng) VALUES (?, ?, ?, ?, ?) RETURNING *")
-    .bind(p.course_id, p.kind, p.label, p.lat ?? null, p.lng ?? null)
+    .prepare("INSERT INTO course_positions (course_id, kind, label, lat, lng, color) VALUES (?, ?, ?, ?, ?, ?) RETURNING *")
+    .bind(p.course_id, p.kind, p.label, p.lat ?? null, p.lng ?? null, p.color ?? null)
     .first();
 }
 export async function deletePosition(db: D1Like, courseId: number, id: number) {
   await db.prepare("DELETE FROM course_positions WHERE id = ? AND course_id = ?").bind(id, courseId).run();
+}
+/** Patch one position (map editor: drag → lat/lng, recolor, rename). Only provided fields change. */
+export async function updatePosition(
+  db: D1Like,
+  courseId: number,
+  id: number,
+  patch: { label?: string; lat?: number | null; lng?: number | null; color?: string | null },
+) {
+  const sets: string[] = [];
+  const binds: unknown[] = [];
+  for (const k of ["label", "lat", "lng", "color"] as const) {
+    if (patch[k] !== undefined) { sets.push(`${k} = ?`); binds.push(patch[k]); }
+  }
+  if (!sets.length) return db.prepare("SELECT * FROM course_positions WHERE id = ? AND course_id = ?").bind(id, courseId).first();
+  binds.push(id, courseId);
+  return db.prepare(`UPDATE course_positions SET ${sets.join(", ")} WHERE id = ? AND course_id = ? RETURNING *`).bind(...binds).first();
 }
 /** Replace the whole pool for a course (used by UDisc import): clear then re-insert. */
 export async function replacePositions(db: D1Like, courseId: number, positions: PositionInput[]) {
   await db.prepare("DELETE FROM course_positions WHERE course_id = ?").bind(courseId).run();
   for (const p of positions) {
     await db
-      .prepare("INSERT INTO course_positions (course_id, kind, label, lat, lng) VALUES (?, ?, ?, ?, ?)")
-      .bind(courseId, p.kind, p.label, p.lat ?? null, p.lng ?? null)
+      .prepare("INSERT INTO course_positions (course_id, kind, label, lat, lng, color) VALUES (?, ?, ?, ?, ?, ?)")
+      .bind(courseId, p.kind, p.label, p.lat ?? null, p.lng ?? null, p.color ?? null)
       .run();
   }
   return listPositions(db, courseId);
