@@ -8,6 +8,11 @@
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Archivo:wght@400;600;700&display=swap" rel="stylesheet">
+    <!-- Leaflet (interactive map course editor) — pinned + SRI-verified, loaded from CDN. -->
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"
+          integrity="sha256-p4NxAoJBhIIN+hmNHrzRCf9tD/miZyoHS5obTRR9BMY=" crossorigin="" />
+    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"
+            integrity="sha256-20nQCchB9co0qIjJZRGuk2/Z9VM+kNiyxNV1lvTlZBo=" crossorigin=""></script>
     <style>
         :root {
             --primary: #FF6B35;
@@ -136,6 +141,13 @@
         .al-est .src { font-size: 0.7rem; color: var(--text-muted); }
         .al-poolitem { display: inline-flex; align-items: center; gap: 0.35rem; background: var(--bg-secondary); border: 1px solid var(--border-color); border-radius: 999px; padding: 0.2rem 0.6rem; margin: 0.15rem; font-size: 0.78rem; }
         .al-poolitem button { background: none; border: none; color: var(--text-muted); cursor: pointer; font-size: 0.9rem; line-height: 1; }
+        .al-poolitem .swatch { width: 11px; height: 11px; border-radius: 50%; border: 1px solid rgba(0,0,0,0.25); display: inline-block; }
+        #alMap { height: 340px; border-radius: 10px; border: 1px solid var(--border-color); margin: 0.6rem 0; z-index: 0; }
+        .al-pin { display: grid; place-items: center; width: 26px; height: 26px; border-radius: 50% 50% 50% 0; transform: rotate(-45deg); border: 2px solid #fff; box-shadow: 0 1px 4px rgba(0,0,0,0.4); font-size: 12px; }
+        .al-pin span { transform: rotate(45deg); }
+        .leaflet-popup-content { font-family: 'Archivo', sans-serif; }
+        .al-pop label { font-size: 0.7rem; font-weight: 700; color: var(--text-muted); }
+        .al-maphint { font-size: 0.76rem; color: var(--text-muted); margin: 0.2rem 0 0; }
         .admin-pane { display: none; }
         .admin-pane.active { display: block; }
         .admin-form { display: grid; gap: 0.75rem; max-width: 520px; }
@@ -259,15 +271,24 @@
                         </div>
                         <div id="alUdiscResult" class="al-note"></div>
                     </div>
-                    <!-- Tee / target pool -->
+                    <!-- Tee / target pool + interactive map -->
                     <div class="al-section">
                         <h4 class="al-h">Tee &amp; target pool <span class="al-note">(Safari mode links any of these)</span></h4>
+                        <div id="alMap"></div>
+                        <p class="al-maphint">🗺️ <strong>Tap the map</strong> to drop a tee/target here · <strong>drag a pin</strong> to fine-tune · open a pin to recolor, set GPS, or remove. On a phone at the course, use <strong>📍 here</strong> to drop a pin at your exact spot.</p>
                         <div id="alPoolList" class="al-note">No positions yet.</div>
                         <div class="al-row" style="margin-top:0.5rem;">
                             <select id="alPosKind"><option value="tee">Tee pad</option><option value="target">Target</option></select>
                             <input id="alPosLabel" placeholder="Label e.g. Hole 5 (Blue)" maxlength="80">
+                            <select id="alPosColor" title="Color (optional)">
+                                <option value="">color…</option>
+                                <option value="blue">Blue</option><option value="red">Red</option><option value="white">White</option>
+                                <option value="gold">Gold</option><option value="black">Black</option><option value="green">Green</option>
+                                <option value="orange">Orange</option><option value="purple">Purple</option><option value="silver">Silver</option>
+                            </select>
                             <input id="alPosLat" placeholder="lat" inputmode="decimal" size="8">
                             <input id="alPosLng" placeholder="lng" inputmode="decimal" size="8">
+                            <button type="button" class="admin-btn secondary" id="alPosHereBtn" title="Use my current GPS location">📍 here</button>
                             <button type="button" class="admin-btn secondary" id="alPosAddBtn">Add</button>
                         </div>
                     </div>
@@ -663,24 +684,128 @@
             const wrap = $('alPoolList'); wrap.textContent = '';
             if (!alPool.length) { wrap.textContent = 'No positions yet — add tees/targets or import from UDisc.'; }
             else alPool.forEach((p) => {
-                const chip = elx('span', 'al-poolitem', (p.kind === 'tee' ? '⛳ ' : '🎯 ') + p.label + (p.lat != null ? '' : ' (no GPS)'));
+                const chip = elx('span', 'al-poolitem');
+                if (p.color) { const sw = elx('span', 'swatch'); sw.style.background = alColor(p); chip.appendChild(sw); }
+                chip.appendChild(elx('span', null, (p.kind === 'tee' ? '⛳ ' : '🎯 ') + p.label + (p.lat != null ? '' : ' (no GPS)')));
                 const x = elx('button', null, '✕'); x.title = 'Remove';
                 x.addEventListener('click', () => alDeletePosition(p.id));
                 chip.appendChild(x); wrap.appendChild(chip);
             });
             document.querySelectorAll('#alHoles tr').forEach(refreshRowSelects);
+            alMapRender();
         }
         async function alAddPosition() {
             const kind = $('alPosKind').value, label = $('alPosLabel').value.trim();
             if (!label) { adminMsg('Position label required', false); return; }
-            const body = { kind, label, lat: numOrNull($('alPosLat').value), lng: numOrNull($('alPosLng').value) };
+            const body = { kind, label, color: $('alPosColor').value || null, lat: numOrNull($('alPosLat').value), lng: numOrNull($('alPosLng').value) };
             const r = await adminApi('/admin/courses/' + alCourseId + '/positions', { method: 'POST', body });
-            if (r.ok) { $('alPosLabel').value = ''; $('alPosLat').value = ''; $('alPosLng').value = ''; adminMsg('Added ' + kind, true); alLoadPool(); }
+            if (r.ok) { $('alPosLabel').value = ''; $('alPosLat').value = ''; $('alPosLng').value = ''; $('alPosColor').value = ''; adminMsg('Added ' + kind, true); alLoadPool(); }
             else adminMsg('Add position failed (' + r.status + ')', false);
         }
         async function alDeletePosition(id) {
             const r = await adminApi('/admin/courses/' + alCourseId + '/positions/' + id, { method: 'DELETE' });
             if (r.ok) alLoadPool(); else adminMsg('Remove failed', false);
+        }
+
+        // ---- Interactive Leaflet map over the tee/target pool ----------------------------------
+        const GVDG_CENTER = [34.8526, -82.3940]; // Greenville, SC fallback view
+        const COLOR_HEX = { blue: '#1f6fc4', red: '#d23b2e', white: '#e9e9ef', gold: '#e0a400', yellow: '#e6c200', black: '#222', green: '#2e8b4e', orange: '#e8722e', purple: '#7d4fc4', silver: '#b8b8c0', gray: '#888', grey: '#888', brown: '#8a5a2b', pink: '#e06ea0', teal: '#2aa9a0', navy: '#1a2e6e' };
+        const COLOR_OPTS = ['blue', 'red', 'white', 'gold', 'black', 'green', 'orange', 'purple', 'silver'];
+        let alMap = null, alMarkers = {}, alLineLayer = null;
+        function alColor(p) {
+            if (p && p.color) { if (COLOR_HEX[p.color]) return COLOR_HEX[p.color]; if (/^#([0-9a-f]{3}|[0-9a-f]{6})$/i.test(p.color)) return p.color; }
+            return p && p.kind === 'target' ? '#C8472E' : '#004E89';
+        }
+        function alPinIcon(p) {
+            const wrap = elx('div', 'al-pin'); wrap.style.background = alColor(p);
+            wrap.appendChild(elx('span', null, p.kind === 'target' ? '🎯' : '⛳'));
+            return L.divIcon({ html: wrap.outerHTML, className: '', iconSize: [26, 26], iconAnchor: [13, 26], popupAnchor: [0, -24] });
+        }
+        function alMapEnsure() {
+            if (!window.L) return null; // Leaflet blocked (offline / SRI) — pool still works without the map
+            if (!alMap) {
+                alMap = L.map('alMap');
+                L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', { maxZoom: 20, attribution: '© OpenStreetMap contributors' }).addTo(alMap);
+                alLineLayer = L.layerGroup().addTo(alMap);
+                alMap.on('click', (e) => alAddAt(e.latlng));
+                alMap.setView(GVDG_CENTER, 16);
+            }
+            setTimeout(() => { try { alMap.invalidateSize(); } catch (e) {} }, 60); // container may have been hidden
+            return alMap;
+        }
+        function alMapRender() {
+            if (!alMapEnsure()) return;
+            Object.values(alMarkers).forEach((m) => alMap.removeLayer(m)); alMarkers = {};
+            const pts = [];
+            alPool.forEach((p) => {
+                if (p.lat == null || p.lng == null) return;
+                const m = L.marker([p.lat, p.lng], { icon: alPinIcon(p), draggable: true }).addTo(alMap);
+                m.bindPopup(() => alMarkerPopup(p));
+                m.on('dragend', () => { const ll = m.getLatLng(); alPatchPosition(p.id, { lat: +ll.lat.toFixed(6), lng: +ll.lng.toFixed(6) }); });
+                alMarkers[p.id] = m; pts.push([p.lat, p.lng]);
+            });
+            alMapLines();
+            if (pts.length) { try { alMap.fitBounds(pts, { padding: [40, 40], maxZoom: 18 }); } catch (e) {} }
+        }
+        function alMapLines() {
+            if (!alLineLayer) return; alLineLayer.clearLayers();
+            [...$('alHoles').children].forEach((tr) => {
+                const tee = selToPos(tr.querySelector('.al-tee select')), tgt = selToPos(tr.querySelector('.al-target select'));
+                if (tee && tgt && tee.lat != null && tgt.lat != null) {
+                    L.polyline([[tee.lat, tee.lng], [tgt.lat, tgt.lng]], { color: '#FF6B35', weight: 3, opacity: 0.7, dashArray: '6 5' })
+                        .bindTooltip(haversineFt(tee, tgt) + ' ft').addTo(alLineLayer);
+                }
+            });
+        }
+        function alColorSelect(current, onChange) {
+            const sel = document.createElement('select'); sel.appendChild(new Option('default', ''));
+            COLOR_OPTS.forEach((c) => sel.appendChild(new Option(c, c)));
+            if (current) sel.value = current;
+            sel.addEventListener('change', () => onChange(sel.value || null));
+            return sel;
+        }
+        function alMarkerPopup(p) {
+            const box = elx('div', 'al-pop');
+            box.appendChild(elx('div', null, (p.kind === 'tee' ? '⛳ ' : '🎯 ') + p.label));
+            box.appendChild(elx('label', null, 'Color'));
+            box.appendChild(alColorSelect(p.color, (c) => alPatchPosition(p.id, { color: c })));
+            const gps = elx('button', 'admin-btn secondary', '📍 Set GPS to my location'); gps.style.margin = '0.4rem 0';
+            gps.addEventListener('click', () => alGeo((lat, lng) => alPatchPosition(p.id, { lat, lng })));
+            box.appendChild(gps);
+            const del = elx('button', 'admin-btn secondary', 'Remove');
+            del.addEventListener('click', () => { alMap.closePopup(); alDeletePosition(p.id); });
+            box.appendChild(del);
+            return box;
+        }
+        function alAddAt(latlng) {
+            const box = elx('div', 'al-pop');
+            box.appendChild(elx('label', null, 'New position here'));
+            const kind = document.createElement('select'); kind.appendChild(new Option('Tee pad', 'tee')); kind.appendChild(new Option('Target', 'target'));
+            const label = document.createElement('input'); label.placeholder = 'Label'; label.maxLength = 80; label.style.display = 'block'; label.style.margin = '0.3rem 0';
+            const color = alColorSelect('', () => {});
+            const add = elx('button', 'admin-btn', 'Add here');
+            add.addEventListener('click', async () => {
+                if (!label.value.trim()) { label.focus(); return; }
+                const r = await adminApi('/admin/courses/' + alCourseId + '/positions', { method: 'POST', body: { kind: kind.value, label: label.value.trim(), color: color.value || null, lat: +latlng.lat.toFixed(6), lng: +latlng.lng.toFixed(6) } });
+                alMap.closePopup();
+                if (r.ok) { adminMsg('Added ' + kind.value, true); await alLoadPool(); } else adminMsg('Add failed (' + r.status + ')', false);
+            });
+            box.appendChild(kind); box.appendChild(label); box.appendChild(color); box.appendChild(add);
+            L.popup().setLatLng(latlng).setContent(box).openOn(alMap);
+        }
+        function alGeo(cb) {
+            if (!navigator.geolocation) { adminMsg('No GPS on this device', false); return; }
+            adminMsg('Getting your location…', true);
+            navigator.geolocation.getCurrentPosition(
+                (pos) => cb(+pos.coords.latitude.toFixed(6), +pos.coords.longitude.toFixed(6)),
+                () => adminMsg('Could not get your location (allow location access?)', false),
+                { enableHighAccuracy: true, timeout: 8000 },
+            );
+        }
+        function alUseHere() { alGeo((lat, lng) => { $('alPosLat').value = lat; $('alPosLng').value = lng; adminMsg('Filled current GPS — now press Add', true); }); }
+        async function alPatchPosition(id, patch) {
+            const r = await adminApi('/admin/courses/' + alCourseId + '/positions/' + id, { method: 'PATCH', body: patch });
+            if (r.ok) { adminMsg('Updated position', true); await alLoadPool(); } else adminMsg('Update failed (' + r.status + ')', false);
         }
 
         async function alUdiscFetch() {
@@ -748,6 +873,7 @@
             cell.replaceChildren();
             cell.appendChild(elx('span', null, e.ft == null ? '—' : e.ft + ' ft'));
             if (e.src) cell.appendChild(elx('span', 'src', ' ' + e.src));
+            alMapLines();
         }
         function addHoleRow(hole) {
             const tbody = $('alHoles');
@@ -1145,6 +1271,7 @@
             $('csvImportBtn').addEventListener('click', adminCsvImport);
             $('alCourse').addEventListener('change', alOnCourseChange);
             $('alPosAddBtn').addEventListener('click', alAddPosition);
+            $('alPosHereBtn').addEventListener('click', alUseHere);
             $('alUdiscBtn').addEventListener('click', alUdiscFetch);
             $('alAddHole').addEventListener('click', () => addHoleRow());
             $('alSaveLayout').addEventListener('click', alSaveLayout);
