@@ -201,16 +201,21 @@
             if (on && !offlineBar) { offlineBar = el("div", "offline-bar", "● Offline — scores are saved and will sync when you reconnect"); document.body.appendChild(offlineBar); }
             else if (!on && offlineBar) { offlineBar.remove(); offlineBar = null; }
         }
+        let flushing = false;
         async function flushQueue() {
+            if (flushing) return; // guard: boot + 'online' can both fire — don't double-apply queued writes
             let q = loadQ();
             if (!q.length) { setOffline(false); return; }
+            flushing = true;
             const rest = [];
-            for (const item of q) {
-                try {
-                    const r = await fetch(API_BASE + item.url, { method: "POST", headers: { "Content-Type": "application/json", "Authorization": "Bearer " + token() }, body: JSON.stringify(item.body) });
-                    if (!r.ok && r.status >= 500) rest.push(item); // keep server errors to retry; drop 4xx (won't succeed on retry)
-                } catch (e) { rest.push(item); } // still offline
-            }
+            try {
+                for (const item of q) {
+                    try {
+                        const r = await fetch(API_BASE + item.url, { method: "POST", headers: { "Content-Type": "application/json", "Authorization": "Bearer " + token() }, body: JSON.stringify(item.body) });
+                        if (!r.ok && r.status >= 500) rest.push(item); // keep server errors to retry; drop 4xx (won't succeed on retry)
+                    } catch (e) { rest.push(item); } // still offline
+                }
+            } finally { flushing = false; }
             saveQ(rest);
             setOffline(rest.length > 0);
             if (!rest.length && S.id) { await refreshSnap(); if (S.screen === "scoring") renderScoring(true); else if (S.screen === "event") renderEvent(); }
@@ -220,7 +225,7 @@
         if ("serviceWorker" in navigator) { window.addEventListener("load", function () { navigator.serviceWorker.register("sw.js").catch(function () {}); }); }
 
         // ---- app state ----
-        const S = { screen: "boot", kind: "event", id: null, ctxName: "", snap: null, cardId: null, holeIdx: 0, roster: [], ws: null, pending: {} };
+        const S = { screen: "boot", kind: "event", id: null, ctxName: "", snap: null, cardId: null, myCardId: null, myPid: null, holeIdx: 0, roster: [], ws: null, pending: {} };
         // Path helpers unify events and casual rounds: events live at /events/:id/live, casual rounds at
         // /rounds/:id (snapshot) + /rounds/:id/live/* (ops + ws).
         function liveUrl() { return S.kind === "casual" ? "/rounds/" + encodeURIComponent(S.id) + "/live" : "/events/" + encodeURIComponent(S.id) + "/live"; }
@@ -362,6 +367,7 @@
             S.kind = "event"; S.id = eventId; S.ctxName = name; S.screen = "event"; lbBtn.hidden = false; S.pending = {};
             setBar(name, "Live event"); showBoot();
             await refreshSnap();
+            await refreshMine();
             connectWs();
             renderEvent();
         }
@@ -370,6 +376,7 @@
             setBar("Casual round", "Tap a card to keep score"); showBoot();
             await refreshSnap();
             if (!S.snap || S.snap.status === "none") { toast("That round wasn't found"); return pickEvent(); }
+            await refreshMine();
             connectWs();
             renderEvent();
         }
@@ -422,7 +429,7 @@
             if (!r.ok || !r.data || !r.data.roundId) return (toast("Could not start the round"), pickEvent());
             S.kind = "casual"; S.id = r.data.roundId; S.ctxName = course.name; S.snap = r.data; S.pending = {};
             S.screen = "event"; lbBtn.hidden = false; connectWs();
-            // creator is already seeded onto a card → jump straight into scoring
+            await refreshMine(); // creator is seeded onto a card → learn which one, then jump into scoring
             const mine = myCard();
             if (mine) { S.cardId = mine.id; S.holeIdx = 0; S.screen = "scoring"; renderScoring(); }
             else renderEvent();
@@ -438,9 +445,12 @@
                 setOffline(true);
             }
         }
-        function myCard() {
-            const me = myId(); if (!me || !S.snap) return null;
-            return (S.snap.cards || []).find(function (c) { return (c.players || []).some(function (p) { return p.memberId === me; }); }) || null;
+        // The public snapshot carries NO memberId (privacy), so we learn our own card from the authed
+        // `mine` lookup and remember it; myCard() then just resolves that id against the live snapshot.
+        function myCard() { return S.myCardId ? (((S.snap && S.snap.cards) || []).find(function (c) { return c.id === S.myCardId; }) || null) : null; }
+        async function refreshMine() {
+            try { const r = await api(liveUrl() + "/mine", { method: "POST", body: {} }); if (r.ok && r.data) { S.myCardId = r.data.cardId || null; S.myPid = r.data.pid || null; return; } } catch (e) {}
+            S.myCardId = null; S.myPid = null;
         }
 
         function renderEvent() {
@@ -516,14 +526,18 @@
             const r = await api(liveUrl() + "/cards", { method: "POST", body: {} });
             if (r.status === 403) return toast(r.data && r.data.error === "not_registered" ? "Register & check in for this event first" : "Not allowed");
             if (!r.ok) return toast("Could not start a card");
-            S.snap = r.data; S.cardId = r.data && r.data.cardId; S.holeIdx = 0; S.screen = "scoring"; renderScoring();
+            S.snap = r.data; S.cardId = r.data && r.data.cardId; S.holeIdx = 0;
+            await refreshMine(); // learn my pid on the new card
+            S.screen = "scoring"; renderScoring();
         }
         async function joinCard(cardId) {
             const r = await api(liveUrl() + "/cards/" + encodeURIComponent(cardId) + "/join", { method: "POST", body: {} });
             if (r.status === 403) return toast("Register & check in for this event first");
             if (r.status === 409) return toast("That card is full");
             if (!r.ok) return toast("Could not join");
-            S.snap = r.data; S.cardId = cardId; S.holeIdx = 0; S.screen = "scoring"; renderScoring();
+            S.snap = r.data; S.cardId = cardId; S.holeIdx = 0;
+            await refreshMine();
+            S.screen = "scoring"; renderScoring();
         }
 
         function curCard() { return ((S.snap && S.snap.cards) || []).find(function (c) { return c.id === S.cardId; }) || null; }
@@ -694,11 +708,10 @@
         }
         function leaveFlow() {
             confirmSheet("Leave this card?", "Your scores on this card will be removed.", "Leave card", async function () {
-                const me = myId(); const cd = curCard(); const meP = cd && (cd.players || []).find(function (p) { return p.memberId === me; });
-                if (!meP) { S.screen = "event"; return renderEvent(); }
-                const r = await api(liveUrl() + "/cards/" + encodeURIComponent(S.cardId) + "/leave", { method: "POST", body: { pid: meP.pid } });
+                if (!S.myPid) { S.screen = "event"; return renderEvent(); }
+                const r = await api(liveUrl() + "/cards/" + encodeURIComponent(S.cardId) + "/leave", { method: "POST", body: { pid: S.myPid } });
                 if (!r.ok) return toast("Could not leave");
-                S.snap = r.data; S.cardId = null; S.screen = "event"; renderEvent();
+                S.snap = r.data; S.cardId = null; S.myCardId = null; S.myPid = null; S.screen = "event"; renderEvent();
             });
         }
         // ---- casual-round share (CardCast) + finish ----

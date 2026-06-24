@@ -69,6 +69,10 @@ export class LiveEventDO {
     const auth = this.authOf(request);
     const b = (await request.json().catch(() => ({}))) as Record<string, any>;
 
+    // Authed identity lookup: which card/pid is the requester on? Lets the client find its own card
+    // without the public snapshot ever exposing memberIds. Read-only, no critical section needed.
+    if (action === "mine") return j((this.container && cards.findMyCard(this.container, auth.memberId)) || {});
+
     // Serialize the entire mutate → persist → broadcast (and finalize's D1 writes) so concurrent
     // start/score/finalize requests cannot interleave and corrupt state. The input gate reopens on every
     // await (incl. D1 calls); blockConcurrencyWhile holds it shut for the whole critical section.

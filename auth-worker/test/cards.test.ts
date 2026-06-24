@@ -199,6 +199,21 @@ describe("snapshot + finalize", () => {
     expect(snap.standings[1].toPar).toBe(1);
   });
 
+  it("snapshot does NOT leak memberId (public-safe) but findMyCard resolves it for the authed member", () => {
+    const s = cards.initContainer(base);
+    const { cardId } = ok(cards.createCard(s, alice, { name: "Alice" }));
+    ok(cards.applyScore(s, alice, { cardId, memberId: "pdga:100", hole: 1, strokes: 2 }));
+    const snap = cards.snapshot(s) as any;
+    expect(JSON.stringify(snap)).not.toContain("pdga:100"); // memberId (== m_<PDGA#>) never in the public snapshot
+    expect(snap.cards[0].players[0]).not.toHaveProperty("memberId");
+    expect(snap.players[0]).not.toHaveProperty("memberId");
+    expect(snap.standings[0]).not.toHaveProperty("memberId");
+    expect(snap.standings[0].name).toBe("Alice"); // name/division/scores still present
+    // the authed lookup still maps a member to their card + pid
+    expect(cards.findMyCard(s, "pdga:100")).toEqual({ cardId, pid: s.cards[0]!.players[0]!.pid });
+    expect(cards.findMyCard(s, "pdga:999")).toBeNull();
+  });
+
   it("finalize ranks all players across every card with a breakdown", () => {
     const s = cards.initContainer(base);
     const { cardId } = ok(cards.createCard(s, alice, { name: "Alice" }));

@@ -164,3 +164,15 @@ describe("casual rounds (N3)", () => {
     expect(live.calls[0]!.url).toBe("https://do/snapshot");
   });
 });
+
+describe("authed 'mine' identity lookup (privacy)", () => {
+  it("is member-gated and forwards the verified identity (events + rounds)", async () => {
+    expect((await call("/events/5/live/mine", "POST", undefined, {}, fakeLive())).status).toBe(401);
+    const live = fakeLive();
+    await call("/events/5/live/mine", "POST", await tok("m_jane"), {}, live);
+    expect(live.calls.find((c) => c.url === "https://do/mine")!.headers["x-auth-member"]).toBe("m_jane");
+    const live2 = fakeLive();
+    await call("/rounds/abc/live/mine", "POST", await tok("m_jane"), {}, live2);
+    expect(live2.calls.find((c) => c.url === "https://do/mine")).toBeTruthy();
+  });
+});

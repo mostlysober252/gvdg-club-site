@@ -314,10 +314,25 @@ export function flattenPlayers(state: ContainerState): (PlayerState & { pid: str
   return out;
 }
 
+/** The card + pid a member is on, or null. Used by the authed `mine` lookup so the client can identify
+ *  its own card WITHOUT the public snapshot ever exposing memberIds. */
+export function findMyCard(state: ContainerState, memberId: string | null): { cardId: string; pid: string } | null {
+  if (!memberId) return null;
+  for (const c of state.cards) {
+    const p = c.players.find((x) => x.memberId === memberId);
+    if (p) return { cardId: c.id, pid: p.pid };
+  }
+  return null;
+}
+
 /** Back-compatible snapshot: `cards` for the new card UIs, flat `players` for the legacy admin grid,
- *  `standings` aggregated across all cards for the public leaderboard. */
+ *  `standings` aggregated across all cards for the public leaderboard. **PUBLIC by design** (events live
+ *  snapshot + casual CardCast + WebSocket) — so it deliberately does NOT emit the internal `memberId`
+ *  (which encodes the PDGA#/UDisc handle); players are identified only by an opaque per-container `pid`.
+ *  Members find their own card via the authed `mine` lookup (findMyCard). */
 export function snapshot(state: ContainerState): Record<string, unknown> {
   const flat = flattenPlayers(state);
+  const strip = (s: Standing) => ({ name: s.name, division: s.division, thru: s.thru, total: s.total, toPar: s.toPar });
   return {
     status: state.meta.status,
     type: state.meta.type,
@@ -331,10 +346,10 @@ export function snapshot(state: ContainerState): Record<string, unknown> {
       label: c.label,
       startingHole: c.startingHole,
       scorekeeperId: c.scorekeeperId,
-      players: c.players.map((p) => ({ pid: p.pid, memberId: p.memberId, name: p.name, division: p.division, startingHole: p.startingHole, isGuest: p.isGuest, scores: p.scores })),
+      players: c.players.map((p) => ({ pid: p.pid, name: p.name, division: p.division, startingHole: p.startingHole, isGuest: p.isGuest, scores: p.scores })),
     })),
-    players: flat.map((p, index) => ({ index, pid: p.pid, cardId: p.cardId, memberId: p.memberId, name: p.name, division: p.division, startingHole: p.startingHole, scores: p.scores })),
-    standings: computeLeaderboard(state.meta.holes, flat),
+    players: flat.map((p, index) => ({ index, pid: p.pid, cardId: p.cardId, name: p.name, division: p.division, startingHole: p.startingHole, scores: p.scores })),
+    standings: computeLeaderboard(state.meta.holes, flat).map(strip),
     updatedAt: state.meta.updatedAt,
   };
 }

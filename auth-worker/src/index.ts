@@ -433,6 +433,51 @@ function liveForward(
   }, origin);
 }
 
+/** Shared member-authed live-op dispatch (mine | score | cards/*) for BOTH events and casual rounds.
+ *  `eid` non-null ⇒ event: a non-admin must be registered to self-organize/score (and an added cardmate
+ *  must be registered too; admins bypass). `eid` null ⇒ casual round: no registration gate. */
+async function liveMemberOp(
+  request: Request,
+  env: Env,
+  origin: string | null,
+  stub: DurableObjectStub,
+  who: { memberId: string; isAdmin: boolean; name: string },
+  sub: string | undefined,
+  cid: string | undefined,
+  cardAct: string | undefined,
+  eid: number | null,
+): Promise<Response> {
+  if (sub === "mine") return liveForward(stub, "/mine", {}, who, origin); // which card am I on?
+  if (sub === "score") return liveForward(stub, "/score", (await readJson(request)) ?? {}, who, origin);
+  if (sub !== "cards") return json({ error: "not_found" }, 404, origin);
+
+  const body = (await readJson(request)) ?? {};
+  let myDivision: string | null = null;
+  if (eid != null) {
+    const myReg = (await db.getMyRegistration(env.DB, eid, who.memberId)) as { division?: string | null } | null;
+    if (!who.isAdmin && !myReg && (!cid || cardAct === "join")) return json({ error: "not_registered" }, 403, origin);
+    myDivision = myReg?.division ?? null;
+  }
+  if (!cid) return liveForward(stub, "/card", { label: body.label, name: who.name, division: myDivision }, who, origin);
+  if (cardAct === "join") return liveForward(stub, "/join", { cardId: cid, name: who.name, division: myDivision }, who, origin);
+  if (cardAct === "guest") return liveForward(stub, "/guest", { cardId: cid, name: body.name }, who, origin);
+  if (cardAct === "leave") return liveForward(stub, "/leave", { cardId: cid, pid: body.pid }, who, origin);
+  if (cardAct === "scorekeeper") return liveForward(stub, "/scorekeeper", { cardId: cid, pid: body.pid }, who, origin);
+  if (cardAct === "cardmate") {
+    const targetId = typeof body.memberId === "string" ? body.memberId : "";
+    const m = targetId ? await getMember(env.ROSTER, targetId) : null;
+    if (!m) return json({ error: "no_member" }, 404, origin);
+    let division: string | null = null;
+    if (eid != null) {
+      const reg = (await db.getMyRegistration(env.DB, eid, targetId)) as { division?: string | null } | null;
+      if (!who.isAdmin && !reg) return json({ error: "member_not_registered" }, 403, origin); // admin may add a walk-up
+      division = reg?.division ?? null;
+    }
+    return liveForward(stub, "/cardmate", { cardId: cid, memberId: targetId, name: m.name, division }, who, origin);
+  }
+  return json({ error: "not_found" }, 404, origin);
+}
+
 function validEventInput(b: Record<string, unknown>): db.EventInput | null {
   const name = asStr(b.name, 200);
   if (!inSet(EVENT_TYPES, b.type) || !name) return null;
@@ -638,41 +683,12 @@ async function clubApi(request: Request, env: Env, origin: string | null, pathna
       return json(data, r.status, origin);
     }
 
-    // ---- member-authed: score + card formation ----
+    // ---- member-authed: mine + score + card formation (shared with casual rounds) ----
     const who = await requireMember(request, env, origin);
     if (who instanceof Response) return who;
     // Per-member flood guard on live writes (generous: ~3/sec covers fast tapping, blocks abuse of the DO).
     if (await kvRateLimited(env, "live:" + who.memberId, 180, 60)) return json({ error: "rate_limited" }, 429, origin);
-
-    if (sub === "score") {
-      const body = (await readJson(request)) ?? {};
-      return liveForward(stub, "/score", body, who, origin);
-    }
-
-    if (sub === "cards") {
-      const cid = seg[4];
-      const cardAct = seg[5];
-      // To self-organize/score an EVENT, a non-admin must be registered for it (admins bypass).
-      const myReg = (await db.getMyRegistration(env.DB, eid, who.memberId)) as { division?: string | null } | null;
-      if (!who.isAdmin && !myReg && (!cid || cardAct === "join")) return json({ error: "not_registered" }, 403, origin);
-      const myDivision = myReg?.division ?? null;
-      const body = (await readJson(request)) ?? {};
-
-      if (!cid) return liveForward(stub, "/card", { label: body.label, name: who.name, division: myDivision }, who, origin);
-      if (cardAct === "join") return liveForward(stub, "/join", { cardId: cid, name: who.name, division: myDivision }, who, origin);
-      if (cardAct === "guest") return liveForward(stub, "/guest", { cardId: cid, name: body.name }, who, origin);
-      if (cardAct === "leave") return liveForward(stub, "/leave", { cardId: cid, pid: body.pid }, who, origin);
-      if (cardAct === "scorekeeper") return liveForward(stub, "/scorekeeper", { cardId: cid, pid: body.pid }, who, origin);
-      if (cardAct === "cardmate") {
-        const targetId = typeof body.memberId === "string" ? body.memberId : "";
-        const m = targetId ? await getMember(env.ROSTER, targetId) : null;
-        if (!m) return json({ error: "no_member" }, 404, origin);
-        const reg = (await db.getMyRegistration(env.DB, eid, targetId)) as { division?: string | null } | null;
-        if (!who.isAdmin && !reg) return json({ error: "member_not_registered" }, 403, origin); // admin may add a walk-up
-        return liveForward(stub, "/cardmate", { cardId: cid, memberId: targetId, name: m.name, division: reg?.division ?? null }, who, origin);
-      }
-    }
-    return json({ error: "not_found" }, 404, origin);
+    return liveMemberOp(request, env, origin, stub, who, sub, seg[4], seg[5], eid);
   }
 
   // ---- casual rounds (UDisc-style anytime play): /rounds + /rounds/:id[/live/{score,cards/*,finish,ws}] ----
@@ -690,13 +706,14 @@ async function clubApi(request: Request, env: Env, origin: string | null, pathna
       const holes = await db.getLayoutHoles(env.DB, layoutId);
       if (!holes.length) return json({ error: "no_layout_holes" }, 400, origin); // a round needs a layout with pars
       const roundId = crypto.randomUUID();
-      await db.createRound(env.DB, { id: roundId, course_id: courseId, layout_id: layoutId, created_by: who.memberId });
       const stub = env.LIVE.get(env.LIVE.idFromName("round:" + roundId));
       const r = await stub.fetch("https://do/start", {
         method: "POST",
         body: JSON.stringify({ type: "casual", roundId, courseId, layoutId, holes, seed: [{ memberId: who.memberId, name: who.name }], startedAt: new Date().toISOString() }),
       });
       const data = await r.json().catch(() => ({}));
+      if (r.status !== 200) return json(data, r.status, origin); // DO start failed — don't leave an orphan D1 round row
+      await db.createRound(env.DB, { id: roundId, course_id: courseId, layout_id: layoutId, created_by: who.memberId });
       return json({ ...data, roundId }, r.status, origin);
     }
     const rid = seg[1];
@@ -710,23 +727,7 @@ async function clubApi(request: Request, env: Env, origin: string | null, pathna
       if (who instanceof Response) return who;
       if (await kvRateLimited(env, "live:" + who.memberId, 180, 60)) return json({ error: "rate_limited" }, 429, origin);
       if (sub === "finish") return liveForward(stub, "/finalize", {}, who, origin); // DO checks the requester is on a card
-      if (sub === "score") return liveForward(stub, "/score", (await readJson(request)) ?? {}, who, origin);
-      if (sub === "cards") {
-        const cid = seg[4];
-        const cardAct = seg[5];
-        const body = (await readJson(request)) ?? {};
-        if (!cid) return liveForward(stub, "/card", { label: body.label, name: who.name, division: null }, who, origin);
-        if (cardAct === "join") return liveForward(stub, "/join", { cardId: cid, name: who.name, division: null }, who, origin);
-        if (cardAct === "guest") return liveForward(stub, "/guest", { cardId: cid, name: body.name }, who, origin);
-        if (cardAct === "leave") return liveForward(stub, "/leave", { cardId: cid, pid: body.pid }, who, origin);
-        if (cardAct === "scorekeeper") return liveForward(stub, "/scorekeeper", { cardId: cid, pid: body.pid }, who, origin);
-        if (cardAct === "cardmate") {
-          const targetId = typeof body.memberId === "string" ? body.memberId : "";
-          const m = targetId ? await getMember(env.ROSTER, targetId) : null;
-          if (!m) return json({ error: "no_member" }, 404, origin);
-          return liveForward(stub, "/cardmate", { cardId: cid, memberId: targetId, name: m.name, division: null }, who, origin);
-        }
-      }
+      return liveMemberOp(request, env, origin, stub, who, sub, seg[4], seg[5], null); // null eid ⇒ no registration gate
     }
     return json({ error: "not_found" }, 404, origin);
   }
@@ -991,7 +992,7 @@ async function clubApi(request: Request, env: Env, origin: string | null, pathna
       } else if (seg[3] === "assign-starting-holes") {
         const ev = (await db.getEvent(env.DB, id)) as { layout_id?: number | null } | null;
         let holes = (await db.getLayoutHoles(env.DB, ev?.layout_id)).map((h) => h.hole);
-        if (!holes.length) holes = Array.from({ length: asInt(b.holeCount) || 18 }, (_, i) => i + 1);
+        if (!holes.length) holes = Array.from({ length: Math.min(Math.max(asInt(b.holeCount) || 18, 1), 100) }, (_, i) => i + 1); // clamp 1..100
         const assigned = assignShotgun(order.map(String), holes, asInt(b.groupSize) || 4);
         await Promise.all(order.map((rid, i) => db.adminUpdateRegistration(env.DB, rid, { starting_hole: assigned[i]!.hole })));
       } else {
