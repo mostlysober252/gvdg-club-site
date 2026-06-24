@@ -275,7 +275,10 @@
                     <div class="al-section">
                         <h4 class="al-h">Tee &amp; target pool <span class="al-note">(Safari mode links any of these)</span></h4>
                         <div id="alMap"></div>
-                        <p class="al-maphint">🗺️ <strong>Tap the map</strong> to drop a tee/target here · <strong>drag a pin</strong> to fine-tune · open a pin to recolor, set GPS, or remove. On a phone at the course, use <strong>📍 here</strong> to drop a pin at your exact spot.</p>
+                        <div class="al-row" style="margin:0.4rem 0 0;">
+                            <button type="button" class="admin-btn secondary" id="alCenterMe">📍 Center map on me</button>
+                            <span class="al-maphint" style="margin:0;">🗺️ <strong>Tap the map</strong> to drop a tee/target · <strong>drag a pin</strong> to fine-tune · open a pin to recolor, set GPS, or remove.</span>
+                        </div>
                         <div id="alPoolList" class="al-note">No positions yet.</div>
                         <div class="al-row" style="margin-top:0.5rem;">
                             <select id="alPosKind"><option value="tee">Tee pad</option><option value="target">Target</option></select>
@@ -697,8 +700,8 @@
             alMapRender();
         }
         async function alAddPosition() {
-            const kind = $('alPosKind').value, label = $('alPosLabel').value.trim();
-            if (!label) { adminMsg('Position label required', false); return; }
+            const kind = $('alPosKind').value;
+            const label = $('alPosLabel').value.trim() || alNextLabel(kind); // auto-name if blank (one-tap add)
             const body = { kind, label, color: $('alPosColor').value || null, lat: numOrNull($('alPosLat').value), lng: numOrNull($('alPosLng').value) };
             const r = await adminApi('/admin/courses/' + alCourseId + '/positions', { method: 'POST', body });
             if (r.ok) { $('alPosLabel').value = ''; $('alPosLat').value = ''; $('alPosLng').value = ''; $('alPosColor').value = ''; adminMsg('Added ' + kind, true); alLoadPool(); }
@@ -717,6 +720,15 @@
         function alColor(p) {
             if (p && p.color) { if (COLOR_HEX[p.color]) return COLOR_HEX[p.color]; if (/^#([0-9a-f]{3}|[0-9a-f]{6})$/i.test(p.color)) return p.color; }
             return p && p.kind === 'target' ? '#C8472E' : '#004E89';
+        }
+        // Next sensible default name for a kind, so tapping the map / Add is one tap (no typing).
+        function alNextLabel(kind) { return (kind === 'tee' ? 'Tee ' : 'Basket ') + (alPool.filter((p) => p.kind === kind).length + 1); }
+        // Pan/zoom the map to a hole's tee→target and flash its line (table → map link).
+        function alMapFocusHole(tee, target) {
+            if (!alMapEnsure()) return;
+            const pts = [tee, target].filter((p) => p && p.lat != null && p.lng != null).map((p) => [p.lat, p.lng]);
+            if (!pts.length) { adminMsg('That hole has no GPS pins to locate', false); return; }
+            if (pts.length === 1) alMap.setView(pts[0], 18); else alMap.fitBounds(pts, { padding: [60, 60], maxZoom: 19 });
         }
         function alPinIcon(p) {
             const wrap = elx('div', 'al-pin'); wrap.style.background = alColor(p);
@@ -751,11 +763,12 @@
         }
         function alMapLines() {
             if (!alLineLayer) return; alLineLayer.clearLayers();
-            [...$('alHoles').children].forEach((tr) => {
+            [...$('alHoles').children].forEach((tr, i) => {
                 const tee = selToPos(tr.querySelector('.al-tee select')), tgt = selToPos(tr.querySelector('.al-target select'));
                 if (tee && tgt && tee.lat != null && tgt.lat != null) {
+                    const par = parseInt(tr.querySelector('.al-par').value, 10) || 0;
                     L.polyline([[tee.lat, tee.lng], [tgt.lat, tgt.lng]], { color: '#FF6B35', weight: 3, opacity: 0.7, dashArray: '6 5' })
-                        .bindTooltip(haversineFt(tee, tgt) + ' ft').addTo(alLineLayer);
+                        .bindTooltip('Hole ' + (i + 1) + (par ? ' · Par ' + par : '') + ' · ' + haversineFt(tee, tgt) + ' ft').addTo(alLineLayer);
                 }
             });
         }
@@ -783,12 +796,14 @@
             const box = elx('div', 'al-pop');
             box.appendChild(elx('label', null, 'New position here'));
             const kind = document.createElement('select'); kind.appendChild(new Option('Tee pad', 'tee')); kind.appendChild(new Option('Target', 'target'));
-            const label = document.createElement('input'); label.placeholder = 'Label'; label.maxLength = 80; label.style.display = 'block'; label.style.margin = '0.3rem 0';
+            const label = document.createElement('input'); label.maxLength = 80; label.style.display = 'block'; label.style.margin = '0.3rem 0';
+            label.value = alNextLabel('tee'); // auto-named so it's one tap; edit if you like
+            kind.addEventListener('change', () => { label.value = alNextLabel(kind.value); });
             const color = alColorSelect('', () => {});
             const add = elx('button', 'admin-btn', 'Add here');
             add.addEventListener('click', async () => {
-                if (!label.value.trim()) { label.focus(); return; }
-                const r = await adminApi('/admin/courses/' + alCourseId + '/positions', { method: 'POST', body: { kind: kind.value, label: label.value.trim(), color: color.value || null, lat: +latlng.lat.toFixed(6), lng: +latlng.lng.toFixed(6) } });
+                const lbl = label.value.trim() || alNextLabel(kind.value);
+                const r = await adminApi('/admin/courses/' + alCourseId + '/positions', { method: 'POST', body: { kind: kind.value, label: lbl, color: color.value || null, lat: +latlng.lat.toFixed(6), lng: +latlng.lng.toFixed(6) } });
                 alMap.closePopup();
                 if (r.ok) { adminMsg('Added ' + kind.value, true); await alLoadPool(); } else adminMsg('Add failed (' + r.status + ')', false);
             });
@@ -887,7 +902,11 @@
             const tgtTd = document.createElement('td'); tgtTd.className = 'al-target'; tr.appendChild(tgtTd);
             const manTd = document.createElement('td'); const man = document.createElement('input'); man.type = 'number'; man.min = '0'; man.className = 'al-manual'; man.placeholder = 'auto'; if (hole && hole.manual_distance != null) man.value = hole.manual_distance; man.addEventListener('input', () => recalcRow(tr)); manTd.appendChild(man); tr.appendChild(manTd);
             const estTd = document.createElement('td'); estTd.className = 'al-est'; tr.appendChild(estTd);
-            const delTd = document.createElement('td'); const del = elx('button', 'al-poolitem', '✕'); del.addEventListener('click', () => { tr.remove(); renumberHoles(); }); delTd.appendChild(del); tr.appendChild(delTd);
+            const delTd = document.createElement('td');
+            const loc = elx('button', 'al-poolitem', '📍'); loc.title = 'Show this hole on the map';
+            loc.addEventListener('click', () => alMapFocusHole(selToPos(tr.querySelector('.al-tee select')), selToPos(tr.querySelector('.al-target select'))));
+            const del = elx('button', 'al-poolitem', '✕'); del.title = 'Remove hole'; del.addEventListener('click', () => { tr.remove(); renumberHoles(); alMapLines(); });
+            delTd.appendChild(loc); delTd.appendChild(del); tr.appendChild(delTd);
             tbody.appendChild(tr);
             // populate selects, preselecting any embedded tee/target
             const teeSel = posOptions('tee', hole && hole.tee ? hole.tee.label : '', hole && hole.tee);
@@ -908,6 +927,9 @@
             const holes = gatherHoles();
             if (!holes.length) { adminMsg('Add at least one hole', false); return; }
             if (holes.some((h) => !(h.par >= 1 && h.par <= 15))) { adminMsg('Every hole needs a par 1–15', false); return; }
+            // A hole with only one of tee/target can't measure a distance — flag it before saving.
+            const bad = holes.findIndex((h) => (h.tee && !h.target) || (!h.tee && h.target));
+            if (bad >= 0) { adminMsg('Hole ' + (bad + 1) + ': pick BOTH a tee and a target (or clear both to use a par estimate).', false); return; }
             const name = $('alName').value.trim() || 'Main';
             const r = alEditing
                 ? await adminApi('/admin/layouts/' + alEditing, { method: 'PATCH', body: { name, holes } })
@@ -1275,6 +1297,7 @@
             $('alCourse').addEventListener('change', alOnCourseChange);
             $('alPosAddBtn').addEventListener('click', alAddPosition);
             $('alPosHereBtn').addEventListener('click', alUseHere);
+            $('alCenterMe').addEventListener('click', () => alGeo((lat, lng) => { if (alMapEnsure()) alMap.setView([lat, lng], 18); }));
             $('alUdiscBtn').addEventListener('click', alUdiscFetch);
             $('alAddHole').addEventListener('click', () => addHoleRow());
             $('alSaveLayout').addEventListener('click', alSaveLayout);
