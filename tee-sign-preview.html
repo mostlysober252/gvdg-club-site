@@ -1,0 +1,55 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Tee-sign preview · GVDG</title>
+<link rel="icon" href="data:," /><!-- suppress the default /favicon.ico request (keeps console clean) -->
+<style>
+  :root { --bg-primary:#f4f7fb; --text-primary:#0b2239; --tee-sign-bg:#fffdf5; --tee-sign-border:#0b2239; }
+  [data-theme="dark"] { --bg-primary:#0b1622; --text-primary:#e8eef6; --tee-sign-bg:#13202e; --tee-sign-border:#9fc1e0; }
+  body { background: var(--bg-primary); color: var(--text-primary); font-family: system-ui, sans-serif; margin: 0; padding: 2rem; }
+  .grid { display: flex; flex-wrap: wrap; gap: 1.5rem; align-items: flex-start; }
+  .tee-sign { color: var(--text-primary); }
+  .tee-sign-bg { fill: var(--tee-sign-bg); stroke: var(--tee-sign-border); stroke-opacity: 0.5; }
+  .tee-sign-hole { font: 700 44px 'Bebas Neue', system-ui, sans-serif; fill: currentColor; }
+  .tee-sign-course { font: 600 14px system-ui, sans-serif; fill: currentColor; opacity: 0.7; }
+  .tee-sign-rule { stroke: currentColor; stroke-opacity: 0.2; }
+  .tee-sign-label { font: 600 14px system-ui, sans-serif; fill: currentColor; }
+  .tee-sign-par { font: 600 14px system-ui, sans-serif; fill: currentColor; }
+  .tee-sign-dist { font: 600 14px system-ui, sans-serif; fill: currentColor; opacity: 0.8; }
+  button { margin-bottom: 1.5rem; padding: 0.5rem 1rem; border-radius: 8px; cursor: pointer; }
+</style>
+</head>
+<body>
+<button id="toggle">Toggle dark</button>
+<div class="grid" id="grid"></div>
+<script type="module">
+  import { teeSignSvg } from './tee-sign.js';
+  const samples = [
+    { hole: 1, courseName: 'Battle Park', layouts: [
+      { label: 'Long', color: 'blue', par: 4, distance_ft: 420 },
+      { label: 'Short', color: 'white', par: 3, distance_ft: 285 },
+    ]},
+    { hole: 7, courseName: 'West Meadowbrook', layouts: [
+      { label: 'Gold', color: 'gold', par: 5, distance_ft: 615 },
+      { label: 'Blue', color: 'blue', par: 4, distance_ft: 480 },
+      { label: 'Red', color: 'red', par: 3, distance_ft: 300 },
+    ]},
+    { hole: 12, courseName: 'No data yet', layouts: [{ label: 'Main', par: null, distance_ft: null }] },
+  ];
+  const grid = document.getElementById('grid');
+  for (const s of samples) {
+    const wrap = document.createElement('div');
+    // Insert via DOMParser (image/svg+xml parses inert — no script execution), NOT innerHTML.
+    const svgDoc = new DOMParser().parseFromString(teeSignSvg(s), 'image/svg+xml');
+    wrap.appendChild(svgDoc.documentElement);
+    grid.appendChild(wrap);
+  }
+  document.getElementById('toggle').addEventListener('click', () => {
+    const root = document.documentElement;
+    root.setAttribute('data-theme', root.getAttribute('data-theme') === 'dark' ? '' : 'dark');
+  });
+</script>
+</body>
+</html>
