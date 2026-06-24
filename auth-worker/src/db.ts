@@ -559,3 +559,55 @@ export async function listMemberResults(db: D1Like, memberId: string) {
       .all()
   ).results;
 }
+
+// ---------------- casual rounds (Track N3) ----------------
+export interface RoundInput {
+  id: string; // crypto uuid (share token + DO key)
+  course_id?: number | null;
+  layout_id?: number | null;
+  created_by: string;
+}
+export async function createRound(db: D1Like, r: RoundInput) {
+  return db
+    .prepare("INSERT INTO rounds (id, course_id, layout_id, created_by) VALUES (?, ?, ?, ?) RETURNING *")
+    .bind(r.id, r.course_id ?? null, r.layout_id ?? null, r.created_by)
+    .first();
+}
+export async function getRound(db: D1Like, id: string) {
+  return db.prepare("SELECT * FROM rounds WHERE id = ?").bind(id).first();
+}
+export async function finishRound(db: D1Like, id: string) {
+  await db.prepare("UPDATE rounds SET status = 'final', finished_at = datetime('now') WHERE id = ?").bind(id).run();
+}
+export interface RoundResultInput {
+  round_id: string;
+  member_id?: string | null;
+  name: string;
+  place?: number | null;
+  total?: number | null;
+  to_par?: number | null;
+  breakdown?: string | null;
+}
+export async function createRoundResult(db: D1Like, r: RoundResultInput) {
+  return db
+    .prepare("INSERT INTO round_results (round_id, member_id, name, place, total, to_par, breakdown) VALUES (?, ?, ?, ?, ?, ?, ?) RETURNING *")
+    .bind(r.round_id, r.member_id ?? null, r.name, r.place ?? null, r.total ?? null, r.to_par ?? null, r.breakdown ?? null)
+    .first();
+}
+export async function clearRoundResults(db: D1Like, roundId: string) {
+  await db.prepare("DELETE FROM round_results WHERE round_id = ?").bind(roundId).run();
+}
+/** A member's casual round history — joins to course name for display. */
+export async function listMemberRoundResults(db: D1Like, memberId: string) {
+  return (
+    await db
+      .prepare(
+        `SELECT rr.*, c.name AS course_name, ro.started_at AS round_date, ro.id AS round_id
+         FROM round_results rr JOIN rounds ro ON ro.id = rr.round_id
+         LEFT JOIN courses c ON c.id = ro.course_id
+         WHERE rr.member_id = ? ORDER BY ro.started_at DESC, rr.id DESC`,
+      )
+      .bind(memberId)
+      .all()
+  ).results;
+}

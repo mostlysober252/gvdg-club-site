@@ -8,3 +8,4 @@ out/
 default-pins.csv
 kv-bulk.json
 seed-*.json
+seed.*.json

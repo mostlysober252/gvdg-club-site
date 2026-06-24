@@ -386,6 +386,36 @@ async function adminGate(request: Request, env: Env, origin: string | null): Pro
   return { adminId: member.memberId };
 }
 
+/** Member identity for card/score writes — resolves the roster record so names are trusted (not client
+ *  input) and admin status is known. The live Durable Object authorizes from THIS (never client input). */
+async function requireMember(
+  request: Request,
+  env: Env,
+  origin: string | null,
+): Promise<{ memberId: string; isAdmin: boolean; name: string } | Response> {
+  const claims = await requireAuth(request, env);
+  if (!claims) return json({ error: "unauthorized" }, 401, origin);
+  const member = await getMember(env.ROSTER, claims.sub);
+  if (!member) return json({ error: "unauthorized" }, 401, origin);
+  return { memberId: member.memberId, isAdmin: member.isAdmin === true, name: member.name || member.memberId };
+}
+
+/** Forward a card/score mutation to the live DO, injecting the Worker-verified identity as headers the
+ *  DO authorizes from (clients can never reach the DO directly, so these headers are trusted). */
+function liveForward(
+  stub: DurableObjectStub,
+  path: string,
+  body: unknown,
+  auth: { memberId: string | null; isAdmin: boolean },
+  origin: string | null,
+): Promise<Response> {
+  return liveProxy(stub, path, {
+    method: "POST",
+    body: JSON.stringify(body ?? {}),
+    headers: { "X-Auth-Member": auth.memberId ?? "", "X-Auth-Admin": auth.isAdmin ? "1" : "0" },
+  }, origin);
+}
+
 function validEventInput(b: Record<string, unknown>): db.EventInput | null {
   const name = asStr(b.name, 200);
   if (!inSet(EVENT_TYPES, b.type) || !name) return null;
@@ -538,40 +568,77 @@ async function clubApi(request: Request, env: Env, origin: string | null, pathna
     return ev ? json({ event: ev }, 200, origin) : json({ error: "not_found" }, 404, origin);
   }
 
-  // ---- live scoring (Durable Object): /events/:id/live[/{start,score,finalize,ws}] ----
+  // ---- live scoring (Durable Object): /events/:id/live[/{start,finalize,score,ws}] + /live/cards/* ----
+  // Reads (snapshot, ws) are public. start/finalize are admin-gated (official lifecycle + results).
+  // score + card operations are MEMBER-authed and authorized inside the DO by card membership — this
+  // is the UDisc model: any cardmate keeps score; an admin may write any card.
   if (seg[0] === "events" && seg[2] === "live") {
     const eid = asInt(seg[1]);
     if (eid == null) return json({ error: "not_found" }, 404, origin);
-    const sub = seg[3]; // undefined (snapshot) | start | score | finalize | ws
+    const sub = seg[3]; // undefined (snapshot) | start | finalize | score | ws | cards
     const stub = env.LIVE.get(env.LIVE.idFromName("event:" + eid));
 
     if (method === "GET" && !sub) return liveProxy(stub, "/snapshot", undefined, origin); // public leaderboard
     if (sub === "ws") return stub.fetch(request); // public WebSocket viewer — forward the upgrade
+    if (method !== "POST") return json({ error: "not_found" }, 404, origin);
 
-    if (method === "POST" && (sub === "start" || sub === "score" || sub === "finalize")) {
-      const gate = await adminGate(request, env, origin); // scorekeeping is admin-gated (Track G adds delegation)
+    // ---- admin lifecycle: start (seed from registrations) + finalize (write official results) ----
+    if (sub === "start" || sub === "finalize") {
+      const gate = await adminGate(request, env, origin);
       if (gate instanceof Response) return gate;
+      if (sub === "finalize") return liveForward(stub, "/finalize", {}, { memberId: gate.adminId, isAdmin: true }, origin);
 
-      if (sub === "start") {
-        const startBody = (await readJson(request)) ?? {};
-        const ev = (await db.getEvent(env.DB, eid)) as (Record<string, unknown> & { layout_id?: number | null; players?: Record<string, unknown>[] }) | null;
-        if (!ev) return json({ error: "not_found" }, 404, origin);
-        const holes = await db.getLayoutHoles(env.DB, ev.layout_id);
-        if (!holes.length) return json({ error: "no_layout_holes" }, 400, origin); // event needs a layout with pars
-        // G4: seed the live scorecard from event REGISTRATIONS (division + assigned starting hole) when any
-        // exist — connecting register/check-in/assign straight into scoring. Fall back to manual event_players.
-        const regs = (await db.listRegistrations(env.DB, eid)) as { member_id?: string; name?: string; division?: string | null; starting_hole?: number | null }[];
-        const players =
-          regs.length && startBody!.from !== "players"
-            ? regs.map((r) => ({ memberId: r.member_id ?? null, name: String(r.name ?? "Player"), division: r.division ?? null, startingHole: r.starting_hole ?? null }))
-            : (Array.isArray(ev.players) ? ev.players : []).map((p) => ({ memberId: (p.member_id as string) ?? null, name: String(p.name ?? "Player"), division: (p.division as string) ?? null, startingHole: null }));
-        const r = await stub.fetch("https://do/start", { method: "POST", body: JSON.stringify({ eventId: eid, holes, players, startedAt: new Date().toISOString() }) });
-        const data = await r.json().catch(() => ({}));
-        if (r.status === 200) await db.updateEvent(env.DB, eid, { status: "live" });
-        return json(data, r.status, origin);
-      }
+      const ev = (await db.getEvent(env.DB, eid)) as (Record<string, unknown> & { course_id?: number | null; layout_id?: number | null; players?: Record<string, unknown>[] }) | null;
+      if (!ev) return json({ error: "not_found" }, 404, origin);
+      const holes = await db.getLayoutHoles(env.DB, ev.layout_id);
+      if (!holes.length) return json({ error: "no_layout_holes" }, 400, origin); // event needs a layout with pars
+      // Seed cards from REGISTRATIONS (division + assigned starting hole + card label), else manual
+      // event_players, else nothing (members self-organize their own cards on their phones).
+      const regs = (await db.listRegistrations(env.DB, eid)) as { member_id?: string; name?: string; division?: string | null; starting_hole?: number | null; card_label?: string | null }[];
+      const seed =
+        regs.length
+          ? regs.map((r) => ({ memberId: r.member_id ?? null, name: String(r.name ?? "Player"), division: r.division ?? null, startingHole: r.starting_hole ?? null, cardLabel: r.card_label ?? null }))
+          : (Array.isArray(ev.players) ? ev.players : []).map((p) => ({ memberId: (p.member_id as string) ?? null, name: String(p.name ?? "Player"), division: (p.division as string) ?? null, startingHole: null, cardLabel: null }));
+      const r = await stub.fetch("https://do/start", {
+        method: "POST",
+        body: JSON.stringify({ type: "event", eventId: eid, courseId: ev.course_id ?? null, layoutId: ev.layout_id ?? null, holes, seed, startedAt: new Date().toISOString() }),
+      });
+      const data = await r.json().catch(() => ({}));
+      if (r.status === 200) await db.updateEvent(env.DB, eid, { status: "live" });
+      return json(data, r.status, origin);
+    }
+
+    // ---- member-authed: score + card formation ----
+    const who = await requireMember(request, env, origin);
+    if (who instanceof Response) return who;
+
+    if (sub === "score") {
       const body = (await readJson(request)) ?? {};
-      return liveProxy(stub, "/" + sub, { method: "POST", body: JSON.stringify(body) }, origin);
+      return liveForward(stub, "/score", body, who, origin);
+    }
+
+    if (sub === "cards") {
+      const cid = seg[4];
+      const cardAct = seg[5];
+      // To self-organize/score an EVENT, a non-admin must be registered for it (admins bypass).
+      const myReg = (await db.getMyRegistration(env.DB, eid, who.memberId)) as { division?: string | null } | null;
+      if (!who.isAdmin && !myReg && (!cid || cardAct === "join")) return json({ error: "not_registered" }, 403, origin);
+      const myDivision = myReg?.division ?? null;
+      const body = (await readJson(request)) ?? {};
+
+      if (!cid) return liveForward(stub, "/card", { label: body.label, name: who.name, division: myDivision }, who, origin);
+      if (cardAct === "join") return liveForward(stub, "/join", { cardId: cid, name: who.name, division: myDivision }, who, origin);
+      if (cardAct === "guest") return liveForward(stub, "/guest", { cardId: cid, name: body.name }, who, origin);
+      if (cardAct === "leave") return liveForward(stub, "/leave", { cardId: cid, pid: body.pid }, who, origin);
+      if (cardAct === "scorekeeper") return liveForward(stub, "/scorekeeper", { cardId: cid, pid: body.pid }, who, origin);
+      if (cardAct === "cardmate") {
+        const targetId = typeof body.memberId === "string" ? body.memberId : "";
+        const m = targetId ? await getMember(env.ROSTER, targetId) : null;
+        if (!m) return json({ error: "no_member" }, 404, origin);
+        const reg = (await db.getMyRegistration(env.DB, eid, targetId)) as { division?: string | null } | null;
+        if (!who.isAdmin && !reg) return json({ error: "member_not_registered" }, 403, origin); // admin may add a walk-up
+        return liveForward(stub, "/cardmate", { cardId: cid, memberId: targetId, name: m.name, division: reg?.division ?? null }, who, origin);
+      }
     }
     return json({ error: "not_found" }, 404, origin);
   }
