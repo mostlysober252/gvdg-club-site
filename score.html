@@ -472,7 +472,7 @@
             hs.forEach(function (hh, i) {
                 const b = el("button", null, String(hh.hole));
                 if (i === S.holeIdx) b.classList.add("cur");
-                const anyScore = (cd.players || []).some(function (p) { return p.scores && p.scores[hh.hole] != null; });
+                const anyScore = (cd.players || []).some(function (p) { return scoreOf(p, hh.hole) != null; });
                 if (anyScore) b.classList.add("done");
                 b.addEventListener("click", function () { S.holeIdx = i; renderScoring(); });
                 hg.appendChild(b);
@@ -557,21 +557,22 @@
                 });
             });
         }
-        async function addGuestFlow() {
-            const name = prompt("Guest name (someone without an account):");
-            if (!name || !name.trim()) return;
-            const r = await api("/events/" + encodeURIComponent(S.eventId) + "/live/cards/" + encodeURIComponent(S.cardId) + "/guest", { method: "POST", body: { name: name.trim() } });
-            if (r.status === 409) return toast("Card is full");
-            if (!r.ok) return toast("Could not add guest");
-            S.snap = r.data; renderScoring(true);
+        function addGuestFlow() {
+            promptSheet("Add a guest", "Guest name", "Someone without the app", "Add guest", async function (name) {
+                const r = await api("/events/" + encodeURIComponent(S.eventId) + "/live/cards/" + encodeURIComponent(S.cardId) + "/guest", { method: "POST", body: { name: name } });
+                if (r.status === 409) return toast("Card is full");
+                if (!r.ok) return toast("Could not add guest");
+                S.snap = r.data; renderScoring(true);
+            });
         }
-        async function leaveFlow() {
-            if (!confirm("Leave this card? Your scores on it will be removed.")) return;
-            const me = myId(); const cd = curCard(); const meP = cd && (cd.players || []).find(function (p) { return p.memberId === me; });
-            if (!meP) { S.screen = "event"; return renderEvent(); }
-            const r = await api("/events/" + encodeURIComponent(S.eventId) + "/live/cards/" + encodeURIComponent(S.cardId) + "/leave", { method: "POST", body: { pid: meP.pid } });
-            if (!r.ok) return toast("Could not leave");
-            S.snap = r.data; S.cardId = null; S.screen = "event"; renderEvent();
+        function leaveFlow() {
+            confirmSheet("Leave this card?", "Your scores on this card will be removed.", "Leave card", async function () {
+                const me = myId(); const cd = curCard(); const meP = cd && (cd.players || []).find(function (p) { return p.memberId === me; });
+                if (!meP) { S.screen = "event"; return renderEvent(); }
+                const r = await api("/events/" + encodeURIComponent(S.eventId) + "/live/cards/" + encodeURIComponent(S.cardId) + "/leave", { method: "POST", body: { pid: meP.pid } });
+                if (!r.ok) return toast("Could not leave");
+                S.snap = r.data; S.cardId = null; S.screen = "event"; renderEvent();
+            });
         }
 
         // ---- leaderboard sheet ----
@@ -617,6 +618,27 @@
             build(body);
         }
         function closeSheet() { const ov = document.getElementById("lbSheet"); if (ov) ov.remove(); }
+        // In-app dialogs (replace native prompt/confirm) — themed, focus-managed, XSS-safe.
+        function promptSheet(title, label, placeholder, okText, onOk) {
+            sheet(title, function (body) {
+                body.appendChild(el("label", "lbl", label));
+                const inp = el("input", "field"); inp.placeholder = placeholder || ""; inp.maxLength = 60; body.appendChild(inp);
+                const ok = el("button", "btn", okText || "Add"); ok.style.marginTop = "0.85rem";
+                ok.addEventListener("click", function () { const v = inp.value.trim(); if (!v) { inp.focus(); return; } closeSheet(); onOk(v); });
+                inp.addEventListener("keydown", function (e) { if (e.key === "Enter") ok.click(); });
+                body.appendChild(ok);
+                setTimeout(function () { inp.focus(); }, 60); // focus the input when the sheet opens
+            });
+        }
+        function confirmSheet(title, message, okText, onOk) {
+            sheet(title, function (body) {
+                body.appendChild(el("p", "muted", message));
+                const ok = el("button", "btn ghost", okText); ok.style.marginTop = "0.9rem";
+                ok.addEventListener("click", function () { closeSheet(); onOk(); });
+                body.appendChild(ok);
+                setTimeout(function () { ok.focus(); }, 60);
+            });
+        }
 
         // ============ boot ============
         (async function boot() {
