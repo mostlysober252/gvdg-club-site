@@ -245,7 +245,10 @@ export function removePlayer(state: ContainerState, auth: Auth, cardId: string, 
   if (!(auth.isAdmin || self || guestByCardmate)) return fail("forbidden", 403);
   c.players = c.players.filter((x) => x.pid !== pid);
   if (c.scorekeeperId === pid) c.scorekeeperId = c.players.find((x) => !x.isGuest)?.pid ?? null;
-  if (c.players.length === 0) state.cards = state.cards.filter((x) => x.id !== c.id); // drop empty cards
+  // Drop the card once NO member remains on it. A guests-only (or empty) card is orphaned — guests
+  // can't write it — and keeping it would let a member loop create -> addGuest x5 -> leave to re-arm
+  // createCard (onAnyCard goes false) and inflate the round's cards/guests up to MAX_CARDS.
+  if (!c.players.some((x) => !x.isGuest)) state.cards = state.cards.filter((x) => x.id !== c.id);
   return { ok: true };
 }
 

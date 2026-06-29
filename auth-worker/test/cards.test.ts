@@ -132,6 +132,19 @@ describe("card formation", () => {
     ok(cards.removePlayer(s, alice, cardId, alicePid));
     expect(s.cards).toHaveLength(0); // dropped when empty
   });
+
+  it("dropping the last member also drops a guests-only card (no leave→recreate inflation)", () => {
+    const s = cards.initContainer(base);
+    const { cardId } = ok(cards.createCard(s, alice, { name: "Alice" }));
+    ok(cards.addGuest(s, alice, cardId, "Guest 1"));
+    ok(cards.addGuest(s, alice, cardId, "Guest 2"));
+    const alicePid = s.cards[0]!.players.find((p) => p.memberId === "pdga:100")!.pid;
+    ok(cards.removePlayer(s, alice, cardId, alicePid)); // only member leaves; 2 guests remain
+    expect(s.cards).toHaveLength(0); // orphaned guests-only card is dropped, not kept alive
+    // ...so alice can't loop create→addGuests→leave to accumulate phantom cards.
+    ok(cards.createCard(s, alice, { name: "Alice" }));
+    expect(s.cards).toHaveLength(1);
+  });
 });
 
 describe("score authorization (the security boundary)", () => {
