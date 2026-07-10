@@ -4,43 +4,21 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Blog | Greenville Disc Golf Club</title>
+    <meta name="theme-color" content="#FF6B35">
+    <meta name="mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-title" content="GVDG Club">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <link rel="icon" type="image/png" href="img/logo.png">
+    <link rel="manifest" href="site.webmanifest">
+    <link rel="apple-touch-icon" href="img/icons/apple-touch-icon.png">
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Archivo:wght@400;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="tokens.css">
+    <script>try{document.documentElement.setAttribute('data-theme',localStorage.getItem('theme')||'light')}catch(e){}</script>
     <style>
-        :root {
-            --primary: #FF6B35;
-            --secondary: #004E89;
-            --accent: #F7B801;
-            --dark: #1A1A2E;
-            --light: #F4F4F9;
-            --green: #2D5016;
-            
-            /* Light mode (default) */
-            --bg-primary: #F4F4F9;
-            --bg-secondary: #FFFFFF;
-            --bg-tertiary: #F4F4F9;
-            --text-primary: #1A1A2E;
-            --text-secondary: #333333;
-            --text-tertiary: #555555;
-            --text-muted: #666666;
-            --border-color: #F4F4F9;
-            --card-shadow: rgba(0, 0, 0, 0.1);
-            --card-shadow-hover: rgba(0, 0, 0, 0.15);
-        }
         
-        [data-theme="dark"] {
-            --bg-primary: #0F0F1E;
-            --bg-secondary: #1A1A2E;
-            --bg-tertiary: #252538;
-            --text-primary: #F4F4F9;
-            --text-secondary: #E0E0E0;
-            --text-tertiary: #C0C0C0;
-            --text-muted: #A0A0A0;
-            --border-color: #2A2A3E;
-            --card-shadow: rgba(0, 0, 0, 0.3);
-            --card-shadow-hover: rgba(0, 0, 0, 0.5);
-        }
         
         * {
             margin: 0;
@@ -167,6 +145,12 @@
             backdrop-filter: blur(5px);
             -webkit-tap-highlight-color: transparent;
         }
+
+        .theme-toggle svg,
+        .menu-toggle svg {
+            display: block;
+            pointer-events: none;
+        }
         
         .theme-toggle:hover {
             background: rgba(255, 255, 255, 0.2);
@@ -215,6 +199,25 @@
         .nav-links a:hover,
         .nav-links a.active {
             color: var(--primary);
+        }
+
+        .nav-links a[aria-current="page"] {
+            text-decoration: underline;
+            text-underline-offset: 5px;
+            font-weight: 800;
+        }
+
+        .nav-links a.nav-donate {
+            background: var(--accent);
+            color: var(--secondary) !important;
+            padding: 0.35rem 0.95rem;
+            border-radius: 999px;
+            font-weight: 800;
+        }
+
+        .nav-links a.nav-donate:hover {
+            color: var(--secondary);
+            filter: brightness(1.08);
         }
         
         .menu-toggle {
@@ -374,11 +377,17 @@
 
         /* Animated disc icon */
         .disc-icon {
-            font-size: 4.5rem;
+            color: var(--primary);
             display: inline-block;
             animation: discSpin 4s ease-in-out infinite;
             margin-bottom: 1.5rem;
             line-height: 1;
+        }
+
+        .disc-icon svg {
+            display: block;
+            width: 4.5rem;
+            height: 4.5rem;
         }
 
         @keyframes discSpin {
@@ -468,7 +477,7 @@
             display: inline-flex;
             align-items: center;
             gap: 0.6rem;
-            background: var(--primary);
+            background: var(--primary-strong);
             color: white;
             text-decoration: none;
             font-weight: 700;
@@ -500,29 +509,6 @@
             transform: translateX(-3px);
         }
 
-        /* Decorative corner chain links (subtle) */
-        .construction-card::before,
-        .construction-card::after {
-            position: absolute;
-            font-size: 6rem;
-            opacity: 0.04;
-            pointer-events: none;
-        }
-
-        .construction-card::before {
-            content: '🥏';
-            top: -10px;
-            right: -10px;
-            transform: rotate(15deg);
-        }
-
-        .construction-card::after {
-            content: '🥏';
-            bottom: -10px;
-            left: -10px;
-            transform: rotate(-25deg);
-        }
-
         @media (max-width: 520px) {
             .construction-card {
                 padding: 2.5rem 1.5rem;
@@ -542,116 +528,27 @@
         [data-theme="dark"] footer {
             background: linear-gradient(135deg, var(--bg-secondary) 0%, #0a0a14 100%);
         }
+
+        @media (max-width: 768px) {
+            body[data-page="gvdg-blog"] #crottsReactApp #crotts-fab,
+            body[data-page="gvdg-blog"] #crottsReactApp #crotts-panel {
+                display: none !important;
+            }
+        }
     </style>
+  <script type="module" src="public-app/public-app.js"></script>
+  <script src="pwa.js" defer></script>
 </head>
-<body>
-    <!-- Header Navigation -->
-    <header>
-        <nav>
-            <a href="index.html" class="logo">
-                <img src="img/logo.png" alt="Greenville DGC Logo" class="logo-image">
-            </a>
-            <div class="nav-right">
-                <button class="menu-toggle" aria-label="Toggle menu">☰</button>
-                <ul class="nav-links">
-                    <li><a href="index.html#about">About</a></li>
-                    <li><a href="index.html#courses">Courses</a></li>
-                    <li><a href="index.html#events">Events</a></li>
-                    <li><a href="index.html" class="active">Blog</a></li>
-                    <li><a href="index.html#membership">Join</a></li>
-                    <li><a href="index.html#contact">Contact</a></li>
-                </ul>
-                <button class="theme-toggle" aria-label="Toggle dark mode">
-                    <span class="theme-icon">🌙</span>
-                </button>
-            </div>
-        </nav>
-    </header>
+<body data-page="gvdg-blog">
+    <div id="publicReactPageChrome"></div>
 
-    <!-- Page Hero -->
-    <section class="page-hero">
-        <div class="page-hero-content">
-            <h1 class="page-title">Club Blog</h1>
-            <p class="page-subtitle">News, tips, tournament recaps, and stories from the Greenville disc golf community</p>
-        </div>
-    </section>
-
-    <!-- Under Construction Content -->
-    <section class="construction-section">
-        <div class="construction-card">
-            <div class="disc-icon">🥏</div>
-            <h2 class="construction-heading">Blog <span>Coming Soon</span></h2>
-            <p class="construction-text">
-                We're working on something great! The GVDG blog will feature tournament recaps, course tips, member spotlights, and everything disc golf in Greenville. Stay tuned.
-            </p>
-
-            <div class="progress-wrap">
-                <div class="progress-label">
-                    <span>Progress</span>
-                    <span>30%</span>
-                </div>
-                <div class="progress-track">
-                    <div class="progress-fill"></div>
-                </div>
-            </div>
-
-            <a href="index.html" class="back-btn">
-                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M19 12H5"/><path d="m12 19-7-7 7-7"/></svg>
-                Back to Home
-            </a>
-        </div>
-    </section>
+    <div id="blogReactApp"></div>
 
     <!-- Footer -->
     <footer>
         <p>&copy; 2025 Greenville Disc Golf Club. All rights reserved.</p>
     </footer>
 
-    <script>
-        // Dark mode toggle
-        const themeToggle = document.querySelector('.theme-toggle');
-        const themeIcon = document.querySelector('.theme-icon');
-        const html = document.documentElement;
-
-        const savedTheme = localStorage.getItem('theme');
-        if (savedTheme) {
-            html.setAttribute('data-theme', savedTheme);
-            if (themeIcon) themeIcon.textContent = savedTheme === 'dark' ? '☀️' : '🌙';
-        }
-
-        themeToggle.addEventListener('click', () => {
-            const currentTheme = html.getAttribute('data-theme');
-            const newTheme = currentTheme === 'dark' ? 'light' : 'dark';
-            html.setAttribute('data-theme', newTheme);
-            localStorage.setItem('theme', newTheme);
-            if (themeIcon) themeIcon.textContent = newTheme === 'dark' ? '☀️' : '🌙';
-        });
-
-        // Mobile menu toggle
-        const menuToggle = document.querySelector('.menu-toggle');
-        const navLinks = document.querySelector('.nav-links');
-
-        menuToggle.addEventListener('click', () => {
-            navLinks.classList.toggle('active');
-            menuToggle.textContent = navLinks.classList.contains('active') ? '✕' : '☰';
-        });
-
-        document.querySelectorAll('.nav-links a').forEach(link => {
-            link.addEventListener('click', () => {
-                navLinks.classList.remove('active');
-                menuToggle.textContent = '☰';
-            });
-        });
-
-        // Header scroll effect
-        const header = document.querySelector('header');
-        window.addEventListener('scroll', () => {
-            if (window.scrollY > 100) {
-                header.classList.add('scrolled');
-            } else {
-                header.classList.remove('scrolled');
-            }
-        });
-    </script>
+    <div id="crottsReactApp"></div>
 </body>
 </html>

@@ -1,0 +1,101 @@
+name: Deploy to staging (gvdgclub.com)
+
+on:
+  workflow_dispatch:
+
+concurrency:
+  group: staging-worker
+  cancel-in-progress: true
+
+jobs:
+  deploy-staging:
+    runs-on: ubuntu-latest
+    env:
+      HAS_CF_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN != '' }}
+      HAS_CF_ACCOUNT: ${{ secrets.CLOUDFLARE_ACCOUNT_ID != '' }}
+      HAS_QA_TOKEN: ${{ secrets.GVDG_STAGING_QA_TOKEN != '' }}
+      HAS_QA_LOGIN: ${{ secrets.GVDG_STAGING_QA_IDENTIFIER != '' && secrets.GVDG_STAGING_QA_PIN != '' }}
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+          cache-dependency-path: |
+            package-lock.json
+            auth-worker/package-lock.json
+      - name: Install static dependencies
+        run: npm ci
+      - name: Static site tests + build + React QA + hex-lint
+        run: |
+          npm test
+          npm run build
+          npm run qa:react
+          node scripts/lint-hex.mjs
+      - name: Install dependencies
+        working-directory: auth-worker
+        run: npm ci
+      - name: Type-check + tests (gate the staging deploy)
+        working-directory: auth-worker
+        run: |
+          npm run typegen:check
+          npm run audit
+          npm run typecheck
+          npm test
+          node scripts/validate-wrangler-config.mjs --env staging
+          node scripts/validate-wrangler-config.mjs --env gvdgclub
+      - name: Build static Pages artifact
+        run: |
+          rm -rf .pages-dist
+          mkdir .pages-dist
+          cp -R *.html *.js *.css home-app public-app admin-app tee-sign-preview-app members-app score-app img _headers CNAME site.webmanifest .pages-dist/
+          mkdir -p .pages-dist/src/shared
+          cp src/shared/tee-sign-model.js .pages-dist/src/shared/
+          printf '{"commit":"%s","branch":"%s","deployedAt":"%s","deployer":"github-actions"}\n' "$GITHUB_SHA" "$GITHUB_REF_NAME" "$(date -u +%FT%TZ)" > .pages-dist/version.json
+      - name: Deploy static site to Cloudflare Pages
+        if: ${{ env.HAS_CF_TOKEN == 'true' && env.HAS_CF_ACCOUNT == 'true' }}
+        uses: cloudflare/wrangler-action@v3
+        with:
+          apiToken: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+          wranglerVersion: 4.105.0
+          command: pages deploy .pages-dist --project-name gvdg-club-site --branch main --commit-dirty=true
+        env:
+          CLOUDFLARE_ACCOUNT_ID: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
+      # Deploy the LIVE worker ONCE. [env.gvdgclub] and [env.staging] now target the same Worker
+      # (gvdg-member-auth-staging = the one auth.gvdgclub.com is attached to), so one deploy suffices.
+      - name: Deploy Worker (production — auth.gvdgclub.com)
+        if: ${{ env.HAS_CF_TOKEN == 'true' && env.HAS_CF_ACCOUNT == 'true' }}
+        uses: cloudflare/wrangler-action@v3
+        with:
+          apiToken: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+          workingDirectory: auth-worker
+          environment: gvdgclub
+          secrets: |
+            GEMINI_API_KEY
+          command: deploy --env gvdgclub
+        env:
+          CLOUDFLARE_ACCOUNT_ID: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
+          GEMINI_API_KEY: ${{ secrets.GEMINI_API_KEY }}
+      - name: Install Playwright Chromium
+        if: ${{ env.HAS_CF_TOKEN == 'true' && env.HAS_CF_ACCOUNT == 'true' && (env.HAS_QA_TOKEN == 'true' || env.HAS_QA_LOGIN == 'true') }}
+        run: npx playwright install --with-deps chromium
+      - name: Post-deploy live-scoring E2E
+        if: ${{ env.HAS_CF_TOKEN == 'true' && env.HAS_CF_ACCOUNT == 'true' && (env.HAS_QA_TOKEN == 'true' || env.HAS_QA_LOGIN == 'true') }}
+        env:
+          GVDG_STAGING_QA_TOKEN: ${{ secrets.GVDG_STAGING_QA_TOKEN }}
+          GVDG_STAGING_QA_IDENTIFIER: ${{ secrets.GVDG_STAGING_QA_IDENTIFIER }}
+          GVDG_STAGING_QA_PIN: ${{ secrets.GVDG_STAGING_QA_PIN }}
+        run: npm run qa:staging-live-scoring
+      - name: Post-deploy member dashboard E2E
+        if: ${{ env.HAS_CF_TOKEN == 'true' && env.HAS_CF_ACCOUNT == 'true' && (env.HAS_QA_TOKEN == 'true' || env.HAS_QA_LOGIN == 'true') }}
+        env:
+          GVDG_STAGING_QA_TOKEN: ${{ secrets.GVDG_STAGING_QA_TOKEN }}
+          GVDG_STAGING_QA_IDENTIFIER: ${{ secrets.GVDG_STAGING_QA_IDENTIFIER }}
+          GVDG_STAGING_QA_PIN: ${{ secrets.GVDG_STAGING_QA_PIN }}
+        run: npm run qa:staging-member-dashboard
+      - name: Live-scoring E2E skip notice
+        if: ${{ env.HAS_CF_TOKEN == 'true' && env.HAS_CF_ACCOUNT == 'true' && env.HAS_QA_TOKEN != 'true' && env.HAS_QA_LOGIN != 'true' }}
+        run: echo "::notice::Staging live-scoring E2E skipped; configure GVDG_STAGING_QA_TOKEN or GVDG_STAGING_QA_IDENTIFIER plus GVDG_STAGING_QA_PIN."
+      - name: Skip notice
+        if: ${{ env.HAS_CF_TOKEN != 'true' || env.HAS_CF_ACCOUNT != 'true' }}
+        run: echo "::notice::Cloudflare deploy secret(s) are not fully configured; deploy skipped after tests."

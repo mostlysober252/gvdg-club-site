@@ -1,0 +1,253 @@
+# GVDG member auth Worker.
+# mostlysober252: replace the KV `id` values with real namespace IDs
+# (`wrangler kv namespace create ROSTER` / `... RATELIMIT`) and set the JWT secret
+# with `wrangler secret put JWT_SECRET` before deploying.
+
+name = "gvdg-member-auth"
+main = "src/index.ts"
+compatibility_date = "2026-06-26"
+compatibility_flags = ["nodejs_compat"]
+
+[observability]
+enabled = true
+
+[observability.logs]
+enabled = true
+head_sampling_rate = 1
+persist = true
+
+[observability.traces]
+enabled = true
+head_sampling_rate = 0.01
+persist = true
+
+# Daily ratings recompute (scheduled() in index.ts). 08:17 UTC.
+[triggers]
+crons = ["17 8 * * *"]
+
+[[kv_namespaces]]
+binding = "ROSTER"
+id = "REPLACE_WITH_ROSTER_KV_ID"
+
+[[kv_namespaces]]
+binding = "RATELIMIT"
+id = "REPLACE_WITH_RATELIMIT_KV_ID"
+
+# Club operations data (events, leagues, courses, layouts, results, meetings, fundraisers).
+# mostlysober252: `wrangler d1 create gvdg`, paste the database_id, then apply migrations with
+# `wrangler d1 migrations apply DB` (remote) — add `--local` for dev.
+[[d1_databases]]
+binding = "DB"
+database_name = "gvdg"
+database_id = "REPLACE_WITH_D1_DATABASE_ID"
+migrations_dir = "migrations"
+
+# Tee-sign photos (T1). mostlysober252: `wrangler r2 bucket create gvdg-photos` then deploy.
+[[r2_buckets]]
+binding = "PHOTOS"
+bucket_name = "gvdg-photos"
+
+# Cloudflare Workers AI — the FALLBACK brain for "Crotts" (POST /assistant). Free to declare;
+# usage bills to the account's Workers AI quota. Primary brain is OpenRouter (see below).
+[ai]
+binding = "AI"
+
+# Durable Object for live UDisc-style scoring (one instance per in-progress event).
+[[durable_objects.bindings]]
+name = "LIVE"
+class_name = "LiveEventDO"
+
+[[migrations]]
+tag = "v1"
+new_sqlite_classes = ["LiveEventDO"]
+
+# Atomic rate limiter for the UNAUTHENTICATED /assistant (Crotts) endpoint. Unlike the KV counter,
+# this binding increments atomically, so a concurrent burst can't all read a stale count and slip past
+# the cap to run up Workers-AI/OpenRouter cost. (Code falls back to the KV limiter if unset, e.g. tests.)
+[[unsafe.bindings]]
+name = "ASSISTANT_RL"
+type = "ratelimit"
+namespace_id = "1001"
+simple = { limit = 20, period = 60 }
+
+[vars]
+ALLOWED_ORIGINS = "https://www.greenvillediscgolf.com,https://greenvillediscgolf.com"
+SESSION_TTL_SEC = "43200"
+OPENROUTER_MODEL = "openai/gpt-oss-120b:free"
+OPENROUTER_FALLBACK_MODEL = "nvidia/nemotron-3-super-120b-a12b:free"
+ASSISTANT_MODEL = "@cf/meta/llama-3.1-8b-instruct"
+# PayPal Checkout for event entry/add-ons (Track G). Payments stay OFF (manual "paid" flag, no downtime)
+# until the club adds BOTH secrets below; then PayPal Checkout auto-activates. CLIENT_ID is public.
+#   wrangler secret put PAYPAL_CLIENT_ID    (your PayPal app's client id)
+#   wrangler secret put PAYPAL_SECRET       (your PayPal app's secret)
+# Set PAYPAL_ENV = "live" to switch from the sandbox to production.
+PAYPAL_ENV = "sandbox"
+# Passkeys / WebAuthn. RP_ID must be the registrable domain (covers the www subdomain);
+# EXPECTED_ORIGIN must exactly match the page origin the browser reports.
+RP_ID = "greenvillediscgolf.com"
+RP_NAME = "Greenville Disc Golf Club"
+EXPECTED_ORIGIN = "https://www.greenvillediscgolf.com"
+# JWT_SECRET is set as a secret, NOT here:  wrangler secret put JWT_SECRET
+GEMINI_VISION_MODEL = "gemini-2.5-flash"
+OPENROUTER_VISION_MODEL = "nvidia/nemotron-nano-12b-v2-vl:free"
+VISION_MODEL = "@cf/meta/llama-3.2-11b-vision-instruct"
+
+# ═════════════════════════════════════════════════════════════════════════════
+# STAGING / DEV ENVIRONMENT  →  gvdgclub.com   (live-drive PRs before merge)
+#   Deploy:     npm run deploy:staging          (= wrangler deploy --env staging)
+#   Secrets:    wrangler secret put JWT_SECRET --env staging
+#               wrangler secret put OPENROUTER_API_KEY --env staging   (optional PAYPAL_* too)
+#   Migrate:    wrangler d1 migrations apply DB --env staging --remote
+# This is a SEPARATE Worker (gvdg-member-auth-staging) with its OWN KV/D1/R2 so dev testing never
+# touches production data. Wrangler does NOT inherit top-level bindings/vars into a named env —
+# everything below is redeclared on purpose. PayPal stays in sandbox/manual mode here.
+# ═════════════════════════════════════════════════════════════════════════════
+[env.staging]
+name = "gvdg-member-auth-staging"
+
+# ⚠️ THIS Worker (gvdg-member-auth-staging) is the LIVE production worker: auth.gvdgclub.com's custom
+# domain is attached to it (managed in the Cloudflare dashboard; routes omitted so the CI token needs no
+# zone perms). Despite the "-staging" name, `--env staging` deploys production. [env.gvdgclub] is an
+# identical alias to the same Worker; deploy either.
+
+[env.staging.observability]
+enabled = true
+
+[env.staging.triggers]
+crons = ["17 8 * * *"]
+
+# Workers KV — RESTORED 2026-07-01. The account-wide KV data-plane fault (2026-06-29, where Workers
+# read/wrote an isolated empty store) has cleared; verified with a cross-plane read/write test before
+# switching. ROSTER holds the member roster + PIN hashes + passkey creds; RATELIMIT holds login-lockout
+# + rate-limit counters. withKvFallback() in src/index.ts uses these real bindings when present and only
+# falls back to D1 (`kv_store`, migration 0010) if they're absent. The roster was migrated from D1
+# `kv_store` into ROSTER KV at switch time; the D1 copy is left in place as a snapshot/rollback.
+[[env.staging.kv_namespaces]]
+binding = "ROSTER"
+id = "f608c9470e5e4853878e9e230bcb660b"
+
+[[env.staging.kv_namespaces]]
+binding = "RATELIMIT"
+id = "94664f864e76466ebe3d0f087526e00a"
+
+[[env.staging.d1_databases]]
+binding = "DB"
+database_name = "gvdg-staging"
+database_id = "f276a1dd-a94d-4ca7-b83d-233d5e5c0eba"
+migrations_dir = "migrations"
+
+[[env.staging.r2_buckets]]
+binding = "PHOTOS"
+bucket_name = "gvdg-photos-staging"
+
+[env.staging.ai]
+binding = "AI"
+
+[[env.staging.durable_objects.bindings]]
+name = "LIVE"
+class_name = "LiveEventDO"
+
+[[env.staging.migrations]]
+tag = "v1"
+new_sqlite_classes = ["LiveEventDO"]
+
+# Atomic rate limiter for /assistant — separate namespace from prod so counters don't collide.
+[[env.staging.unsafe.bindings]]
+name = "ASSISTANT_RL"
+type = "ratelimit"
+namespace_id = "2001"
+simple = { limit = 20, period = 60 }
+
+[env.staging.vars]
+ALLOWED_ORIGINS = "https://gvdgclub.com,https://www.gvdgclub.com"
+SESSION_TTL_SEC = "43200"
+OPENROUTER_MODEL = "openai/gpt-oss-120b:free"
+OPENROUTER_FALLBACK_MODEL = "nvidia/nemotron-3-super-120b-a12b:free"
+ASSISTANT_MODEL = "@cf/meta/llama-3.1-8b-instruct"
+# Payments stay OFF (manual paid flag) on staging unless you add sandbox PayPal secrets; never live here.
+PAYPAL_ENV = "sandbox"
+# Transactional email via Resend. RESEND_API_KEY is a secret (wrangler secret put --env staging); the
+# senders below are on the Resend-verified gvdgclub.com domain so mail delivers to anyone. The admin
+# Orders tab + in-app flows work regardless; email just adds a push.
+ORDER_NOTIFY_EMAIL = "greenvillediscgolf@gmail.com"
+ORDER_NOTIFY_FROM = "GVDG Pro Shop <shop@gvdgclub.com>"
+# Guest event-registration confirmation + manage/cancel link (register-notify.ts).
+REGISTER_NOTIFY_FROM = "GVDG Events <events@gvdgclub.com>"
+# Replies to the no-reply senders above route here (the @gvdgclub.com addresses have no inbox).
+EMAIL_REPLY_TO = "greenvillediscgolf@gmail.com"
+# WebAuthn is bound to the dev domain — passkeys enrolled here are separate from production.
+RP_ID = "gvdgclub.com"
+RP_NAME = "GVDG Club (dev)"
+EXPECTED_ORIGIN = "https://gvdgclub.com"
+GEMINI_VISION_MODEL = "gemini-2.5-flash"
+OPENROUTER_VISION_MODEL = "nvidia/nemotron-nano-12b-v2-vl:free"
+VISION_MODEL = "@cf/meta/llama-3.2-11b-vision-instruct"
+
+# PRODUCTION auth env for gvdgclub.com. Deploys the SAME Worker that serves the live domain.
+# ⚠️ auth.gvdgclub.com's custom domain is attached to the Worker "gvdg-member-auth-staging" (verified
+# 2026-07-03 via GET /accounts/{id}/workers/domains). The old "gvdg-member-auth" Worker owned NO domain
+# and has been DELETED — deploying to it shipped nothing to production — so this env now targets the
+# domain's Worker. [env.staging] is the identical alias used for D1/migration tooling (`--env staging`).
+[env.gvdgclub]
+name = "gvdg-member-auth-staging"
+
+[env.gvdgclub.observability]
+enabled = true
+
+[env.gvdgclub.triggers]
+crons = ["17 8 * * *"]
+
+# Workers KV — RESTORED 2026-07-01 (see the [env.staging] note). Same namespaces as staging: both envs
+# share the one gvdg-staging D1 + roster, so they read the same KV.
+[[env.gvdgclub.kv_namespaces]]
+binding = "ROSTER"
+id = "f608c9470e5e4853878e9e230bcb660b"
+
+[[env.gvdgclub.kv_namespaces]]
+binding = "RATELIMIT"
+id = "94664f864e76466ebe3d0f087526e00a"
+
+[[env.gvdgclub.d1_databases]]
+binding = "DB"
+database_name = "gvdg-staging"
+database_id = "f276a1dd-a94d-4ca7-b83d-233d5e5c0eba"
+migrations_dir = "migrations"
+
+[[env.gvdgclub.r2_buckets]]
+binding = "PHOTOS"
+bucket_name = "gvdg-photos-staging"
+
+[env.gvdgclub.ai]
+binding = "AI"
+
+[[env.gvdgclub.durable_objects.bindings]]
+name = "LIVE"
+class_name = "LiveEventDO"
+
+[[env.gvdgclub.migrations]]
+tag = "v1"
+new_sqlite_classes = ["LiveEventDO"]
+
+[[env.gvdgclub.unsafe.bindings]]
+name = "ASSISTANT_RL"
+type = "ratelimit"
+namespace_id = "2001"
+simple = { limit = 20, period = 60 }
+
+[env.gvdgclub.vars]
+ALLOWED_ORIGINS = "https://gvdgclub.com,https://www.gvdgclub.com"
+SESSION_TTL_SEC = "43200"
+OPENROUTER_MODEL = "openai/gpt-oss-120b:free"
+OPENROUTER_FALLBACK_MODEL = "nvidia/nemotron-3-super-120b-a12b:free"
+ASSISTANT_MODEL = "@cf/meta/llama-3.1-8b-instruct"
+PAYPAL_ENV = "sandbox"
+ORDER_NOTIFY_EMAIL = "greenvillediscgolf@gmail.com"
+ORDER_NOTIFY_FROM = "GVDG Pro Shop <shop@gvdgclub.com>"
+REGISTER_NOTIFY_FROM = "GVDG Events <events@gvdgclub.com>"
+EMAIL_REPLY_TO = "greenvillediscgolf@gmail.com"
+RP_ID = "gvdgclub.com"
+RP_NAME = "GVDG Club (dev)"
+EXPECTED_ORIGIN = "https://gvdgclub.com"
+GEMINI_VISION_MODEL = "gemini-2.5-flash"
+OPENROUTER_VISION_MODEL = "nvidia/nemotron-nano-12b-v2-vl:free"
+VISION_MODEL = "@cf/meta/llama-3.2-11b-vision-instruct"

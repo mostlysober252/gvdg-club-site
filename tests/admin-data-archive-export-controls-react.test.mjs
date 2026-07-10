@@ -1,0 +1,44 @@
+import assert from 'node:assert/strict';
+import { readFileSync } from 'node:fs';
+import test from 'node:test';
+
+test('admin data archive export controls are rendered by React from request events', () => {
+  const html = `${readFileSync('admin.html', 'utf8')}\n${readFileSync('src/admin-app/admin-controller.js', 'utf8')}`;
+  const dataArchiveController = readFileSync('src/admin-app/data-archive-controller.js', 'utf8');
+  const main = readFileSync('src/admin-app/main.js', 'utf8');
+  const controls = readFileSync('src/admin-app/data-archive-export-controls.js', 'utf8');
+  const destinationsStore = readFileSync('src/admin-app/data-archive-destinations-store.js', 'utf8');
+  const runExport = dataArchiveController.match(/export async function adminRunArchiveExportFromReact\(detail, \{ adminApi, adminMsg \}\) \{[\s\S]*?async function activateDataArchiveDestination/)?.[0];
+
+  assert.match(html, /id="adminDataArchiveExportControlsReactApp"/);
+  assert.doesNotMatch(html, /id="dxExportFrom"|id="dxExportTo"|id="dxExportDestination"|id="dxIncludeEventPlayers"|id="dxIncludeResults"|id="dxIncludeCasualRounds"|id="dxIncludeEventConfig"|id="dxDryRun"|id="dxTest"|id="dxRunExport"/);
+  assert.doesNotMatch(html, /adminLoadDataArchiveDestinations|setAdminDataArchiveDestinationsState|gvdg:admin-data-archive-destinations-list/);
+  assert.ok(runExport);
+  assert.match(runExport, /adminApi\('\/admin\/export', \{ method: 'POST', body \}\)/);
+  assert.match(runExport, /gvdg:admin-data-archive-export-run-result/);
+  assert.match(runExport, /setDataArchiveExportResult\('Download ready: '/);
+  assert.match(runExport, /download: \{\s*data: payload\.exportData/);
+  assert.doesNotMatch(runExport, /dxExportFrom|dxExportTo|dxExportDestination|dxIncludeEventPlayers|dxIncludeResults|dxIncludeCasualRounds|dxIncludeEventConfig|dxDryRun|dxTest|dxRunExport|document\.createElement|appendChild|removeChild|link\.click|URL\.createObjectURL|URL\.revokeObjectURL|new Blob/);
+  assert.match(html, /import \{ installDataArchiveController \} from "\.\/data-archive-controller\.js"/);
+  assert.match(html, /installDataArchiveController\(adminControllerDeps\)/);
+  assert.match(dataArchiveController, /gvdg:admin-data-archive-export-run-request/);
+  assert.match(dataArchiveController, /adminRunArchiveExportFromReact\(event\.detail \|\| \{\}, deps\)/);
+  assert.doesNotMatch(html, /\$\('dxRunExport'\)\.addEventListener/);
+  assert.match(main, /import \{ AdminDataArchiveExportControls \} from "\.\/data-archive-export-controls\.js"/);
+  assert.match(main, /const dataArchiveExportControlsMount = document\.getElementById\("adminDataArchiveExportControlsReactApp"\)/);
+  assert.match(main, /createRoot\(dataArchiveExportControlsMount\)\.render\(h\(AdminDataArchiveExportControls\)\)/);
+  assert.match(controls, /export function AdminDataArchiveExportControls/);
+  assert.match(controls, /data-react-admin-data-archive-export-controls/);
+  assert.match(controls, /useDataArchiveDestinationsState/);
+  assert.match(controls, /gvdg:admin-data-archive-export-run-request/);
+  assert.match(controls, /gvdg:admin-data-archive-export-run-result/);
+  assert.match(controls, /id: "dxExportFrom"/);
+  assert.match(controls, /id: "dxExportTo"/);
+  assert.match(controls, /id: "dxExportDestination"/);
+  assert.match(controls, /id: "dxRunExport"/);
+  assert.doesNotMatch(controls, /innerHTML|insertAdjacentHTML|replaceChildren|document\.createElement|querySelector|classList|textContent\s*=|☰|✕|🔒|🌙|☀️|🏆|⚠|⏱|—/);
+  assert.match(destinationsStore, /adminJson\("\/admin\/export\/endpoints"/);
+  assert.match(destinationsStore, /gvdg:admin-active-tab/);
+  assert.match(destinationsStore, /gvdg:admin-auth-gate/);
+  assert.match(destinationsStore, /gvdg:admin-data-archive-destination-save-result/);
+});

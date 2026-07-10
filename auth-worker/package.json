@@ -1,0 +1,32 @@
+{
+  "name": "gvdg-member-auth",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "description": "GVDG member portal auth API (Cloudflare Worker): PDGA#/UDisc + PIN login, forced first-login PIN change, passkeys.",
+  "scripts": {
+    "typegen": "wrangler types --strict-vars false --env-file .dev.vars.example",
+    "typegen:check": "wrangler types --strict-vars false --env-file .dev.vars.example --check",
+    "typecheck": "tsc --noEmit",
+    "test": "vitest run",
+    "test:watch": "vitest",
+    "dev": "wrangler dev",
+    "deploy": "node scripts/validate-wrangler-config.mjs && wrangler deploy",
+    "deploy:dry-run": "node scripts/validate-wrangler-config.mjs --allow-placeholders && wrangler deploy --dry-run",
+    "deploy:staging": "node scripts/validate-wrangler-config.mjs --env staging && wrangler deploy --env staging",
+    "deploy:staging:dry-run": "node scripts/validate-wrangler-config.mjs --env staging --allow-placeholders && wrangler deploy --env staging --dry-run",
+    "migrate:staging": "wrangler d1 migrations apply DB --env staging --remote",
+    "audit": "npm audit --audit-level=moderate"
+  },
+  "dependencies": {
+    "@simplewebauthn/server": "^13.3.1",
+    "jose": "^5.9.6"
+  },
+  "devDependencies": {
+    "@cloudflare/workers-types": "^4.20260626.1",
+    "@types/node": "^26.0.1",
+    "typescript": "^5.6.3",
+    "vitest": "^4.1.9",
+    "wrangler": "^4.105.0"
+  }
+}

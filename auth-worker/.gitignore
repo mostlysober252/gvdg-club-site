@@ -1,0 +1,10 @@
+node_modules/
+.wrangler/
+.dev.vars
+seed.local.json
+*.log
+
+out/
+default-pins.csv
+kv-bulk.json
+seed-*.json

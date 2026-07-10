@@ -4,41 +4,25 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Greenville Disc Golf Club | North Carolina</title>
+    <meta name="theme-color" content="#FF6B35">
+    <!-- Pre-paint theme init: set data-theme synchronously in <head> so dark-mode users never see a
+         light flash (FOUC) before the deferred scripts run. The toggle wiring still lives below. -->
+    <script>try{document.documentElement.setAttribute('data-theme',localStorage.getItem('theme')||'light')}catch(e){}</script>
+    <meta name="mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-title" content="GVDG Club">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <link rel="icon" type="image/png" href="img/logo.png">
+    <link rel="manifest" href="site.webmanifest">
+    <link rel="apple-touch-icon" href="img/icons/apple-touch-icon.png">
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Archivo:wght@400;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="tokens.css">
     <style>
-        :root {
-            --primary: #FF6B35;
-            --secondary: #004E89;
-            --accent: #F7B801;
-            --dark: #1A1A2E;
-            --light: #F4F4F9;
-            --green: #2D5016;
-            --bg-primary: #F4F4F9;
-            --bg-secondary: #FFFFFF;
-            --bg-tertiary: #F4F4F9;
-            --text-primary: #1A1A2E;
-            --text-secondary: #333333;
-            --text-tertiary: #555555;
-            --text-muted: #666666;
-            --border-color: #F4F4F9;
-            --card-shadow: rgba(0, 0, 0, 0.1);
-            --card-shadow-hover: rgba(0, 0, 0, 0.15);
-        }
-        [data-theme="dark"] {
-            --bg-primary: #0F0F1E;
-            --bg-secondary: #1A1A2E;
-            --bg-tertiary: #252538;
-            --text-primary: #F4F4F9;
-            --text-secondary: #E0E0E0;
-            --text-tertiary: #C0C0C0;
-            --text-muted: #A0A0A0;
-            --border-color: #2A2A3E;
-            --card-shadow: rgba(0, 0, 0, 0.3);
-            --card-shadow-hover: rgba(0, 0, 0, 0.5);
-        }
+        /* Design tokens (color / surfaces / text) live in tokens.css, linked above — one source of truth. */
         * { margin: 0; padding: 0; box-sizing: border-box; }
+        html { scroll-behavior: smooth; }
 body{ position: relative; }
 body::before{
   content: ""; position: fixed; inset: 0; z-index: -1;
@@ -59,7 +43,8 @@ body::before{
         .logo:active { transform: scale(0.95); }
         .logo:hover .logo-image { transform: scale(1.05); }
         .nav-right { display: flex; align-items: center; gap: 1.5rem; }
-        .theme-toggle { background: rgba(255, 255, 255, 0.1); border: 2px solid rgba(255, 255, 255, 0.3); color: white; width: 44px; height: 44px; min-width: 44px; min-height: 44px; border-radius: 50%; cursor: pointer; font-size: 1.3rem; display: flex; align-items: center; justify-content: center; transition: all 0.3s ease; backdrop-filter: blur(5px); -webkit-tap-highlight-color: transparent; }
+        .theme-toggle { background: rgba(255, 255, 255, 0.1); border: 2px solid rgba(255, 255, 255, 0.3); color: white; width: 44px; height: 44px; min-width: 44px; min-height: 44px; border-radius: 50%; cursor: pointer; font-size: 1.3rem; display: flex; align-items: center; justify-content: center; padding: 0; flex-shrink: 0; transition: all 0.3s ease; backdrop-filter: blur(5px); -webkit-tap-highlight-color: transparent; }
+        .theme-toggle svg { display: block; width: 22px; height: 22px; min-width: 22px; flex: 0 0 22px; pointer-events: none; }
         .theme-toggle:hover { background: rgba(255, 255, 255, 0.2); transform: rotate(20deg) scale(1.1); }
         .theme-toggle:active { transform: rotate(20deg) scale(0.95); }
         .nav-links { display: flex; gap: 2.5rem; list-style: none; }
@@ -67,6 +52,9 @@ body::before{
         .nav-links a::after { content: ''; position: absolute; bottom: -5px; left: 0; width: 0; height: 2px; background: var(--primary); transition: width 0.3s ease; }
         .nav-links a:hover::after, .nav-links a:active::after { width: 100%; }
         .nav-links a:hover { color: var(--primary); }
+        .nav-links a[aria-current="page"] { text-decoration: underline; text-underline-offset: 5px; font-weight: 800; }
+        .nav-links a.nav-donate { background: var(--accent); color: var(--secondary) !important; padding: 0.35rem 0.95rem; border-radius: 999px; font-weight: 800; }
+        .nav-links a.nav-donate:hover { color: var(--secondary); filter: brightness(1.08); }
         .menu-toggle { display: none; background: none; border: none; color: white; font-size: 1.5rem; cursor: pointer; padding: 0.5rem; min-width: 44px; min-height: 44px; -webkit-tap-highlight-color: transparent; transition: transform 0.2s ease; }
         .menu-toggle:active { transform: scale(0.9); }
         @media (max-width: 768px) {
@@ -97,26 +85,26 @@ body::before{
         .carousel-controls { position: absolute; bottom: 30px; left: 50%; transform: translateX(-50%); display: flex; gap: 15px; z-index: 10; padding: 1rem; }
 .carousel-controls { position: absolute !important; bottom: 30px !important; left: 50% !important; transform: translateX(-50%) !important; display: flex !important; justify-content: center !important; align-items: center !important; gap: 16px !important; z-index: 10 !important; padding: 10px !important; width: auto !important; }
 .carousel-dot { width: 12px !important; height: 12px !important; min-width: 12px !important; min-height: 12px !important; max-width: 12px !important; max-height: 12px !important; padding: 0 !important; box-sizing: border-box !important; background-clip: border-box !important; border-radius: 50% !important; background: rgba(255, 255, 255, 0.4) !important; border: 2px solid rgba(255, 255, 255, 0.8) !important; cursor: pointer !important; transition: all 0.3s ease !important; -webkit-tap-highlight-color: transparent !important; position: relative !important; flex-shrink: 0 !important; flex-grow: 0 !important; }
-.carousel-dot::before { content: '' !important; position: absolute !important; top: 50% !important; left: 50% !important; transform: translate(-50%, -50%) !important; width: 44px !important; height: 44px !important; background: transparent !important; border: none !important; border-radius: 50% !important; }
+.carousel-dot::before { content: '' !important; position: absolute !important; top: 50% !important; left: 50% !important; transform: translate(-50%, -50%) !important; width: 44px !important; height: 44px !important; background: transparent !important; border: none !important; border-radius: 50% !important; pointer-events: none !important; }
 .carousel-dot.active { background: white !important; border-color: white !important; transform: scale(1.3) !important; width: 12px !important; height: 12px !important; }
 .carousel-dot:hover { background: rgba(255, 255, 255, 0.8) !important; border-color: white !important; }
 @media (max-width: 768px) { .carousel-controls { bottom: 25px !important; gap: 14px !important; } .carousel-dot { width: 10px !important; height: 10px !important; min-width: 10px !important; min-height: 10px !important; max-width: 10px !important; max-height: 10px !important; } .carousel-dot.active { width: 10px !important; height: 10px !important; transform: scale(1.4) !important; } }
 @media (max-width: 480px) { .carousel-controls { bottom: 20px !important; gap: 12px !important; } .carousel-dot { width: 8px !important; height: 8px !important; min-width: 8px !important; min-height: 8px !important; max-width: 8px !important; max-height: 8px !important; } .carousel-dot.active { width: 8px !important; height: 8px !important; transform: scale(1.5) !important; } }
 .carousel-indicators .carousel-indicator, .about-carousel-nav .carousel-indicator, .courses-carousel-nav .carousel-indicator { width: 12px !important; height: 12px !important; min-width: 12px !important; min-height: 12px !important; max-width: 12px !important; max-height: 12px !important; padding: 0 !important; border-radius: 50% !important; background: var(--text-muted) !important; border: none !important; cursor: pointer !important; opacity: 0.4 !important; transition: all 0.3s ease !important; flex-shrink: 0 !important; position: relative !important; }
-.carousel-indicators .carousel-indicator::before, .about-carousel-nav .carousel-indicator::before, .courses-carousel-nav .carousel-indicator::before { content: '' !important; position: absolute !important; top: 50% !important; left: 50% !important; transform: translate(-50%, -50%) !important; width: 44px !important; height: 44px !important; background: transparent !important; }
+.carousel-indicators .carousel-indicator::before, .about-carousel-nav .carousel-indicator::before, .courses-carousel-nav .carousel-indicator::before { content: '' !important; position: absolute !important; top: 50% !important; left: 50% !important; transform: translate(-50%, -50%) !important; width: 44px !important; height: 44px !important; background: transparent !important; pointer-events: none !important; }
 .carousel-indicators .carousel-indicator.active, .about-carousel-nav .carousel-indicator.active, .courses-carousel-nav .carousel-indicator.active { background: var(--primary) !important; opacity: 1 !important; transform: scale(1.3) !important; }
         .carousel-arrow { position: absolute; top: 50%; transform: translateY(-50%); background: rgba(255, 255, 255, 0.2); border: 2px solid white; color: white; width: 50px; height: 50px; min-width: 50px; min-height: 50px; border-radius: 50%; display: flex; align-items: center; justify-content: center; cursor: pointer; font-size: 1.5rem; transition: all 0.3s ease; backdrop-filter: blur(5px); z-index: 10; -webkit-tap-highlight-color: transparent; }
         .carousel-arrow:hover { background: rgba(255, 255, 255, 0.3); transform: translateY(-50%) scale(1.1); }
         .carousel-arrow:active { transform: translateY(-50%) scale(0.95); }
         .carousel-prev { left: 20px; }
         .carousel-next { right: 20px; }
-        @media (max-width: 768px) { .carousel-arrow { width: 44px; height: 44px; min-width: 44px; min-height: 44px; font-size: 1.2rem; } .carousel-prev { left: 10px; } .carousel-next { right: 10px; } .carousel-controls { bottom: 20px; } }
+        @media (max-width: 768px) { .carousel-arrow { top: 68%; width: 44px; height: 44px; min-width: 44px; min-height: 44px; font-size: 1.2rem; } .carousel-prev { left: 10px; } .carousel-next { right: 10px; } .carousel-controls { bottom: 20px; } }
         .hero-content { position: relative; z-index: 5; text-align: center; color: white; max-width: 900px; padding: 0 2rem; animation: fadeInUp 1s ease-out; }
         @keyframes fadeInUp { from { opacity: 0; transform: translateY(30px); } to { opacity: 1; transform: translateY(0); } }
         .hero-title { font-family: 'Bebas Neue', sans-serif; font-size: clamp(2.5rem, 8vw, 5rem); letter-spacing: 0.05em; margin-bottom: 1rem; text-shadow: 2px 2px 8px rgba(0, 0, 0, 0.7), 0 0 30px rgba(0, 0, 0, 0.5); line-height: 1.1; }
         .hero-subtitle { font-size: clamp(1.1rem, 3vw, 1.5rem); margin-bottom: 2rem; opacity: 0.95; font-weight: 400; text-shadow: 2px 2px 8px rgba(0, 0, 0, 0.7), 0 0 30px rgba(0, 0, 0, 0.5); }
-        .cta-button { display: inline-block; background: var(--primary); color: white; padding: 1rem 2.5rem; min-height: 44px; border-radius: 50px; text-decoration: none; font-weight: 700; font-size: 1.1rem; text-transform: uppercase; letter-spacing: 0.05em; transition: all 0.3s ease; box-shadow: 0 5px 20px rgba(255, 107, 53, 0.4); -webkit-tap-highlight-color: transparent; }
-        .cta-button:hover { transform: translateY(-3px); box-shadow: 0 8px 25px rgba(255, 107, 53, 0.5); background: #ff7f4d; }
+        .cta-button { display: inline-block; background: var(--primary-strong); color: white; padding: 1rem 2.5rem; min-height: 44px; border-radius: 50px; text-decoration: none; font-weight: 700; font-size: 1.1rem; text-transform: uppercase; letter-spacing: 0.05em; transition: all 0.3s ease; box-shadow: 0 5px 20px rgba(200, 65, 15, 0.4); -webkit-tap-highlight-color: transparent; }
+        .cta-button:hover { transform: translateY(-3px); box-shadow: 0 8px 25px rgba(200, 65, 15, 0.5); background: #a83809; }
         .cta-button:active { transform: translateY(-1px); }
         .scroll-indicator { position: absolute; bottom: 80px; left: 50%; transform: translateX(-50%); z-index: 10; animation: bounce 2s infinite; }
         @keyframes bounce { 0%, 20%, 50%, 80%, 100% { transform: translateX(-50%) translateY(0); } 40% { transform: translateX(-50%) translateY(-10px); } 60% { transform: translateX(-50%) translateY(-5px); } }
@@ -148,6 +136,7 @@ body::before{
         .board-member-card { background: linear-gradient(135deg, var(--green), var(--secondary)); padding: 1.5rem; border-radius: 15px; text-align: center; color: white; transition: all 0.3s ease; display: flex; flex-direction: column; align-items: center; gap: 0.75rem; }
         .board-member-card:hover { transform: translateY(-5px); box-shadow: 0 10px 30px rgba(45, 80, 22, 0.4); }
         .board-member-icon { width: 70px; height: 70px; background: rgba(255, 255, 255, 0.2); border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 2rem; }
+        .board-member-icon svg { width: 1em; height: 1em; }
         .board-member-name { font-family: 'Bebas Neue', sans-serif; font-size: 1.4rem; letter-spacing: 0.02em; }
         .board-member-role { font-size: 0.85rem; opacity: 0.9; text-transform: uppercase; letter-spacing: 0.05em; background: rgba(255, 255, 255, 0.15); padding: 0.4rem 0.8rem; border-radius: 20px; }
         .board-member-card.founder .board-member-icon { background: linear-gradient(135deg, var(--primary), var(--accent)); }
@@ -178,12 +167,15 @@ body::before{
         .slide-subtitle { font-size: 1rem; color: var(--text-tertiary); font-weight: 600; }
         .courses-grid { display: grid; gap: 1.5rem; grid-template-columns: repeat(auto-fill, minmax(300px, 1fr)); }
         @media (max-width: 640px) { .courses-grid { grid-template-columns: 1fr; } }
-        .course-card { background: var(--bg-primary); border-radius: 15px; overflow: hidden; border: 2px solid var(--border-color); transition: all 0.3s ease; }
+        .course-card { background: var(--bg-primary); border-radius: 15px; overflow: hidden; border: 2px solid var(--border-color); transition: all 0.3s ease; display: block; outline: none; }
+        .course-card[data-course] { cursor: pointer; }
         .course-card:hover { transform: translateY(-5px); box-shadow: 0 10px 30px var(--card-shadow-hover); border-color: var(--primary); }
+        .course-card:focus-visible { border-color: var(--primary); box-shadow: 0 0 0 3px rgba(255, 107, 53, 0.22), 0 10px 30px var(--card-shadow-hover); }
         .course-image { width: 100%; height: 180px; background: linear-gradient(135deg, var(--secondary), var(--green)); position: relative; overflow: hidden; }
         .course-image img { width: 100%; height: 100%; object-fit: cover; transition: transform 0.3s ease; }
         .course-card:hover .course-image img { transform: scale(1.05); }
-        .course-image.no-image::before { content: '🥏'; position: absolute; font-size: 4rem; top: 50%; left: 50%; transform: translate(-50%, -50%); opacity: 0.3; }
+        .course-image.no-image::before { content: none; }
+        .course-placeholder-icon { position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); color: rgba(255, 255, 255, 0.45); }
         .course-content { padding: 1.5rem; }
         .course-header { display: flex; justify-content: space-between; align-items: flex-start; gap: 1rem; margin-bottom: 1rem; }
         .course-name { font-family: 'Bebas Neue', sans-serif; font-size: 1.5rem; color: var(--text-primary); flex: 1; }
@@ -191,7 +183,8 @@ body::before{
         .difficulty-beginner { background: linear-gradient(135deg, var(--green), #4a7c23); color: white; }
         .difficulty-intermediate { background: linear-gradient(135deg, var(--accent), #e5a600); color: var(--dark); }
         .difficulty-advanced { background: linear-gradient(135deg, var(--primary), #cc4a1a); color: white; }
-        .course-location { font-size: 0.85rem; color: var(--text-muted); margin-bottom: 1rem; }
+        .course-location { font-size: 0.85rem; color: var(--text-muted); margin-bottom: 1rem; display: inline-flex; align-items: center; gap: 0.35rem; }
+        .course-location svg { flex: 0 0 auto; }
         .course-info { display: flex; gap: 1.5rem; margin: 1.5rem 0; padding: 1rem; background: var(--bg-tertiary); border-radius: 10px; }
         .info-item { flex: 1; text-align: center; }
         .info-label { font-size: 0.75rem; color: var(--text-muted); text-transform: uppercase; margin-bottom: 0.3rem; }
@@ -204,20 +197,20 @@ body::before{
             gap: 2rem;
             margin-top: 1.25rem;
         }
-        .carousel-btn { background: var(--primary); color: white; border: none; width: 50px; height: 50px; border-radius: 50%; cursor: pointer; font-size: 1.5rem; display: flex; align-items: center; justify-content: center; transition: all 0.3s ease; }
+        .carousel-btn { background: var(--primary-strong); color: white; border: none; width: 50px; height: 50px; border-radius: 50%; cursor: pointer; font-size: 1.5rem; display: flex; align-items: center; justify-content: center; transition: all 0.3s ease; padding: 0 !important; }
         .carousel-btn:hover { background: var(--secondary); transform: scale(1.1); }
         .carousel-btn:disabled { opacity: 0.3; cursor: not-allowed; }
         .carousel-indicators { display: flex; gap: 0.8rem; align-items: center; }
         .carousel-indicator { width: 12px; height: 12px; border-radius: 50%; background: var(--text-muted); border: none; cursor: pointer; opacity: 0.4; transition: all 0.3s ease; }
         .carousel-indicator.active { background: var(--primary); opacity: 1; transform: scale(1.3); }
 
-        .course-modal-overlay { position: fixed; top: 0; left: 0; right: 0; bottom: 0; background: rgba(0, 0, 0, 0.7); backdrop-filter: blur(5px); z-index: 2000; display: flex; align-items: center; justify-content: center; opacity: 0; visibility: hidden; transition: all 0.3s ease; padding: 1rem; }
+        .course-modal-overlay { position: fixed; top: 0; left: 0; right: 0; bottom: 0; background: rgba(0, 0, 0, 0.7); backdrop-filter: blur(5px); z-index: 11000; display: flex; align-items: center; justify-content: center; opacity: 0; visibility: hidden; transition: all 0.3s ease; padding: 1rem; }
         .course-modal-overlay.active { opacity: 1; visibility: visible; }
         .course-modal { background: var(--bg-secondary); border-radius: 20px; max-width: 400px; width: 100%; padding: 2rem; transform: scale(0.9) translateY(20px); transition: all 0.3s ease; box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3); }
         .course-modal-overlay.active .course-modal { transform: scale(1) translateY(0); }
         .course-modal-header { text-align: center; margin-bottom: 1.5rem; }
         .course-modal-title { font-family: 'Bebas Neue', sans-serif; font-size: 1.8rem; color: var(--text-primary); margin-bottom: 0.25rem; }
-        .course-modal-location { font-size: 0.9rem; color: var(--text-muted); }
+        .course-modal-location { font-size: 0.9rem; color: var(--text-muted); display: inline-flex; align-items: center; justify-content: center; gap: 0.3rem; }
         .course-modal-options { display: flex; flex-direction: column; gap: 1rem; }
         .course-modal-btn { display: flex; align-items: center; gap: 1rem; padding: 1rem 1.25rem; background: var(--bg-primary); border: 2px solid var(--border-color); border-radius: 12px; cursor: pointer; transition: all 0.3s ease; text-decoration: none; color: var(--text-primary); -webkit-tap-highlight-color: transparent; }
         .course-modal-btn:hover { border-color: var(--primary); transform: translateX(5px); box-shadow: 0 5px 15px var(--card-shadow); }
@@ -229,7 +222,8 @@ body::before{
         .course-modal-btn-text { flex: 1; }
         .course-modal-btn-title { font-weight: 700; font-size: 1rem; margin-bottom: 0.15rem; }
         .course-modal-btn-subtitle { font-size: 0.8rem; color: var(--text-muted); }
-        .course-modal-btn-arrow { font-size: 1.2rem; color: var(--text-muted); transition: transform 0.3s ease; }
+        .course-modal-btn-icon svg { color: white; }
+        .course-modal-btn-arrow { color: var(--text-muted); transition: transform 0.3s ease; flex-shrink: 0; }
         .course-modal-btn:hover .course-modal-btn-arrow { transform: translateX(5px); color: var(--primary); }
         .course-modal-close { display: block; width: 100%; padding: 1rem; margin-top: 1rem; background: transparent; border: 2px solid var(--text-muted); border-radius: 12px; color: var(--text-muted); font-size: 1rem; font-weight: 600; cursor: pointer; transition: all 0.3s ease; -webkit-tap-highlight-color: transparent; }
         .course-modal-close:hover { border-color: var(--primary); color: var(--primary); }
@@ -247,7 +241,7 @@ body::before{
 .event-list.expanded .event-item.hidden-extra { display: flex; }
 .event-toggle { text-align: center; margin-top: 1.5rem; }
 .event-toggle .toggle-btn { display: inline-flex; align-items: center; gap: 0.5rem; padding: 0.75rem 1.5rem; background: transparent; border: 2px solid var(--primary); border-radius: 8px; color: var(--primary); font-size: 0.9rem; font-weight: 600; cursor: pointer; transition: all 0.2s ease; -webkit-tap-highlight-color: transparent; }
-.event-toggle .toggle-btn:hover { background: var(--primary); color: white; }
+.event-toggle .toggle-btn:hover { background: var(--primary-strong); color: white; }
 .event-toggle .toggle-btn .toggle-icon { transition: transform 0.3s ease; }
 .event-toggle .toggle-btn.expanded .toggle-icon { transform: rotate(180deg); }
 .event-date.tbd { display: flex; align-items: center; justify-content: center; }
@@ -279,7 +273,7 @@ body::before{
         .tournament-distance { font-size: 0.85rem; color: var(--text-muted); display: flex; align-items: center; gap: 0.3rem; }
         .tournament-spots { font-size: 0.85rem; color: var(--primary); font-weight: 600; }
         .tournament-card-link { display: flex; align-items: center; justify-content: center; gap: 0.5rem; padding: 0.75rem; background: transparent; color: var(--primary); text-decoration: none; font-weight: 600; font-size: 0.9rem; border-top: 1px solid var(--border-color); transition: all 0.2s ease; }
-        .tournament-card-link:hover { background: var(--primary); color: white; }
+        .tournament-card-link:hover { background: var(--primary-strong); color: white; }
         .tournament-loading { display: flex; flex-direction: column; align-items: center; justify-content: center; padding: 3rem; color: var(--text-muted); }
         .tournament-loading .spinner { width: 40px; height: 40px; border: 3px solid var(--border-color); border-top-color: var(--primary); border-radius: 50%; animation: spin 1s linear infinite; margin-bottom: 1rem; }
         @keyframes spin { to { transform: rotate(360deg); } }
@@ -305,6 +299,7 @@ body::before{
         #membership { background: linear-gradient(135deg, var(--secondary) 0%, var(--green) 100%); color: white; text-align: center; position: relative; overflow: hidden; }
         #membership::before { content: ''; position: absolute; inset: 0; background-image: repeating-linear-gradient(45deg, transparent, transparent 35px, rgba(255,255,255,.03) 35px, rgba(255,255,255,.03) 70px); }
         .membership-content { position: relative; z-index: 1; }
+        .membership-subtitle { font-size: 1.2rem; margin: 1.5rem 0; opacity: 0.95; }
         .membership-perks { display: grid; grid-template-columns: 1fr; gap: 1.5rem; margin: 3rem 0; max-width: 900px; margin-left: auto; margin-right: auto; }
         @media (min-width: 640px) { .membership-perks { grid-template-columns: repeat(2, 1fr); } }
         @media (min-width: 1024px) { .membership-perks { grid-template-columns: repeat(4, 1fr); } }
@@ -313,6 +308,7 @@ body::before{
         .perk:hover { background: rgba(255, 255, 255, 0.2); transform: translateY(-10px) scale(1.05); border-color: var(--accent); }
         .perk:active { transform: translateY(-5px) scale(1.02); }
         .perk-icon { font-size: 3rem; margin-bottom: 1rem; transition: transform 0.3s ease; }
+        .perk-icon svg, .contact-icon svg { display: block; width: 1em; height: 1em; margin: 0 auto; }
         .perk:hover .perk-icon { transform: scale(1.2) rotate(10deg); }
         .perk-title { font-family: 'Bebas Neue', sans-serif; font-size: 1.3rem; margin-bottom: 0.5rem; letter-spacing: 0.03em; }
         .perk p { font-size: 0.95rem; opacity: 0.9; }
@@ -330,8 +326,9 @@ body::before{
         .contact-label { font-family: 'Bebas Neue', sans-serif; font-size: 1.4rem; color: var(--text-primary); margin-bottom: 0.5rem; letter-spacing: 0.03em; }
         .contact-detail { font-size: 1rem; color: var(--text-tertiary); }
         .contact-detail a { color: var(--primary); text-decoration: none; transition: color 0.3s ease; }
-        .contact-detail a:hover { color: var(--secondary); text-decoration: underline; }
+        .contact-detail a:hover { color: var(--secondary-text); text-decoration: underline; }
         footer { background: linear-gradient(135deg, var(--dark) 0%, #0d1a0d 100%); color: white; text-align: center; padding: 2.5rem 2rem; font-size: 0.95rem; border-top: 3px solid var(--accent); }
+        footer p { max-width: 34rem; margin: 0 auto; }
         [data-theme="dark"] footer { background: linear-gradient(135deg, var(--bg-secondary) 0%, #0a0a14 100%); }
         .fade-in { opacity: 0; transform: translateY(20px); transition: all 0.6s ease; }
         .fade-in.visible { opacity: 1; transform: translateY(0); }
@@ -339,7 +336,7 @@ body::before{
         @media print { header, .carousel-arrow, .carousel-controls, .scroll-indicator, footer { display: none; } section { page-break-inside: avoid; } }
 
 html { -webkit-text-size-adjust: 100%; text-size-adjust: 100%; }
-a, button, input, select, textarea, .nav-toggle, .theme-toggle, .carousel-btn { min-height: 44px; min-width: 44px; }
+a, button, input, select, textarea, .nav-toggle, .theme-toggle, .carousel-btn { min-height: 44px; min-width: 44px; touch-action: manipulation; }
 body { overflow-x: hidden; width: 100%; font-size: 16px; line-height: 1.6; }
 img { max-width: 100%; height: auto; display: block; }
 img[loading="lazy"] { background: var(--bg-secondary, #f0f0f0); }
@@ -350,12 +347,20 @@ p { font-size: clamp(0.9375rem, 2.5vw, 1.0625rem); }
 @media (max-width: 768px) {
   .hide-mobile { display: none !important; } .show-mobile { display: block !important; } .text-center-mobile { text-align: center !important; } .stack-mobile { flex-direction: column !important; }
   section { padding: 3rem 1rem; } section h2 { margin-bottom: 1.5rem; text-align: center; } .container { width: 100%; max-width: 100%; padding-left: 1rem; padding-right: 1rem; }
-  footer { padding: 2rem 1rem; text-align: center; } footer .links, footer nav { display: flex; flex-wrap: wrap; justify-content: center; gap: 1rem; margin-bottom: 1rem; } footer a { padding: 0.5rem; min-height: 44px; display: inline-flex; align-items: center; }
+  footer { padding: 2rem 4.75rem 5rem; text-align: center; } footer p { max-width: 18rem; } footer .links, footer nav { display: flex; flex-wrap: wrap; justify-content: center; gap: 1rem; margin-bottom: 1rem; } footer a { padding: 0.5rem; min-height: 44px; display: inline-flex; align-items: center; }
   .btn, button, input[type="submit"] { min-height: 48px; padding: 0.875rem 1.5rem; font-size: 1rem; border-radius: 8px; -webkit-tap-highlight-color: transparent; }
+  .membership-perks { gap: 1rem; margin: 2rem 0; }
+  .perk { min-height: 128px; padding: 1.5rem 1rem; }
+  .perk-icon, .contact-icon { font-size: 2.25rem; margin-bottom: 0.75rem; }
+  .contact-box { min-height: 140px; padding: 1.75rem 1.25rem; border-radius: 15px; }
 }
 @media (max-width: 480px) { .btn-primary, .btn-cta { width: 100%; text-align: center; } }
 @media (min-width: 769px) { .hide-desktop { display: none !important; } }
-@supports (padding: env(safe-area-inset-bottom)) { header { padding-top: env(safe-area-inset-top); } footer { padding-bottom: env(safe-area-inset-bottom); } }
+@supports (padding: env(safe-area-inset-bottom)) {
+  header { padding-top: env(safe-area-inset-top); }
+  footer { padding-bottom: calc(2.5rem + env(safe-area-inset-bottom)); }
+  @media (max-width: 768px) { footer { padding-bottom: calc(5rem + env(safe-area-inset-bottom)); } }
+}
 .carousel, .carousel-item, nav ul, .nav-menu { will-change: transform; transform: translateZ(0); }
 @media (prefers-reduced-motion: reduce) { *, *::before, *::after { animation-duration: 0.01ms !important; animation-iteration-count: 1 !important; transition-duration: 0.01ms !important; scroll-behavior: auto !important; } }
 
@@ -412,7 +417,7 @@ p { font-size: clamp(0.9375rem, 2.5vw, 1.0625rem); }
 @media (max-width: 768px) {
     .menu-toggle { display: flex !important; align-items: center !important; justify-content: center !important; width: 44px !important; height: 44px !important; min-width: 44px !important; min-height: 44px !important; background: transparent !important; border: none !important; color: white !important; font-size: 1.5rem !important; cursor: pointer !important; padding: 0 !important; z-index: 1001 !important; -webkit-tap-highlight-color: transparent !important; opacity: 1 !important; visibility: visible !important; overflow: visible !important; }
     .nav-right { display: flex !important; align-items: center !important; gap: 0.75rem !important; flex-shrink: 0 !important; }
-    .theme-toggle { position: relative !important; bottom: auto !important; right: auto !important; width: 44px !important; height: 44px !important; min-width: 44px !important; min-height: 44px !important; display: flex !important; align-items: center !important; justify-content: center !important; box-shadow: none !important; }
+    .theme-toggle { position: relative !important; bottom: auto !important; right: auto !important; width: 44px !important; height: 44px !important; min-width: 44px !important; min-height: 44px !important; display: flex !important; align-items: center !important; justify-content: center !important; padding: 0 !important; box-shadow: none !important; }
     header nav { display: flex !important; justify-content: space-between !important; align-items: center !important; width: 100% !important; }
     .logo { flex-shrink: 1 !important; min-width: 0 !important; }
     .logo-image { max-width: 150px !important; height: auto !important; }
@@ -432,195 +437,55 @@ p { font-size: clamp(0.9375rem, 2.5vw, 1.0625rem); }
     .menu-toggle { display: flex !important; align-items: center !important; justify-content: center !important; color: white !important; opacity: 1 !important; visibility: visible !important; z-index: 1001 !important; }
 }
 
-.back-to-top { display: none; position: fixed; bottom: 2rem; left: 1.5rem; z-index: 999; width: 48px; height: 48px; border-radius: 50%; border: none; background: linear-gradient(135deg, var(--primary), var(--secondary)); color: white; font-size: 1.4rem; cursor: pointer; box-shadow: 0 4px 15px rgba(0, 0, 0, 0.3); opacity: 0; visibility: hidden; transform: translateY(20px); transition: opacity 0.3s ease, visibility 0.3s ease, transform 0.3s ease, background 0.3s ease; -webkit-tap-highlight-color: transparent; align-items: center; justify-content: center; }
+.back-to-top { display: flex; position: fixed; bottom: 2rem; left: auto; right: 1.5rem; z-index: 999; width: 48px; height: 48px; border-radius: 50%; border: none; background: linear-gradient(135deg, var(--primary), var(--secondary)); color: white; font-size: 1.4rem; cursor: pointer; box-shadow: 0 4px 15px rgba(0, 0, 0, 0.3); opacity: 0; visibility: hidden; transform: translateY(20px); transition: opacity 0.3s ease, visibility 0.3s ease, transform 0.3s ease, background 0.3s ease; -webkit-tap-highlight-color: transparent; align-items: center; justify-content: center; }
 .back-to-top.visible { opacity: 1; visibility: visible; transform: translateY(0); }
 .back-to-top:active { transform: translateY(0) scale(0.92); }
-@media (max-width: 768px) { .back-to-top { display: flex; } }
-@supports (padding: env(safe-area-inset-bottom)) { .back-to-top { bottom: calc(2rem + env(safe-area-inset-bottom)); left: calc(1.5rem + env(safe-area-inset-left)); } }
+@media (max-width: 768px) {
+    .back-to-top { left: 1.5rem; right: auto; }
+    #crotts-fab { left: auto !important; right: 14px !important; }
+}
+@supports (padding: env(safe-area-inset-bottom)) { .back-to-top { bottom: calc(2rem + env(safe-area-inset-bottom)); right: calc(1.5rem + env(safe-area-inset-right)); } }
+@supports (padding: env(safe-area-inset-bottom)) {
+    @media (max-width: 768px) {
+        .back-to-top { left: calc(1.5rem + env(safe-area-inset-left)); right: auto; }
+        #crotts-fab { left: auto !important; right: calc(14px + env(safe-area-inset-right, 0px)) !important; }
+    }
+}
 
 .slide-header-nav { display: flex; align-items: center; justify-content: center; gap: 1rem; margin-bottom: 1.5rem; }
 .slide-header-nav .slide-header { margin-bottom: 0; flex: 0 1 auto; text-align: center; min-width: 0; }
-.slide-nav-arrow { flex-shrink: 0; width: 44px; height: 44px; min-width: 44px; min-height: 44px; border-radius: 50%; border: 2px solid var(--primary); background: transparent; color: var(--primary); font-size: 1.4rem; cursor: pointer; display: flex; align-items: center; justify-content: center; transition: all 0.3s ease; -webkit-tap-highlight-color: transparent; line-height: 1; }
-.slide-nav-arrow:hover:not(:disabled) { background: var(--primary); color: white; transform: scale(1.1); }
+.slide-nav-arrow { flex-shrink: 0; width: 44px; height: 44px; min-width: 44px; min-height: 44px; border-radius: 50%; border: 2px solid var(--primary); background: transparent; color: var(--primary); font-size: 1.4rem; cursor: pointer; display: flex; align-items: center; justify-content: center; transition: all 0.3s ease; -webkit-tap-highlight-color: transparent; line-height: 1; padding: 0 !important; }
+.slide-nav-arrow:hover:not(:disabled) { background: var(--primary-strong); color: white; transform: scale(1.1); }
 .slide-nav-arrow:active:not(:disabled) { transform: scale(0.95); }
 .slide-nav-arrow:disabled { opacity: 0.2; cursor: not-allowed; transform: none !important; background: transparent !important; color: var(--primary) !important; }
 [data-theme="dark"] .slide-nav-arrow { border-color: var(--primary); color: var(--primary); }
-[data-theme="dark"] .slide-nav-arrow:hover:not(:disabled) { background: var(--primary); color: white; }
+[data-theme="dark"] .slide-nav-arrow:hover:not(:disabled) { background: var(--primary-strong); color: white; }
 @media (max-width: 480px) { .slide-header-nav { gap: 0.5rem; margin-bottom: 1rem; } .slide-nav-arrow { width: 38px; height: 38px; min-width: 38px; min-height: 38px; font-size: 1.2rem; } .slide-header-nav .slide-title { font-size: 1.5rem; } .slide-header-nav .slide-subtitle { font-size: 0.8rem; } }
     </style>
+  <script src="pwa.js" defer></script>
 </head>
 <body>
-    <header>
-    <nav>
-        <a href="#" class="logo">
-            <img src="img/logo.png" alt="Greenville DGC Logo" class="logo-image">
-        </a>
-        <ul class="nav-links">
-            <li><a href="#about">About</a></li>
-            <li><a href="#courses">Courses</a></li>
-            <li><a href="#events">Events</a></li>
-            <li><a href="gvdg-blog.html">Blog</a></li>
-            <li><a href="gvdg-members.html">Members</a></li>
-            <li><a href="#membership">Join</a></li>
-            <li><a href="#contact">Contact</a></li>
-        </ul>
-       <div class="nav-right">
-            <button class="menu-toggle" aria-label="Toggle menu">☰</button>
-            <button class="theme-toggle" aria-label="Toggle dark mode">
-                <span class="theme-icon">🌙</span>
-            </button>
-        </div>
-    </nav>
-</header>
+    <div id="homeReactPageChromeApp"></div>
 
-    <section class="hero">
-        <div class="hero-bg-pattern"></div>
-        <div class="carousel">
-            <div class="carousel-slide active"></div>
-            <div class="carousel-slide"></div>
-            <div class="carousel-slide"></div>
-            <div class="carousel-slide"></div>
-            <div class="carousel-slide"></div>
-        </div>
-        <button class="carousel-arrow carousel-prev" aria-label="Previous slide">‹</button>
-        <button class="carousel-arrow carousel-next" aria-label="Next slide">›</button>
-        <div class="carousel-controls">
-            <button class="carousel-dot active" aria-label="Slide 1"></button>
-            <button class="carousel-dot" aria-label="Slide 2"></button>
-            <button class="carousel-dot" aria-label="Slide 3"></button>
-            <button class="carousel-dot" aria-label="Slide 4"></button>
-            <button class="carousel-dot" aria-label="Slide 5"></button>
-        </div>
-        <div class="hero-content">
-            <h1 class="hero-title">Greenville Disc Golf Club</h1>
-            <p class="hero-subtitle">Eastern North Carolina's Premier Disc Golf Community</p>
-            <a href="#membership" class="cta-button">Join the Club</a>
-        </div>
-        <div class="scroll-indicator"></div>
-    </section>
+    <div id="homeReactHeroApp"></div>
 
-    <section id="about">
-        <h2 class="section-title fade-in">About Our Club</h2>
-        <div class="about-carousel-container">
-            <div class="about-carousel">
-                <div class="carousel-slide-about">
-                    <div class="about-content">
-                        <div class="about-text">
-                            <p>Greenville Disc Golf (GVDG) was founded in 2004 when local disc golf enthusiasts came together to prove there was a community passionate about bringing the sport to Eastern North Carolina. What started as a grassroots effort to build a single course has grown into one of the region's most active disc golf organizations.</p>
-                            <p>For over two decades, we've been hosting weekly doubles, monthly tournaments, and our signature annual event—the Down East Players Cup, a PDGA A-tier tournament that draws players from across the region. We're proud to have helped establish Greenville as the 12th best disc golf destination in North Carolina.</p>
-                            <p>Beyond the course, GVDG is committed to giving back. Our scholarship program supports graduating seniors in Pitt County, funded through events like our annual Scholarship Shootout. Whether you're throwing your first disc or competing at the pro level, you'll find your place in our community.</p>
-                        </div>
-                        <div class="stats-grid">
-                            <div class="stat-card"><div class="stat-number" data-count="21">0</div><div class="stat-label">Years Strong</div></div>
-                            <div class="stat-card"><div class="stat-number" data-count="5">0</div><div class="stat-label">Local Courses</div></div>
-                            <div class="stat-card"><div class="stat-number" data-count="12">0</div><div class="stat-label">NC Ranking</div></div>
-                            <div class="stat-card"><div class="stat-number" data-count="7">0</div><div class="stat-label">Active Leagues</div></div>
-                        </div>
-                    </div>
-                </div>
-                <div class="carousel-slide-about">
-                    <div class="board-slide-header">
-                        <h3 class="board-slide-title">Meet Our Board</h3>
-                        <p class="board-slide-subtitle">The people who keep GVDG running</p>
-                    </div>
-                    <div class="board-members-grid">
-                        <div class="board-member-card founder"><div class="board-member-icon">🥏</div><div class="board-member-name">Max Crotts</div><div class="board-member-role">Club Officer</div></div>
-                        <div class="board-member-card"><div class="board-member-icon">💰</div><div class="board-member-name">Adam Walter</div><div class="board-member-role">Treasurer</div></div>
-                        <div class="board-member-card"><div class="board-member-icon">🥏</div><div class="board-member-name">Jarrett Wallace</div><div class="board-member-role">Club Officer</div></div>
-                        <div class="board-member-card"><div class="board-member-icon">🥏</div><div class="board-member-name">Jeff Stelly</div><div class="board-member-role">Club Officer</div></div>
-                        <div class="board-member-card"><div class="board-member-icon">🥏</div><div class="board-member-name">TJ Braley</div><div class="board-member-role">Club Officer</div></div>
-                        <div class="board-member-card"><div class="board-member-icon">🥏</div><div class="board-member-name">Alex Schwarga</div><div class="board-member-role">Club Officer</div></div>
-                    </div>
-                </div>
-            </div>
-        </div>
-        <div class="about-carousel-nav">
-            <button class="carousel-btn" id="aboutPrevBtn">‹</button>
-            <div class="carousel-indicators"><button class="carousel-indicator active" data-slide="0"></button><button class="carousel-indicator" data-slide="1"></button></div>
-            <button class="carousel-btn" id="aboutNextBtn">›</button>
-        </div>
-    </section>
+    <section id="about"><div id="homeReactAboutApp"></div></section>
 
 <section id="courses">
-    <div class="courses-carousel-container">
-        <div class="courses-carousel">
-            <div class="carousel-slide-courses">
-                <div class="slide-header-nav">
-                <button class="slide-nav-arrow slide-nav-prev" aria-label="Previous courses slide">&#8249;</button>
-                <div class="slide-header"><h3 class="slide-title">Our Courses</h3><p class="slide-subtitle">5 Courses in Greenville, NC</p></div>
-                <button class="slide-nav-arrow slide-nav-next" aria-label="Next courses slide">&#8250;</button>
-            </div>
-                <div class="courses-grid">
-                    <div class="course-card" data-course="ECU North Rec Complex" data-location="Greenville, NC" data-udisc="https://udisc.com/courses/ecu-north-recreational-complex-HbME" data-coords="35.631092,-77.319923" data-youtube=""><div class="course-image"><img src="https://d22ksth68ujgu2.cloudfront.net/b7fd828f4c6bf4fe89cd95a2d07e4cfc_m_IMG_6470.jpg" alt="ECU North Recreational Complex" loading="lazy"></div><div class="course-content"><div class="course-header"><h3 class="course-name">ECU North Rec Complex</h3><span class="difficulty-badge difficulty-intermediate">Moderate - Hard</span></div><div class="course-location">📍 Greenville, NC</div><div class="course-info"><div class="info-item"><div class="info-label">Holes</div><div class="info-value">23</div></div><div class="info-item"><div class="info-label">Rating</div><div class="info-value">4.4★</div></div><div class="info-item"><div class="info-label">Time</div><div class="info-value">~2 hrs</div></div></div><p class="course-description">Well-maintained course with manicured fairways and great signage.</p></div></div>
-                    <div class="course-card" data-course="West Meadowbrook Park" data-location="Greenville, NC" data-udisc="https://udisc.com/courses/west-meadowbrook-park-40Aw" data-coords="35.6264,-77.375" data-youtube=""><div class="course-image"><img src="https://d22ksth68ujgu2.cloudfront.net/a280319675d856e30869b9bca4eaee00_m_40698704_Unknown.jpg" alt="West Meadowbrook Park" loading="lazy"></div><div class="course-content"><div class="course-header"><h3 class="course-name">West Meadowbrook Park</h3><span class="difficulty-badge difficulty-beginner">Easy - Hard</span></div><div class="course-location">📍 Greenville, NC</div><div class="course-info"><div class="info-item"><div class="info-label">Holes</div><div class="info-value">18</div></div><div class="info-item"><div class="info-label">Rating</div><div class="info-value">4.3★</div></div><div class="info-item"><div class="info-label">Time</div><div class="info-value">~1 hr</div></div></div><p class="course-description">Five layouts available! Great mix of open and wooded shots.</p></div></div>
-                    <div class="course-card" data-course="Covenant Church" data-location="Winterville, NC" data-udisc="https://udisc.com/courses/covenant-church-Kbtz" data-coords="35.55785,-77.360886" data-youtube=""><div class="course-image"><img src="https://d22ksth68ujgu2.cloudfront.net/8342d5e6d680264501f3f46c96b61755_m_IMG_1449.jpg" alt="Covenant Church" loading="lazy"></div><div class="course-content"><div class="course-header"><h3 class="course-name">Covenant Church</h3><span class="difficulty-badge difficulty-intermediate">Moderate</span></div><div class="course-location">📍 Winterville, NC</div><div class="course-info"><div class="info-item"><div class="info-label">Holes</div><div class="info-value">18</div></div><div class="info-item"><div class="info-label">Rating</div><div class="info-value">4.3★</div></div><div class="info-item"><div class="info-label">Time</div><div class="info-value">~1 hr</div></div></div><p class="course-description">Challenging wooded course with water holes and tight lines.</p></div></div>
-                    <div class="course-card" data-course="The Oakwood Eagles' Nest" data-location="Greenville, NC" data-udisc="https://udisc.com/courses/the-oakwood-eagles-nest-TGSv" data-coords="35.621615,-77.448291" data-youtube=""><div class="course-image no-image"></div><div class="course-content"><div class="course-header"><h3 class="course-name">The Oakwood Eagles' Nest</h3><span class="difficulty-badge difficulty-intermediate">Moderate</span></div><div class="course-location">📍 Greenville, NC</div><div class="course-info"><div class="info-item"><div class="info-label">Holes</div><div class="info-value">18</div></div><div class="info-item"><div class="info-label">Rating</div><div class="info-value">4.0★</div></div><div class="info-item"><div class="info-label">Time</div><div class="info-value">~1.5 hrs</div></div></div><p class="course-description">School campus course with cart-friendly paths.</p></div></div>
-                    <div class="course-card" data-course="Third Street Disc Golf" data-location="Greenville, NC" data-udisc="https://udisc.com/courses/third-street-disc-golf-EC96" data-coords="35.5931,-77.3847" data-youtube=""><div class="course-image"><img src="https://d22ksth68ujgu2.cloudfront.net/658645982c2779bbc89dbe41fa1de4c7_m_IMG_6254.jpg" alt="Third Street Disc Golf" loading="lazy"></div><div class="course-content"><div class="course-header"><h3 class="course-name">Third Street Disc Golf</h3><span class="difficulty-badge difficulty-intermediate">Moderate</span></div><div class="course-location">📍 Greenville, NC</div><div class="course-info"><div class="info-item"><div class="info-label">Holes</div><div class="info-value">9</div></div><div class="info-item"><div class="info-label">Rating</div><div class="info-value">3.7★</div></div><div class="info-item"><div class="info-label">Time</div><div class="info-value">~30 min</div></div></div><p class="course-description">Quick 9-hole course perfect for a fast round.</p></div></div>
-                </div>
-            </div>
-            <div class="carousel-slide-courses">
-                <div class="slide-header-nav">
-                <button class="slide-nav-arrow slide-nav-prev" aria-label="Previous courses slide">&#8249;</button>
-                <div class="slide-header"><h3 class="slide-title">Nearby Courses</h3><p class="slide-subtitle">7 Courses Within 30 Minutes of Greenville</p></div>
-                <button class="slide-nav-arrow slide-nav-next" aria-label="Next courses slide">&#8250;</button>
-            </div>
-                <div class="courses-grid">
-                    <div class="course-card" data-course="Farmville DiscGolfPark" data-location="Farmville, NC" data-udisc="https://udisc.com/courses/farmville-disc-golf-park-YCBv" data-coords="35.604686,-77.576533" data-youtube=""><div class="course-image"><img src="https://d22ksth68ujgu2.cloudfront.net/decd19215d15e33dad293d8b394eaca8_m_IMG_5046.jpg" alt="Farmville DiscGolfPark" loading="lazy"></div><div class="course-content"><div class="course-header"><h3 class="course-name">Farmville DiscGolfPark</h3><span class="difficulty-badge difficulty-intermediate">Moderate</span></div><div class="course-location">📍 Farmville, NC • 15 min</div><div class="course-info"><div class="info-item"><div class="info-label">Holes</div><div class="info-value">18</div></div><div class="info-item"><div class="info-label">Rating</div><div class="info-value">4.3★</div></div><div class="info-item"><div class="info-label">Time</div><div class="info-value">~1.5 hrs</div></div></div><p class="course-description">Former farmland with woods, Blue and Red tee pads available.</p></div></div>
-                    <div class="course-card" data-course="Ayden Park" data-location="Ayden, NC" data-udisc="https://udisc.com/courses/ayden-park-HoPq" data-coords="35.489203,-77.426836" data-youtube=""><div class="course-image"><img src="https://d22ksth68ujgu2.cloudfront.net/6e443673f3aae14b699bfbef1c94b75a_m_IMG_2887.jpg" alt="Ayden Park" loading="lazy"></div><div class="course-content"><div class="course-header"><h3 class="course-name">Ayden Park</h3><span class="difficulty-badge difficulty-intermediate">Moderate</span></div><div class="course-location">📍 Ayden, NC • 20 min</div><div class="course-info"><div class="info-item"><div class="info-label">Holes</div><div class="info-value">18</div></div><div class="info-item"><div class="info-label">Rating</div><div class="info-value">3.5★</div></div><div class="info-item"><div class="info-label">Time</div><div class="info-value">~2 hrs</div></div></div><p class="course-description">Fun beginner-friendly open course in a public park.</p></div></div>
-                    <div class="course-card" data-course="Barnet Park" data-location="Kinston, NC" data-udisc="https://udisc.com/courses/barnet-park-kDCh" data-coords="35.278801,-77.640503" data-youtube=""><div class="course-image"><img src="https://d22ksth68ujgu2.cloudfront.net/ce27baa0cd58600da35e54beb76128c1_m_IMG_2170.jpg" alt="Barnet Park" loading="lazy"></div><div class="course-content"><div class="course-header"><h3 class="course-name">Barnet Park</h3><span class="difficulty-badge difficulty-advanced">Moderate - Very Hard</span></div><div class="course-location">📍 Kinston, NC • 30 min</div><div class="course-info"><div class="info-item"><div class="info-label">Holes</div><div class="info-value">18</div></div><div class="info-item"><div class="info-label">Rating</div><div class="info-value">4.1★</div></div><div class="info-item"><div class="info-label">Time</div><div class="info-value">~1.5 hrs</div></div></div><p class="course-description">Classic eastern NC wooded course with technical shots.</p></div></div>
-                    <div class="course-card" data-course="Beaufort County CC" data-location="Washington, NC" data-udisc="https://udisc.com/courses/beaufort-county-community-college-ijIj" data-coords="35.5549,-77.0152" data-youtube=""><div class="course-image"><img src="https://d22ksth68ujgu2.cloudfront.net/024cd11e84bcdf7863ec22e4876a4e4f_m_IMG_0395.jpg" alt="Beaufort County Community College" loading="lazy"></div><div class="course-content"><div class="course-header"><h3 class="course-name">Beaufort County CC</h3><span class="difficulty-badge difficulty-intermediate">Moderate</span></div><div class="course-location">📍 Washington, NC • 25 min</div><div class="course-info"><div class="info-item"><div class="info-label">Holes</div><div class="info-value">18</div></div><div class="info-item"><div class="info-label">Rating</div><div class="info-value">3.8★</div></div><div class="info-item"><div class="info-label">Time</div><div class="info-value">~2 hrs</div></div></div><p class="course-description">College campus course with elevation and water hazards.</p></div></div>
-                    <div class="course-card" data-course="Farm Life Disc Golf" data-location="Williamston, NC" data-udisc="https://udisc.com/courses/farm-life-disc-golf-3IvE" data-coords="35.7416,-76.985603" data-youtube=""><div class="course-image"><img src="https://d22ksth68ujgu2.cloudfront.net/dc17882950ff11c0a7a2ee7a14438cf5_m_IMG_7564.jpg" alt="Farm Life Disc Golf" loading="lazy"></div><div class="course-content"><div class="course-header"><h3 class="course-name">Farm Life Disc Golf</h3><span class="difficulty-badge difficulty-intermediate">Moderate</span></div><div class="course-location">📍 Williamston, NC • 30 min</div><div class="course-info"><div class="info-item"><div class="info-label">Holes</div><div class="info-value">18</div></div><div class="info-item"><div class="info-label">Rating</div><div class="info-value">4.5★</div></div><div class="info-item"><div class="info-label">Time</div><div class="info-value">~2 hrs</div></div></div><p class="course-description">Highly-rated scenic private course worth the drive.</p></div></div>
-                    <div class="course-card" data-course="Snipers Landing at Robersonville CC" data-location="Robersonville, NC" data-udisc="https://udisc.com/courses/snipers-landing-at-robersonville-cc-0WKq" data-coords="35.861996,-77.244241" data-youtube=""><div class="course-image"><img src="https://imagedelivery.net/gSwsyfyonEyXxR24Q80qjQ/c5986195-9aae-45d0-3a31-8f4a5a889900/public" alt="Snipers Landing at Robersonville CC" loading="lazy"></div><div class="course-content"><div class="course-header"><h3 class="course-name">Snipers Landing</h3><span class="difficulty-badge difficulty-advanced">Hard</span></div><div class="course-location">📍 Robersonville, NC • 25 min</div><div class="course-info"><div class="info-item"><div class="info-label">Holes</div><div class="info-value">18</div></div><div class="info-item"><div class="info-label">Rating</div><div class="info-value">4.3★</div></div><div class="info-item"><div class="info-label">Time</div><div class="info-value">~2.5 hrs</div></div></div><p class="course-description">$10 greens fee. 3 tee sets on a ball golf course. Check in at pro shop.</p></div></div>
-                    <div class="course-card" data-course="Ayden-Grifton HS Disc Golf Course" data-location="Ayden, NC" data-udisc="https://udisc.com/courses/ayden-grifton-hs-disc-golf-course-sLFk" data-coords="35.429322,-77.431738" data-youtube=""><div class="course-image no-image"></div><div class="course-content"><div class="course-header"><h3 class="course-name">Ayden-Grifton HS DGC</h3><span class="difficulty-badge difficulty-beginner">Easy</span></div><div class="course-location">📍 Ayden, NC • 20 min</div><div class="course-info"><div class="info-item"><div class="info-label">Holes</div><div class="info-value">9</div></div><div class="info-item"><div class="info-label">Rating</div><div class="info-value">New</div></div><div class="info-item"><div class="info-label">Time</div><div class="info-value">~30 min</div></div></div><p class="course-description">Beginner-friendly school course. Weekdays after 5pm, weekends sunrise–sunset.</p></div></div>
-                </div>
-            </div>
-            <div class="carousel-slide-courses">
-                <div class="slide-header-nav">
-                <button class="slide-nav-arrow slide-nav-prev" aria-label="Previous courses slide">&#8249;</button>
-                <div class="slide-header"><h3 class="slide-title">Worth The Drive</h3><p class="slide-subtitle">10 Top-Rated Courses Within 60 Miles</p></div>
-                <button class="slide-nav-arrow slide-nav-next" aria-label="Next courses slide">&#8250;</button>
-            </div>
-                <div class="courses-grid">
-                    <div class="course-card" data-course="Glenburnie Park" data-location="New Bern, NC" data-udisc="https://udisc.com/courses/glenburnie-park-Rsnq" data-coords="35.138901,-77.061699" data-youtube=""><div class="course-image"><img src="https://d22ksth68ujgu2.cloudfront.net/20348b2697a1d34ef46a457ea19fb677_m_IMG_2080.jpg" alt="Glenburnie Park" loading="lazy"></div><div class="course-content"><div class="course-header"><h3 class="course-name">Glenburnie Park</h3><span class="difficulty-badge difficulty-advanced">Moderate - Hard</span></div><div class="course-location">📍 New Bern, NC • 45 min</div><div class="course-info"><div class="info-item"><div class="info-label">Holes</div><div class="info-value">18</div></div><div class="info-item"><div class="info-label">Rating</div><div class="info-value">4.6★</div></div><div class="info-item"><div class="info-label">Time</div><div class="info-value">~2 hrs</div></div></div><p class="course-description">One of the best in Eastern NC with river views and elevation.</p></div></div>
-                    <div class="course-card" data-course="Creekside Park" data-location="New Bern, NC" data-udisc="https://udisc.com/courses/creekside-park-GaFZ" data-coords="35.061508,-77.044464" data-youtube=""><div class="course-image"><img src="https://d22ksth68ujgu2.cloudfront.net/1d99b20a6b23ab7bd5fc96edb0272862_m_IMG_0370.jpg" alt="Creekside Park" loading="lazy"></div><div class="course-content"><div class="course-header"><h3 class="course-name">Creekside Park</h3><span class="difficulty-badge difficulty-advanced">Moderate - Hard</span></div><div class="course-location">📍 New Bern, NC • 50 min</div><div class="course-info"><div class="info-item"><div class="info-label">Holes</div><div class="info-value">18</div></div><div class="info-item"><div class="info-label">Rating</div><div class="info-value">4.3★</div></div><div class="info-item"><div class="info-label">Time</div><div class="info-value">~2 hrs</div></div></div><p class="course-description">Technical wooded course with excellent amenities.</p></div></div>
-                    <div class="course-card" data-course="Sunset Park DGC" data-location="Rocky Mount, NC" data-udisc="https://udisc.com/courses/sunset-park-dgc-Z1wS" data-coords="35.953166,-77.813380" data-youtube=""><div class="course-image"><img src="https://d22ksth68ujgu2.cloudfront.net/e3547497c0aae8f215a1680d4080f1f0_m_IMG_5628.jpg" alt="Sunset Park DGC" loading="lazy"></div><div class="course-content"><div class="course-header"><h3 class="course-name">Sunset Park DGC</h3><span class="difficulty-badge difficulty-advanced">Moderate - Hard</span></div><div class="course-location">📍 Rocky Mount, NC • 50 min</div><div class="course-info"><div class="info-item"><div class="info-label">Holes</div><div class="info-value">18</div></div><div class="info-item"><div class="info-label">Rating</div><div class="info-value">4.1★</div></div><div class="info-item"><div class="info-label">Time</div><div class="info-value">~2 hrs</div></div></div><p class="course-description">Well-established course in a beautiful park setting.</p></div></div>
-                    <div class="course-card" data-course="Battle Park DGC" data-location="Rocky Mount, NC" data-udisc="https://udisc.com/courses/battle-park-dgc-XD3h" data-coords="35.961804,-77.804932" data-youtube=""><div class="course-image"><img src="https://d22ksth68ujgu2.cloudfront.net/afbccd3914ebea747a7f303b5770ca05_m_IMG_5571.jpg" alt="Battle Park DGC" loading="lazy"></div><div class="course-content"><div class="course-header"><h3 class="course-name">Battle Park DGC</h3><span class="difficulty-badge difficulty-advanced">Hard</span></div><div class="course-location">📍 Rocky Mount, NC • 50 min</div><div class="course-info"><div class="info-item"><div class="info-label">Holes</div><div class="info-value">18</div></div><div class="info-item"><div class="info-label">Rating</div><div class="info-value">4.0★</div></div><div class="info-item"><div class="info-label">Time</div><div class="info-value">~2 hrs</div></div></div><p class="course-description">Newest Rocky Mount course with woods and river in play.</p></div></div>
-                    <div class="course-card" data-course="Richlands-Steed Park" data-location="Richlands, NC" data-udisc="https://udisc.com/courses/richlands-steed-park-MaGt" data-coords="34.897999,-77.522202" data-youtube=""><div class="course-image"><img src="https://d22ksth68ujgu2.cloudfront.net/c8d3da5095beedd83e85fbdb67c4bce6_m_IMG_9398.jpg" alt="Richlands-Steed Park" loading="lazy"></div><div class="course-content"><div class="course-header"><h3 class="course-name">Richlands-Steed Park</h3><span class="difficulty-badge difficulty-beginner">Beginner Friendly</span></div><div class="course-location">📍 Richlands, NC • 55 min</div><div class="course-info"><div class="info-item"><div class="info-label">Holes</div><div class="info-value">21</div></div><div class="info-item"><div class="info-label">Rating</div><div class="info-value">4.3★</div></div><div class="info-item"><div class="info-label">Time</div><div class="info-value">~1.5 hrs</div></div></div><p class="course-description">Great beginner course, well-maintained with open fairways.</p></div></div>
-                    <div class="course-card" data-course="Eagles Apex at West Craven Park" data-location="New Bern, NC" data-udisc="https://udisc.com/courses/eagles-apex-at-west-craven-park-9saH" data-coords="35.232019,-77.132066" data-youtube=""><div class="course-image no-image"></div><div class="course-content"><div class="course-header"><h3 class="course-name">Eagles Apex at West Craven</h3><span class="difficulty-badge difficulty-advanced">Moderate - Very Hard</span></div><div class="course-location">📍 New Bern, NC • 50 min</div><div class="course-info"><div class="info-item"><div class="info-label">Holes</div><div class="info-value">18</div></div><div class="info-item"><div class="info-label">Rating</div><div class="info-value">4.0★</div></div><div class="info-item"><div class="info-label">Time</div><div class="info-value">~2 hrs</div></div></div><p class="course-description">Newer course with short and long layouts. Free to play.</p></div></div>
-                    <div class="course-card" data-course="NC Wesleyan University" data-location="Rocky Mount, NC" data-udisc="https://udisc.com/courses/north-carolina-wesleyan-university-Xw47" data-coords="35.936,-77.833" data-youtube=""><div class="course-image no-image"></div><div class="course-content"><div class="course-header"><h3 class="course-name">NC Wesleyan University</h3><span class="difficulty-badge difficulty-intermediate">Moderate</span></div><div class="course-location">📍 Rocky Mount, NC • 55 min</div><div class="course-info"><div class="info-item"><div class="info-label">Holes</div><div class="info-value">20</div></div><div class="info-item"><div class="info-label">Rating</div><div class="info-value">4.3★</div></div><div class="info-item"><div class="info-label">Time</div><div class="info-value">~1.5 hrs</div></div></div><p class="course-description">Redesigned 2023. Campus course with disc store and PDGA events.</p></div></div>
-                    <div class="course-card" data-course="Nash Community College DGC" data-location="Rocky Mount, NC" data-udisc="https://udisc.com/courses/nash-community-college-dgc-fGpR" data-coords="35.977,-77.863" data-youtube=""><div class="course-image no-image"></div><div class="course-content"><div class="course-header"><h3 class="course-name">Nash Community College DGC</h3><span class="difficulty-badge difficulty-advanced">Hard</span></div><div class="course-location">📍 Rocky Mount, NC • 55 min</div><div class="course-info"><div class="info-item"><div class="info-label">Holes</div><div class="info-value">18</div></div><div class="info-item"><div class="info-label">Rating</div><div class="info-value">4.2★</div></div><div class="info-item"><div class="info-label">Time</div><div class="info-value">~2 hrs</div></div></div><p class="course-description">Open and wooded mix with water carries. Best played off-peak hours.</p></div></div>
-                    <div class="course-card" data-course="Farmington Park DGC" data-location="Rocky Mount, NC" data-udisc="https://udisc.com/courses/farmington-park-dgc-xQw3" data-coords="35.946,-77.838" data-youtube=""><div class="course-image no-image"></div><div class="course-content"><div class="course-header"><h3 class="course-name">Farmington Park DGC</h3><span class="difficulty-badge difficulty-intermediate">Moderate</span></div><div class="course-location">📍 Rocky Mount, NC • 50 min</div><div class="course-info"><div class="info-item"><div class="info-label">Holes</div><div class="info-value">18</div></div><div class="info-item"><div class="info-label">Rating</div><div class="info-value">3.9★</div></div><div class="info-item"><div class="info-label">Time</div><div class="info-value">~1.5 hrs</div></div></div><p class="course-description">Active league play with Flexing on Farm Fridays.</p></div></div>
-                    <div class="course-card" data-course="Northeast Creek Park" data-location="Jacksonville, NC" data-udisc="https://udisc.com/courses/northeast-creek-park-UIAe" data-coords="34.747051,-77.358165" data-youtube=""><div class="course-image no-image"></div><div class="course-content"><div class="course-header"><h3 class="course-name">Northeast Creek Park</h3><span class="difficulty-badge difficulty-advanced">Moderate - Hard</span></div><div class="course-location">📍 Jacksonville, NC • 60 min</div><div class="course-info"><div class="info-item"><div class="info-label">Holes</div><div class="info-value">18</div></div><div class="info-item"><div class="info-label">Rating</div><div class="info-value">4.4★</div></div><div class="info-item"><div class="info-label">Time</div><div class="info-value">~2 hrs</div></div></div><p class="course-description">Jacksonville's top course. Well-groomed with coastal winds adding challenge.</p></div></div>
-                </div>
-            </div>
-        </div>
-    </div>
-    <div class="courses-carousel-nav">
-        <button class="carousel-btn" id="coursesPrevBtn">‹</button>
-        <div class="carousel-indicators"><button class="carousel-indicator active" data-slide="0"></button><button class="carousel-indicator" data-slide="1"></button><button class="carousel-indicator" data-slide="2"></button></div>
-        <button class="carousel-btn" id="coursesNextBtn">›</button>
-    </div>
+    <div id="homeReactCoursesApp"></div>
 </section>
 
     <section id="events">
-        <h2 class="section-title fade-in">Upcoming Events</h2>
-        <div class="event-list" id="eventList"><div class="event-loading"><div class="spinner"></div><p>Loading events...</p></div></div>
-        <div id="event-toggle-container" class="event-toggle" style="display: none;">
-            <button id="event-toggle-btn" class="toggle-btn">
-                <span class="toggle-text">Show All Events</span>
-                <svg class="toggle-icon" xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"></polyline></svg>
-            </button>
-        </div>
+        <h2 class="section-title fade-in visible">Upcoming Events</h2>
+        <div id="homeReactEventsApp"></div>
         <div class="events-footer" style="text-align: center; margin-top: 2rem;"><p style="color: var(--text-muted); font-size: 0.9rem;">Want to host an event? <a href="#contact" style="color: var(--primary);">Contact us!</a></p></div>
     </section>
 
 <section id="area-tournaments" class="section">
     <div class="container">
-        <h2 class="section-title">🏆 Area Tournaments</h2>
+        <h2 class="section-title visible">Area Tournaments</h2>
         <p class="section-subtitle">PDGA sanctioned events within 60 miles of Greenville, NC</p>
-        <div id="tournament-list" class="tournament-list"><div class="tournament-loading"><div class="loading-spinner"></div><p>Loading tournaments...</p></div></div>
-        <div id="tournament-toggle" class="tournament-toggle" style="display: none;"><button id="toggle-btn" class="toggle-btn"><span class="toggle-text">Show All Tournaments</span><svg class="toggle-icon" xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"></polyline></svg></button></div>
-        <div class="tournament-footer"><a href="https://www.discgolfscene.com/tournaments/search?filter%5Blocation%5D%5Bcountry%5D=USA&filter%5Blocation%5D%5Bname%5D=Greenville%2C+NC&filter%5Blocation%5D%5Blatitude%5D=35.589407&filter%5Blocation%5D%5Blongitude%5D=-77.351275&filter%5Blocation%5D%5Bdistance%5D=60&filter%5Blocation%5D%5Bunits%5D=mi&filter%5Bformat%5D%5B0%5D=s&filter%5Bformat%5D%5B1%5D=d&filter%5Bformat%5D%5B2%5D=t" target="_blank" rel="noopener" class="view-all-link">View on Disc Golf Scene →</a></div>
+        <div id="homeReactTournamentsApp"></div>
     </div>
 </section>
 
@@ -651,6 +516,7 @@ p { font-size: clamp(0.9375rem, 2.5vw, 1.0625rem); }
 .toggle-btn.expanded .toggle-icon { transform: rotate(180deg); }
 .tournament-footer { text-align: center; margin-top: 1.5rem; }
 .view-all-link { display: inline-block; color: var(--text-secondary, #666); font-size: 0.85rem; text-decoration: none; transition: color 0.2s ease; }
+.view-all-link svg { display: inline-block; vertical-align: -0.15em; margin-left: 0.2rem; }
 .view-all-link:hover { color: #FF6B35; }
 .tournament-loading { text-align: center; padding: 2rem; color: var(--text-secondary, #666); }
 .loading-spinner { width: 36px; height: 36px; border: 3px solid var(--border-color, #e0e0e0); border-top-color: #FF6B35; border-radius: 50%; animation: spin 1s linear infinite; margin: 0 auto 0.75rem; }
@@ -671,187 +537,15 @@ p { font-size: clamp(0.9375rem, 2.5vw, 1.0625rem); }
 [data-theme="dark"] .loading-spinner { border-color: rgba(255, 255, 255, 0.1); border-top-color: #FF6B35; }
 </style>
 
-    <section id="membership">
-        <div class="membership-content">
-            <h2 class="section-title">Become a Member</h2>
-            <p style="font-size: 1.2rem; margin: 1.5rem 0; opacity: 0.95;">Join our growing community and enjoy exclusive benefits</p>
-            <div class="membership-perks">
-                <div class="perk fade-in"><div class="perk-icon">🏆</div><div class="perk-title">Tournament Access</div><p>Member-only events and discounts</p></div>
-                <div class="perk fade-in"><div class="perk-icon">💬</div><div class="perk-title">Community</div><p>Private Discord and social events</p></div>
-                <div class="perk fade-in"><div class="perk-icon">🎯</div><div class="perk-title">Course Maintenance</div><p>Help improve our local courses</p></div>
-                <div class="perk fade-in"><div class="perk-icon">📊</div><div class="perk-title">Skill Development</div><p>Clinics and coaching sessions</p></div>
-            </div>
-            <div class="price">$15 / Year</div>
-          <a href="https://www.paypal.com/cgi-bin/webscr?cmd=_xclick&business=greenvillediscgolf@gmail.com&currency_code=USD&amount=15&item_name=GVDG+Membership" class="cta-button" target="_blank" rel="noopener noreferrer">Get Started Today</a>
-        </div>
-    </section>
+    <section id="membership"><div id="homeReactMembershipApp"></div></section>
 
-    <section id="contact">
-        <h2 class="section-title fade-in">Get in Touch</h2>
-        <div class="contact-info">
-            <div class="contact-box fade-in"><div class="contact-icon">📧</div><div class="contact-label">Email Us</div><div class="contact-detail"><a href="/cdn-cgi/l/email-protection#d4b3a6b1b1baa2bdb8b8b1b0bda7b7b3bbb8b294b3b9b5bdb8fab7bbb9"><span class="__cf_email__" data-cfemail="c3a4b1a6a6adb5aaafafa6a7aab0a0a4acafa583a4aea2aaafeda0acae">[email&#160;protected]</span></a></div></div>
-            <div class="contact-box fade-in"><div class="contact-icon">📱</div><div class="contact-label">Follow Us</div><div class="contact-detail"><a href="https://www.facebook.com/groups/243452675724939" target="_blank" rel="noopener noreferrer">@GreenvilleDGC on Facebook</a> & Instagram</div></div>
-            <div class="contact-box fade-in"><div class="contact-icon">📍</div><div class="contact-label">Location</div><div class="contact-detail">Greenville, North Carolina</div></div>
-        </div>
-    </section>
+    <section id="contact"><div id="homeReactContactApp"></div></section>
 
-    <button class="back-to-top" id="backToTop" aria-label="Back to top">↑</button>
-    <footer><p>&copy; 2026 Greenville Disc Golf Club. All rights reserved. | Greenville, NC</p></footer>
+    <div id="homeReactBackToTopApp"></div>
+    <div id="homeReactCourseModalApp"></div>
+    <div id="crottsReactApp"></div>
+    <div id="homeReactFooterApp"></div>
 
-   <script data-cfasync="false" src="/cdn-cgi/scripts/5c5dd728/cloudflare-static/email-decode.min.js"></script><script>
-        const themeToggle=document.querySelector('.theme-toggle'),themeIcon=document.querySelector('.theme-icon'),html=document.documentElement,currentTheme=localStorage.getItem('theme')||'light';html.setAttribute('data-theme',currentTheme);themeIcon.textContent=currentTheme==='dark'?'☀️':'🌙';themeToggle.addEventListener('click',()=>{const t=html.getAttribute('data-theme'),n=t==='dark'?'light':'dark';html.setAttribute('data-theme',n);localStorage.setItem('theme',n);themeIcon.textContent=n==='dark'?'☀️':'🌙'});
-        let currentSlide=0;const slides=document.querySelectorAll('.carousel-slide'),dots=document.querySelectorAll('.carousel-dot'),prevBtn=document.querySelector('.carousel-prev'),nextBtn=document.querySelector('.carousel-next');let touchStartX=0,touchEndX=0;const hero=document.querySelector('.hero');hero.addEventListener('touchstart',e=>{touchStartX=e.changedTouches[0].screenX},{passive:true});hero.addEventListener('touchend',e=>{touchEndX=e.changedTouches[0].screenX;handleSwipe()},{passive:true});function handleSwipe(){const d=touchStartX-touchEndX;if(Math.abs(d)>50){d>0?nextSlide():prevSlide()}}function showSlide(i){if(i>=slides.length)currentSlide=0;else if(i<0)currentSlide=slides.length-1;else currentSlide=i;slides.forEach((s,j)=>s.classList.toggle('active',j===currentSlide));dots.forEach((d,j)=>d.classList.toggle('active',j===currentSlide))}function nextSlide(){showSlide(currentSlide+1)}function prevSlide(){showSlide(currentSlide-1)}nextBtn.addEventListener('click',nextSlide);prevBtn.addEventListener('click',prevSlide);dots.forEach((d,i)=>d.addEventListener('click',()=>showSlide(i)));let autoSlide=setInterval(nextSlide,5000);hero.addEventListener('mouseenter',()=>clearInterval(autoSlide));hero.addEventListener('mouseleave',()=>{autoSlide=setInterval(nextSlide,5000)});
-        (function(){const c=document.querySelector('.about-carousel'),s=document.querySelectorAll('.carousel-slide-about'),ind=document.querySelectorAll('.about-carousel-nav .carousel-indicator'),p=document.getElementById('aboutPrevBtn'),n=document.getElementById('aboutNextBtn'),con=document.querySelector('.about-carousel-container');if(!c||s.length===0)return;let cur=0;function upd(){c.style.transform=`translateX(-${cur*100}%)`;ind.forEach((i,j)=>i.classList.toggle('active',j===cur));if(p)p.disabled=cur===0;if(n)n.disabled=cur===s.length-1}function go(i){cur=Math.max(0,Math.min(i,s.length-1));upd()}if(p)p.addEventListener('click',()=>go(cur-1));if(n)n.addEventListener('click',()=>go(cur+1));ind.forEach(i=>i.addEventListener('click',()=>{const si=parseInt(i.getAttribute('data-slide'));if(!isNaN(si))go(si)}));if(con){let tx=0;con.addEventListener('touchstart',e=>{tx=e.changedTouches[0].screenX},{passive:true});con.addEventListener('touchend',e=>{const d=tx-e.changedTouches[0].screenX;if(Math.abs(d)>50)go(cur+(d>0?1:-1))},{passive:true})}upd()})();
-        (function(){const c=document.querySelector('.courses-carousel'),s=document.querySelectorAll('.carousel-slide-courses'),ind=document.querySelectorAll('.courses-carousel-nav .carousel-indicator'),p=document.getElementById('coursesPrevBtn'),n=document.getElementById('coursesNextBtn'),con=document.querySelector('.courses-carousel-container'),hp=document.querySelectorAll('#courses .slide-nav-prev'),hn=document.querySelectorAll('#courses .slide-nav-next');if(!c||s.length===0)return;let cur=0;function setHeight(){const active=s[cur];if(!active||!con)return;const h=active.scrollHeight;con.style.height=h+'px'}function upd(){c.style.transform=`translateX(-${cur*100}%)`;ind.forEach((i,j)=>i.classList.toggle('active',j===cur));if(p)p.disabled=cur===0;if(n)n.disabled=cur===s.length-1;hp.forEach(b=>b.disabled=cur===0);hn.forEach(b=>b.disabled=cur===s.length-1);setHeight()}function go(i){cur=Math.max(0,Math.min(i,s.length-1));upd()}if(p)p.addEventListener('click',()=>go(cur-1));if(n)n.addEventListener('click',()=>go(cur+1));hp.forEach(b=>b.addEventListener('click',()=>go(cur-1)));hn.forEach(b=>b.addEventListener('click',()=>go(cur+1)));ind.forEach(i=>i.addEventListener('click',()=>{const si=parseInt(i.getAttribute('data-slide'));if(!isNaN(si))go(si)}));if(con){let tx=0;con.addEventListener('touchstart',e=>{tx=e.changedTouches[0].screenX},{passive:true});con.addEventListener('touchend',e=>{const d=tx-e.changedTouches[0].screenX;if(Math.abs(d)>50)go(cur+(d>0?1:-1))},{passive:true})}window.addEventListener('resize',setHeight);upd()})();
-        const menuToggle=document.querySelector('.menu-toggle'),navLinks=document.querySelector('.nav-links');menuToggle.addEventListener('click',()=>{navLinks.classList.toggle('active');menuToggle.textContent=navLinks.classList.contains('active')?'✕':'☰'});document.querySelectorAll('.nav-links a').forEach(l=>l.addEventListener('click',()=>{navLinks.classList.remove('active');menuToggle.textContent='☰'}));
-        const header=document.querySelector('header');window.addEventListener('scroll',()=>{window.scrollY>100?header.classList.add('scrolled'):header.classList.remove('scrolled')});
-        const observerOptions={threshold:0.1,rootMargin:'0px 0px -50px 0px'},observer=new IntersectionObserver(entries=>{entries.forEach(e=>{if(e.isIntersecting){const d=e.target.dataset.delay||0;setTimeout(()=>e.target.classList.add('visible'),d)}})},observerOptions);document.querySelectorAll('.event-item').forEach((i,n)=>{i.dataset.delay=n*150;observer.observe(i)});document.querySelectorAll('.stat-card').forEach((c,n)=>{c.dataset.delay=n*100;observer.observe(c)});document.querySelectorAll('.perk').forEach((p,n)=>{p.dataset.delay=n*100;observer.observe(p)});document.querySelectorAll('.contact-box').forEach((b,n)=>{b.dataset.delay=n*150;observer.observe(b)});document.querySelectorAll('.fade-in, .section-title').forEach(e=>observer.observe(e));
-        function animateCounter(el){if(!el)return;const t=parseInt(el.dataset.count);if(isNaN(t))return;const d=2000,st=performance.now(),upd=ct=>{const p=Math.min((ct-st)/d,1);el.textContent=Math.floor(p*t);if(p<1)requestAnimationFrame(upd);else el.textContent=t};requestAnimationFrame(upd)}const statsObserver=new IntersectionObserver(entries=>{entries.forEach(e=>{if(e.isIntersecting&&!e.target.dataset.animated){const c=e.target.querySelector('.stat-number');if(c){animateCounter(c);e.target.dataset.animated='true'}}})},{threshold:0.3});document.querySelectorAll('.stat-card').forEach(c=>statsObserver.observe(c));setTimeout(()=>{document.querySelectorAll('.stat-card').forEach(c=>{const r=c.getBoundingClientRect();if(r.top<window.innerHeight&&r.bottom>0&&!c.dataset.animated){const cn=c.querySelector('.stat-number');if(cn){animateCounter(cn);c.dataset.animated='true'}}})},500);
-        document.querySelectorAll('a[href^="#"]').forEach(a=>a.addEventListener('click',function(e){e.preventDefault();const t=document.querySelector(this.getAttribute('href'));if(t){const o=80,p=t.getBoundingClientRect().top+window.pageYOffset-o;window.scrollTo({top:p,behavior:'smooth'})}}));
-        let lastTap=0;document.addEventListener('touchend',e=>{const ct=new Date().getTime(),tl=ct-lastTap;if(tl<500&&tl>0)e.preventDefault();lastTap=ct});
-        (function(){const mh=`<div class="course-modal-overlay" id="courseModal"><div class="course-modal"><div class="course-modal-header"><h3 class="course-modal-title" id="modalCourseName"></h3><p class="course-modal-location" id="modalCourseLocation"></p></div><div class="course-modal-options"><a href="#" class="course-modal-btn" id="modalUdisc" target="_blank" rel="noopener noreferrer"><div class="course-modal-btn-icon udisc"><svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><circle cx="12" cy="12" r="10" fill="white"/><circle cx="12" cy="12" r="7" fill="#FF6B00"/><circle cx="12" cy="12" r="3" fill="white"/><path d="M12 2C12 2 12 8 12 12" stroke="white" stroke-width="1.5" stroke-linecap="round"/></svg></div><div class="course-modal-btn-text"><div class="course-modal-btn-title">View on UDisc</div><div class="course-modal-btn-subtitle">Course info, layouts & reviews</div></div><span class="course-modal-btn-arrow">&rarr;</span></a><a href="#" class="course-modal-btn" id="modalDirections" target="_blank" rel="noopener noreferrer"><div class="course-modal-btn-icon directions">📍</div><div class="course-modal-btn-text"><div class="course-modal-btn-title">Get Directions</div><div class="course-modal-btn-subtitle">Open in Google Maps</div></div><span class="course-modal-btn-arrow">&rarr;</span></a><a href="#" class="course-modal-btn" id="modalYoutube" target="_blank" rel="noopener noreferrer"><div class="course-modal-btn-icon youtube">&#9654;</div><div class="course-modal-btn-text"><div class="course-modal-btn-title">Course Preview</div><div class="course-modal-btn-subtitle">Watch on YouTube</div></div><span class="course-modal-btn-arrow">&rarr;</span></a></div><button class="course-modal-close" id="modalClose">Close</button></div></div>`;document.body.insertAdjacentHTML('beforeend',mh);const modal=document.getElementById('courseModal'),mn=document.getElementById('modalCourseName'),ml=document.getElementById('modalCourseLocation'),mu=document.getElementById('modalUdisc'),md=document.getElementById('modalDirections'),my=document.getElementById('modalYoutube'),mc=document.getElementById('modalClose');function open(d){mn.textContent=d.course;ml.textContent='📍 '+d.location;if(d.udisc){mu.href=d.udisc;mu.classList.remove('disabled')}else{mu.href='#';mu.classList.add('disabled')}if(d.coords){const[lat,lng]=d.coords.split(',');md.href=`https://www.google.com/maps/dir/?api=1&destination=${lat},${lng}`;md.classList.remove('disabled')}else{md.href='#';md.classList.add('disabled')}if(d.youtube&&d.youtube.trim()!==''){my.href=d.youtube;my.classList.remove('disabled');my.querySelector('.course-modal-btn-subtitle').textContent='Watch on YouTube'}else{my.href='#';my.classList.add('disabled');my.querySelector('.course-modal-btn-subtitle').textContent='Coming soon'}modal.classList.add('active');document.body.style.overflow='hidden'}function close(){modal.classList.remove('active');document.body.style.overflow=''}document.querySelectorAll('.course-card[data-course]').forEach(c=>{c.style.cursor='pointer';c.addEventListener('click',function(e){e.preventDefault();open({course:this.dataset.course,location:this.dataset.location,udisc:this.dataset.udisc,coords:this.dataset.coords,youtube:this.dataset.youtube})})});mc.addEventListener('click',close);modal.addEventListener('click',function(e){if(e.target===modal)close()});document.addEventListener('keydown',function(e){if(e.key==='Escape'&&modal.classList.contains('active'))close()});document.querySelectorAll('.course-modal-btn.disabled').forEach(b=>b.addEventListener('click',function(e){e.preventDefault()}))})();
-        (function(){const b=document.getElementById('backToTop');if(!b)return;let t=false;window.addEventListener('scroll',function(){if(!t){window.requestAnimationFrame(function(){window.scrollY>600?b.classList.add('visible'):b.classList.remove('visible');t=false});t=true}});b.addEventListener('click',function(){window.scrollTo({top:0,behavior:'smooth'})})})();
-    </script>
-    <script>
-    (function(){const U='https://docs.google.com/spreadsheets/d/e/2PACX-1vRz6V6BAwII4eoqITz4MW5zmM_3mYJqrtqtZl9xB87lAZgDT1E0Do1r2cp2aa1tvEKWevnPhb2zQu4s/pub?gid=0&single=true&output=csv',L=5,c=document.getElementById('tournament-list'),tc=document.getElementById('tournament-toggle'),tb=document.getElementById('toggle-btn');let ex=false,tot=0;function pCSV(csv){const ls=csv.trim().split('\n');if(ls.length<2)return[];const ts=[];for(let i=1;i<ls.length;i++){const v=pLine(ls[i]);if(v.length>=2&&v[1])ts.push({date:v[0]||'',name:v[1]||'',location:v[2]||'',tier:v[3]||'',url:v[4]||''})}return ts}function pLine(l){const v=[];let cu='',iq=false;for(let i=0;i<l.length;i++){const ch=l[i];if(ch==='"')iq=!iq;else if(ch===','&&!iq){v.push(cu.trim());cu=''}else cu+=ch}v.push(cu.trim());return v}function pDate(s){if(!s)return null;const m=s.match(/^(Jan|Feb|Mar|Apr|May|Jun|Jul|Aug|Sep|Oct|Nov|Dec)\s+(\d{1,2}),?\s*(\d{4})?/i);if(!m)return null;return{month:m[1].substring(0,3),day:parseInt(m[2]),year:m[3]||new Date().getFullYear()}}function esc(s){const d=document.createElement('div');d.textContent=s;return d.innerHTML}function render(t,i){const di=pDate(t.date),h=i>=L,it=document.createElement('a');it.className='tournament-item'+(h?' hidden-mobile':'');it.href=t.url||'#';it.target='_blank';it.rel='noopener';let dH=di?`<div class="tournament-date"><span class="month">${di.month}</span><span class="day">${di.day}</span></div>`:`<div class="tournament-date"><span class="month">TBD</span><span class="day">--</span></div>`;let tH=t.tier?`<span class="tournament-tier">${esc(t.tier)}</span>`:'';let lH=t.location?`<span class="tournament-location">📍 ${esc(t.location)}</span>`:'';it.innerHTML=`${dH}<div class="tournament-info"><h4 class="tournament-name">${esc(t.name)}</h4><div class="tournament-meta">${lH}${tH}</div></div><svg class="tournament-arrow" xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="9 18 15 12 9 6"></polyline></svg>`;return it}function toggle(){ex=!ex;c.classList.toggle('expanded',ex);tb.classList.toggle('expanded',ex);tb.querySelector('.toggle-text').textContent=ex?'Show Less':`Show All ${tot} Tournaments`}async function load(){try{const r=await fetch(U);if(!r.ok)throw new Error('fail');const csv=await r.text(),ts=pCSV(csv);if(ts.length===0){c.innerHTML='<div class="no-tournaments"><p>No upcoming tournaments found.</p></div>';return}tot=ts.length;c.innerHTML='';ts.forEach((t,i)=>c.appendChild(render(t,i)));if(ts.length>L){tc.style.display='block';tb.querySelector('.toggle-text').textContent=`Show All ${tot} Tournaments`;tb.addEventListener('click',toggle)}}catch(e){console.error('Error:',e);c.innerHTML='<div class="no-tournaments"><p>Unable to load tournaments.</p></div>'}}document.readyState==='loading'?document.addEventListener('DOMContentLoaded',load):load()})();
-    </script>
-    <script>
-(function(){
-  const U='https://docs.google.com/spreadsheets/d/e/2PACX-1vTLTq17Bwgy6uW_9pG7dQODTmahv7vjxo9Y5EShHaeQYo9xPB2m7Nf5de8EcZvKgcrTbBLb97msMg4Q/pub?output=csv',
-        L=5,
-        SP=false,
-        el=document.getElementById('eventList');
-  if(!el)return;
-
-  let ex=false,tot=0;
-
-  function pCSV(csv){
-    const ls=csv.trim().split(/\r?\n/);
-    if(ls.length<2)return[];
-    const hs=pLine(ls[0]).map(h=>h.toLowerCase().trim()),evs=[];
-    for(let i=1;i<ls.length;i++){
-      const v=pLine(ls[i]),ev={};
-      hs.forEach((h,j)=>ev[h]=v[j]?v[j].trim():'');
-      if(ev.active!=='FALSE'&&ev.title&&ev.date)evs.push(ev);
-    }
-    return evs;
-  }
-
-  function pLine(l){
-    const v=[];let cu='',iq=false;
-    for(let i=0;i<l.length;i++){
-      const ch=l[i];
-      if(ch==='"')iq=!iq;
-      else if(ch===','&&!iq){v.push(cu.trim().replace(/^"|"$/g,''));cu=''}
-      else cu+=ch;
-    }
-    v.push(cu.trim().replace(/^"|"$/g,''));
-    return v;
-  }
-
-  function fmtDate(s){
-    if(!s||typeof s!=='string')return tbd();
-    s=s.trim();
-    if(!s||s.toUpperCase()==='TBD')return tbd();
-    const MS=['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
-    const MN={jan:0,january:0,feb:1,february:1,mar:2,march:2,apr:3,april:3,may:4,jun:5,june:5,jul:6,july:6,aug:7,august:7,sep:8,sept:8,september:8,oct:9,october:9,nov:10,november:10,dec:11,december:11};
-    let d=null;
-    let m=s.match(/^(\d{4})[-\/](\d{1,2})[-\/](\d{1,2})/);
-    if(m){d=new Date(+m[1],+m[2]-1,+m[3]);}
-    if(!d){
-      m=s.match(/^(\d{1,2})[\/\-](\d{1,2})[\/\-](\d{2,4})$/);
-      if(m){let y=+m[3];if(y<100)y+=y<50?2000:1900;d=new Date(y,+m[1]-1,+m[2]);}
-    }
-    if(!d){
-      m=s.match(/^(\d{1,2})[\/\-](\d{1,2})$/);
-      if(m){
-        const now=new Date(),cy=now.getFullYear(),mo=+m[1]-1,da=+m[2];
-        let cand=new Date(cy,mo,da);
-        const sixtyAgo=new Date();sixtyAgo.setDate(sixtyAgo.getDate()-60);
-        if(cand<sixtyAgo)cand=new Date(cy+1,mo,da);
-        d=cand;
-      }
-    }
-    if(!d){
-      m=s.match(/^([A-Za-z]+)\s+(\d{1,2}),?\s+(\d{4})/);
-      if(m){const mi=MN[m[1].toLowerCase()];if(mi!==undefined)d=new Date(+m[3],mi,+m[2]);}
-    }
-    if(!d){
-      m=s.match(/^(\d{1,2})\s+([A-Za-z]+)\s+(\d{4})/);
-      if(m){const mi=MN[m[2].toLowerCase()];if(mi!==undefined)d=new Date(+m[3],mi,+m[1]);}
-    }
-    if(!d&&/^\d+(\.\d+)?$/.test(s)){
-      const n=parseFloat(s);
-      if(n>1&&n<100000)d=new Date(Date.UTC(1899,11,30)+n*86400000);
-    }
-    if(!d||isNaN(d.getTime())){const t=new Date(s);if(!isNaN(t.getTime()))d=t;}
-    if(!d||isNaN(d.getTime()))return tbd();
-    const td=new Date();td.setHours(0,0,0,0);
-    return{day:d.getDate(),month:MS[d.getMonth()],year:d.getFullYear(),isPast:d<td,isTBD:false,dateObj:d};
-  }
-
-  function tbd(){return{day:'TBD',month:'',year:'',isPast:false,isTBD:true,dateObj:new Date(9999,11,31)};}
-
-  function esc(s){const d=document.createElement('div');d.textContent=s;return d.innerHTML;}
-
-  function renderEv(ev,i){
-    const di=fmtDate(ev.date),
-          hl=ev.url&&ev.url.trim()!=='',
-          tb=di.isTBD,
-          h=i>=L,
-          cls=['event-item','fade-in','visible'];
-    if(hl)cls.push('has-link');
-    if(tb)cls.push('tbd-event');
-    if(h)cls.push('hidden-extra');
-    const tag=hl?'a':'div',
-          la=hl?` href="${esc(ev.url)}" target="_blank" rel="noopener noreferrer"`:'';
-    let dH=tb
-      ?'<div class="event-date tbd"><div class="event-day">TBD</div></div>'
-      :`<div class="event-date"><div class="event-day">${di.day}</div><div class="event-month">${di.month}</div></div>`;
-    return`<${tag}${la} class="${cls.join(' ')}">${dH}<div class="event-info"><h3 class="event-title">${esc(ev.title)}</h3><p class="event-description">${esc(ev.description||'')}</p></div></${tag}>`;
-  }
-
-  function toggle(){
-    ex=!ex;
-    el.classList.toggle('expanded',ex);
-    const tb=document.getElementById('event-toggle-btn');
-    if(tb){
-      tb.classList.toggle('expanded',ex);
-      tb.querySelector('.toggle-text').textContent=ex?'Show Less':`Show All ${tot} Events`;
-    }
-  }
-
-  async function load(){
-    try{
-      const r=await fetch(U+'&_cb='+Date.now());
-      if(!r.ok)throw new Error('err');
-      const csv=await r.text();
-      let evs=pCSV(csv);
-      if(!SP)evs=evs.filter(e=>!fmtDate(e.date).isPast);
-      evs.sort((a,b)=>(fmtDate(a.date).dateObj||new Date(9999,0,1))-(fmtDate(b.date).dateObj||new Date(9999,0,1)));
-      tot=evs.length;
-      if(evs.length===0){
-        el.innerHTML='<div class="no-events"><h3>No Upcoming Events</h3><p>Check back soon for new events!</p></div>';
-        return;
-      }
-      el.innerHTML=evs.map((e,i)=>renderEv(e,i)).join('');
-      const tc=document.getElementById('event-toggle-container');
-      if(tc&&evs.length>L){
-        tc.style.display='block';
-        const tb=document.getElementById('event-toggle-btn');
-        tb.querySelector('.toggle-text').textContent=`Show All ${tot} Events`;
-        tb.addEventListener('click',toggle);
-      }else if(tc){
-        tc.style.display='none';
-      }
-    }catch(e){
-      console.error('Error:',e);
-      el.innerHTML='<div class="no-events"><h3>Events Loading...</h3><p>Please check back shortly.</p></div>';
-    }
-  }
-
-  document.readyState==='loading'?document.addEventListener('DOMContentLoaded',load):load();
-})();
-</script>
+    <script type="module" src="home-app/home-app.js"></script>
 </body>
 </html>

@@ -1,0 +1,45 @@
+import assert from 'node:assert/strict';
+import { readFileSync } from 'node:fs';
+import test from 'node:test';
+
+test('admin wallet adjustment form is rendered by React from request events', () => {
+  const html = `${readFileSync('admin.html', 'utf8')}\n${readFileSync('src/admin-app/admin-controller.js', 'utf8')}`;
+  const main = readFileSync('src/admin-app/main.js', 'utf8');
+  const walletForm = readFileSync('src/admin-app/wallet-form.js', 'utf8');
+  const walletRecent = readFileSync('src/admin-app/wallet-recent-list.js', 'utf8');
+  const adminPostWalletAdjustment = html.match(/async function adminPostWalletAdjustmentFromReact\(detail\) \{[\s\S]*?\n        \}/)?.[0];
+  const initAdmin = html.match(/function initAdmin\(\) \{[\s\S]*?adminLoadEvents\(\);\n            adminLoadCourses\(\);\n            adminLoadLeagues\(\);\n        \}/)?.[0];
+
+  assert.match(html, /id="adminWalletFormReactApp"/);
+  assert.doesNotMatch(html, /id="adminWalletForm"|id="waMemberId"|id="waAmount"|id="waNote"/);
+  assert.doesNotMatch(html, /function walletRow\(tx\)|async function adminPostWalletAdjustment\(e\)/);
+  assert.match(html, /\.admin-wallet-form-wide \{/);
+  assert.ok(adminPostWalletAdjustment);
+  assert.match(adminPostWalletAdjustment, /adminApi\('\/admin\/wallets\/credit', \{ method: 'POST', body \}\)/);
+  assert.match(adminPostWalletAdjustment, /gvdg:admin-wallet-adjustment-result/);
+  assert.doesNotMatch(adminPostWalletAdjustment, /adminLoadWalletRecent\(\)/);
+  assert.ok(initAdmin);
+  assert.match(initAdmin, /gvdg:admin-wallet-adjustment-request/);
+  assert.match(initAdmin, /adminPostWalletAdjustmentFromReact\(event\.detail \|\| \{\}\)/);
+  assert.doesNotMatch(initAdmin, /if \(tab === 'wallets'\) adminLoadWalletRecent\(\)/);
+  assert.doesNotMatch(initAdmin, /\$\('adminWalletForm'\)\.addEventListener/);
+  assert.match(main, /import \{ AdminWalletAdjustmentForm \} from "\.\/wallet-form\.js"/);
+  assert.match(main, /const walletFormMount = document\.getElementById\("adminWalletFormReactApp"\)/);
+  assert.match(main, /createRoot\(walletFormMount\)\.render\(h\(AdminWalletAdjustmentForm\)\)/);
+  assert.match(walletForm, /export function AdminWalletAdjustmentForm/);
+  assert.match(walletForm, /data-react-admin-wallet-form/);
+  assert.match(walletForm, /gvdg:admin-wallet-adjustment-request/);
+  assert.match(walletForm, /gvdg:admin-wallet-adjustment-result/);
+  assert.match(walletForm, /function dollarsToCents/);
+  assert.match(walletForm, /id: "waMemberId"/);
+  assert.match(walletForm, /id: "waAmount"/);
+  assert.match(walletForm, /id: "waNote"/);
+  assert.match(walletForm, /className: "admin-wallet-form-wide"/);
+  assert.match(walletForm, /busy \? "Posting\.\.\." : "Post wallet adjustment"/);
+  assert.doesNotMatch(walletForm, /innerHTML|insertAdjacentHTML|replaceChildren|document\.createElement|querySelector|classList|textContent\s*=|☰|✕|🔒|🌙|☀️|🏆|⚠|⏱|—/);
+  assert.match(walletRecent, /export function AdminWalletRecentList/);
+  assert.match(walletRecent, /adminJson\("\/admin\/wallets\/recent"/);
+  assert.match(walletRecent, /gvdg:admin-wallet-adjustment-result/);
+  assert.doesNotMatch(walletRecent, /currentAdminState\("walletRecent"|gvdg:admin-wallet-recent/);
+  assert.match(walletRecent, /data-react-admin-wallet-recent/);
+});

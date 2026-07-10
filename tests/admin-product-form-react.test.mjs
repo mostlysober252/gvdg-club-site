@@ -1,0 +1,44 @@
+import assert from 'node:assert/strict';
+import { readFileSync } from 'node:fs';
+import test from 'node:test';
+
+test('admin product creation form and upload preview are rendered by React from request events', () => {
+  const html = `${readFileSync('admin.html', 'utf8')}\n${readFileSync('src/admin-app/admin-controller.js', 'utf8')}`;
+  const main = readFileSync('src/admin-app/main.js', 'utf8');
+  const productForm = readFileSync('src/admin-app/product-form.js', 'utf8');
+  const productsList = readFileSync('src/admin-app/products-list.js', 'utf8');
+  const initAdmin = html.match(/function initAdmin\(\) \{[\s\S]*?adminLoadEvents\(\);\n            adminLoadCourses\(\);\n            adminLoadLeagues\(\);\n        \}/)?.[0];
+
+  assert.match(html, /id="adminProductFormReactApp"/);
+  assert.doesNotMatch(html, /id="adminProductForm"/);
+  assert.doesNotMatch(html, /id="psImagePreview"/);
+  assert.match(html, /\.admin-product-form-wide \{/);
+  assert.match(html, /\.admin-product-image-input \{/);
+  assert.doesNotMatch(html, /function adminAddProduct|function onProductImageFile|function resizeImageToDataUrl|productImageDataUrl|adminProductImagePreviewReactApp|gvdg:admin-product-image-preview/);
+  assert.ok(initAdmin);
+  assert.match(initAdmin, /gvdg:admin-product-create-request/);
+  assert.match(initAdmin, /adminCreateProductFromReact\(event\.detail \|\| \{\}\)/);
+  assert.match(initAdmin, /gvdg:admin-product-photo-ready/);
+  assert.match(initAdmin, /gvdg:admin-product-photo-error/);
+  assert.doesNotMatch(initAdmin, /\$\('adminProductForm'\)\.addEventListener|\$\('psImageFile'\)\.addEventListener|\$\('psImage'\)\.addEventListener/);
+  assert.match(html, /adminApi\('\/admin\/shop\/products', \{ method: 'POST', body \}\)/);
+  assert.match(html, /gvdg:admin-product-create-result/);
+  assert.match(main, /import \{ AdminProductForm \} from "\.\/product-form\.js"/);
+  assert.match(main, /import \{ AdminProductsList \} from "\.\/products-list\.js"/);
+  assert.match(main, /const productFormMount = document\.getElementById\("adminProductFormReactApp"\)/);
+  assert.match(main, /createRoot\(productFormMount\)\.render\(h\(AdminProductForm\)\)/);
+  assert.match(productForm, /export function AdminProductForm/);
+  assert.match(productForm, /data-react-admin-product-form/);
+  assert.match(productForm, /gvdg:admin-product-create-request/);
+  assert.match(productForm, /gvdg:admin-product-create-result/);
+  assert.match(productForm, /gvdg:admin-product-photo-ready/);
+  assert.match(productForm, /gvdg:admin-product-photo-error/);
+  assert.match(productForm, /data-react-admin-product-image-preview/);
+  assert.match(productForm, /function resizeImageToDataUrl/);
+  assert.match(productForm, /document\.createElement\("canvas"\)/);
+  assert.match(productForm, /alt: "Selected product preview"/);
+  assert.match(productForm, /className: "admin-product-image-preview"/);
+  assert.match(productForm, /className: "admin-product-form-wide"/);
+  assert.doesNotMatch(productForm, /innerHTML|insertAdjacentHTML|replaceChildren|querySelector|classList|textContent\s*=|☰|✕|🔒|🌙|☀️|🏆|⚠|⏱|—/);
+  assert.doesNotMatch(productsList, /AdminProductImagePreview|gvdg:admin-product-image-preview|__gvdgAdminProductImagePreviewState/);
+});

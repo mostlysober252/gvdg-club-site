@@ -1,0 +1,40 @@
+import assert from 'node:assert/strict';
+import { readFileSync } from 'node:fs';
+import test from 'node:test';
+
+test('admin import candidates are rendered by React from direct import result events', () => {
+  const html = `${readFileSync('admin.html', 'utf8')}\n${readFileSync('src/admin-app/admin-controller.js', 'utf8')}`;
+  const importController = readFileSync('src/admin-app/import-controller.js', 'utf8');
+  const main = readFileSync('src/admin-app/main.js', 'utf8');
+  const candidates = readFileSync('src/admin-app/import-candidates-list.js', 'utf8');
+  const showImportCandidates = importController.match(/function showImportCandidates\(candidates\) \{[\s\S]*?\n\}/)?.[0];
+  const initAdmin = html.match(/function initAdmin\(\) \{[\s\S]*?adminLoadEvents\(\);\n            adminLoadCourses\(\);\n            adminLoadLeagues\(\);\n        \}/)?.[0];
+
+  assert.match(html, /id="adminImportCandidatesReactApp"/);
+  assert.doesNotMatch(html, /id="importCandidates"/);
+  assert.match(html, /id="adminImportControlsReactApp"/);
+  assert.doesNotMatch(html, /id="dgsImportBtn"|id="csvImportBtn"|id="csvImportText"/);
+  assert.doesNotMatch(html, /⬇ Import from DiscGolfScene feed/);
+  assert.doesNotMatch(html, /function setAdminImportCandidatesState|publishAdminState\('importCandidates'/);
+  assert.ok(showImportCandidates);
+  assert.match(showImportCandidates, /dispatchAdminEvent\('gvdg:admin-import-candidates', \{ status: 'ready', candidates: Array\.isArray\(candidates\) \? candidates : \[\] \}\)/);
+  assert.doesNotMatch(showImportCandidates, /importCandidates|textContent|appendChild|replaceChildren|createElement|elx\(|addEventListener|classList/);
+  assert.match(importController, /gvdg:admin-import-candidates', \{ status: 'loading', candidates: \[\] \}/);
+  assert.ok(initAdmin);
+  assert.match(initAdmin, /gvdg:admin-import-candidate-create-request/);
+  assert.match(initAdmin, /adminApi\('\/admin\/events', \{ method: 'POST', body: \{ type: candidate\.type \|\| 'tournament'/);
+  assert.match(initAdmin, /gvdg:admin-import-candidate-create-result/);
+  assert.match(main, /import \{ AdminImportCandidatesList \} from "\.\/import-candidates-list\.js"/);
+  assert.match(main, /const importCandidatesMount = document\.getElementById\("adminImportCandidatesReactApp"\)/);
+  assert.match(main, /createRoot\(importCandidatesMount\)\.render\(h\(AdminImportCandidatesList\)\)/);
+  assert.match(candidates, /export function AdminImportCandidatesList/);
+  assert.doesNotMatch(candidates, /currentAdminState\("importCandidates"|admin-state-store/);
+  assert.match(candidates, /gvdg:admin-import-candidates/);
+  assert.match(candidates, /gvdg:admin-import-candidate-create-request/);
+  assert.match(candidates, /gvdg:admin-import-candidate-create-result/);
+  assert.match(candidates, /data-react-admin-import-candidates/);
+  assert.match(candidates, /className: "admin-cand"/);
+  assert.match(candidates, /className: "admin-btn secondary"/);
+  assert.match(candidates, /role: "status"/);
+  assert.doesNotMatch(candidates, /innerHTML|insertAdjacentHTML|replaceChildren|document\.createElement|querySelector|classList|textContent\s*=|☰|✕|🔒|🌙|☀️|🏆|⚠|⏱|⬇|✓|—/);
+});

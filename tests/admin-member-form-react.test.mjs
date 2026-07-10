@@ -1,0 +1,42 @@
+import assert from 'node:assert/strict';
+import { readFileSync } from 'node:fs';
+import test from 'node:test';
+
+test('admin member creation form is rendered by React from request events', () => {
+  const html = `${readFileSync('admin.html', 'utf8')}\n${readFileSync('src/admin-app/admin-controller.js', 'utf8')}`;
+  const main = readFileSync('src/admin-app/main.js', 'utf8');
+  const memberForm = readFileSync('src/admin-app/member-form.js', 'utf8');
+  const membersList = readFileSync('src/admin-app/members-list.js', 'utf8');
+  const adminCreateMember = html.match(/async function adminCreateMemberFromReact\(detail\) \{[\s\S]*?\n        \}/)?.[0];
+  const initAdmin = html.match(/function initAdmin\(\) \{[\s\S]*?adminLoadEvents\(\);\n            adminLoadCourses\(\);\n            adminLoadLeagues\(\);\n        \}/)?.[0];
+
+  assert.match(html, /id="adminMemberFormReactApp"/);
+  assert.doesNotMatch(html, /id="adminMemberForm"|id="amName"|id="amPdga"|id="amUdisc"|id="amAdmin"/);
+  assert.doesNotMatch(html, /async function adminAddMember\(e\)/);
+  assert.match(html, /\.admin-member-form-admin-toggle \{/);
+  assert.ok(adminCreateMember);
+  assert.match(adminCreateMember, /adminApi\('\/admin\/members', \{ method: 'POST', body \}\)/);
+  assert.match(adminCreateMember, /gvdg:admin-member-create-result/);
+  assert.match(adminCreateMember, /showTempPin\(j\.member, j\.tempPin\)/);
+  assert.match(adminCreateMember, /adminLoadMembers\(\)/);
+  assert.doesNotMatch(adminCreateMember, /amName|amPdga|amUdisc|amAdmin|\$\('adminMemberForm'\)\.reset/);
+  assert.ok(initAdmin);
+  assert.match(initAdmin, /gvdg:admin-member-create-request/);
+  assert.match(initAdmin, /adminCreateMemberFromReact\(event\.detail \|\| \{\}\)/);
+  assert.doesNotMatch(initAdmin, /\$\('adminMemberForm'\)\.addEventListener/);
+  assert.match(main, /import \{ AdminMemberForm \} from "\.\/member-form\.js"/);
+  assert.match(main, /const memberFormMount = document\.getElementById\("adminMemberFormReactApp"\)/);
+  assert.match(main, /createRoot\(memberFormMount\)\.render\(h\(AdminMemberForm\)\)/);
+  assert.match(memberForm, /export function AdminMemberForm/);
+  assert.match(memberForm, /data-react-admin-member-form/);
+  assert.match(memberForm, /gvdg:admin-member-create-request/);
+  assert.match(memberForm, /gvdg:admin-member-create-result/);
+  assert.match(memberForm, /id: "amName"/);
+  assert.match(memberForm, /id: "amPdga"/);
+  assert.match(memberForm, /id: "amUdisc"/);
+  assert.match(memberForm, /id: "amAdmin"/);
+  assert.match(memberForm, /className: "admin-member-form-admin-toggle"/);
+  assert.match(memberForm, /busy \? "Creating\.\.\." : "Create & issue temp PIN"/);
+  assert.doesNotMatch(memberForm, /innerHTML|insertAdjacentHTML|replaceChildren|document\.createElement|querySelector|classList|textContent\s*=|☰|✕|🔒|🌙|☀️|🏆|⚠|⏱|—/);
+  assert.match(membersList, /export function AdminMemberTempPin/);
+});

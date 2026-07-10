@@ -1,0 +1,383 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Events | Greenville Disc Golf Club</title>
+    <meta name="theme-color" content="#FF6B35">
+    <meta name="mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-title" content="GVDG Club">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <link rel="icon" type="image/png" href="img/logo.png">
+    <link rel="manifest" href="site.webmanifest">
+    <link rel="apple-touch-icon" href="img/icons/apple-touch-icon.png">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Archivo:wght@400;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="tokens.css">
+    <script>try{document.documentElement.setAttribute('data-theme',localStorage.getItem('theme')||'light')}catch(e){}</script>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body {
+            font-family: 'Archivo', -apple-system, BlinkMacSystemFont, sans-serif;
+            background: var(--bg-primary);
+            min-height: 100vh;
+            color: var(--text-primary);
+            position: relative;
+            display: flex;
+            flex-direction: column;
+        }
+        body::before {
+            content: ""; position: fixed; inset: 0; z-index: -1;
+            background: linear-gradient(to bottom, rgba(244,244,249,0.25), rgba(244,244,249,0.15)), url("img/bg/forest-bg.png");
+            background-repeat: no-repeat; background-position: center bottom; background-size: cover; opacity: 1;
+        }
+        [data-theme="dark"] body::before {
+            background: linear-gradient(to bottom, rgba(15,15,30,0.25), rgba(15,15,30,0.15)), url("img/bg/forest-bg.png");
+            background-repeat: no-repeat; background-position: center bottom; background-size: cover;
+        }
+
+        /* ---- Header / nav (mirrors index.html) ---- */
+        header { position: fixed; top: 0; left: 0; right: 0; z-index: 1000; background: rgba(26, 26, 46, 0.95); backdrop-filter: blur(10px); padding: 1rem 1.5rem; transition: all 0.3s ease; }
+        [data-theme="dark"] header { background: rgba(15, 15, 30, 0.95); }
+        header.scrolled { box-shadow: 0 5px 20px rgba(0, 0, 0, 0.2); padding: 0.75rem 1.5rem; }
+        nav { max-width: 1200px; margin: 0 auto; display: flex; justify-content: space-between; align-items: center; }
+        .logo { font-family: 'Bebas Neue', sans-serif; font-size: 1.8rem; color: white; letter-spacing: 0.05em; text-decoration: none; transition: transform 0.3s ease; display: flex; align-items: center; }
+        .logo-image { height: 50px; width: auto; transition: transform 0.3s ease; }
+        header.scrolled .logo-image { height: 40px; }
+        .logo:active { transform: scale(0.95); }
+        .logo:hover .logo-image { transform: scale(1.05); }
+        .nav-right { display: flex; align-items: center; gap: 1.5rem; }
+        .theme-toggle { background: rgba(255, 255, 255, 0.1); border: 2px solid rgba(255, 255, 255, 0.3); color: white; width: 44px; height: 44px; min-width: 44px; min-height: 44px; border-radius: 50%; cursor: pointer; font-size: 1.3rem; display: flex; align-items: center; justify-content: center; transition: all 0.3s ease; backdrop-filter: blur(5px); -webkit-tap-highlight-color: transparent; }
+        .theme-toggle svg, .menu-toggle svg { display: block; pointer-events: none; }
+        .theme-toggle:hover { background: rgba(255, 255, 255, 0.2); transform: rotate(20deg) scale(1.1); }
+        .theme-toggle:active { transform: rotate(20deg) scale(0.95); }
+        .nav-links { display: flex; gap: 2.5rem; list-style: none; }
+        .nav-links a { color: white; text-decoration: none; font-weight: 600; font-size: 0.95rem; text-transform: uppercase; letter-spacing: 0.05em; position: relative; transition: color 0.3s ease; -webkit-tap-highlight-color: transparent; }
+        .nav-links a::after { content: ''; position: absolute; bottom: -5px; left: 0; width: 0; height: 2px; background: var(--primary); transition: width 0.3s ease; }
+        .nav-links a:hover::after, .nav-links a:active::after { width: 100%; }
+        .nav-links a:hover { color: var(--primary); }
+        .nav-links a[aria-current="page"] { text-decoration: underline; text-underline-offset: 5px; font-weight: 800; }
+        .nav-links a.nav-donate { background: var(--accent); color: var(--secondary) !important; padding: 0.35rem 0.95rem; border-radius: 999px; font-weight: 800; }
+        .nav-links a.nav-donate:hover { color: var(--secondary); filter: brightness(1.08); }
+        .menu-toggle { display: none; background: none; border: none; color: white; font-size: 1.5rem; cursor: pointer; padding: 0.5rem; min-width: 44px; min-height: 44px; -webkit-tap-highlight-color: transparent; transition: transform 0.2s ease; }
+        .menu-toggle:active { transform: scale(0.9); }
+        body[data-page="events"] #crotts-fab { left: auto !important; right: 18px !important; }
+        body[data-page="events"] #crotts-panel { left: auto !important; right: 18px !important; }
+        @media (max-width: 768px) {
+            header { padding: 1rem; }
+            .logo-image { height: 40px; }
+            header.scrolled .logo-image { height: 35px; }
+            .menu-toggle { display: flex; align-items: center; justify-content: center; }
+            .nav-right { gap: 1rem; }
+            body[data-page="events"] #crotts-fab { left: auto !important; right: calc(14px + env(safe-area-inset-right, 0px)) !important; }
+            body[data-page="events"] #crotts-panel { left: auto !important; right: 12px !important; }
+            body[data-page="events"][data-events-view="detail"] #crottsReactApp #crotts-fab,
+            body[data-page="events"][data-events-view="detail"] #crottsReactApp #crotts-panel { display: none !important; }
+            .nav-links { position: fixed; top: 70px; left: 0; right: 0; background: rgba(26, 26, 46, 0.98); flex-direction: column; gap: 0; padding: 2rem; transform: translateY(-100%); opacity: 0; transition: all 0.3s ease; pointer-events: none; max-height: calc(100vh - 70px); overflow-y: auto; }
+            [data-theme="dark"] .nav-links { background: rgba(15, 15, 30, 0.98); }
+            .nav-links.active { transform: translateY(0); opacity: 1; pointer-events: all; }
+            .nav-links li { padding: 1.25rem 0; border-bottom: 1px solid rgba(255, 255, 255, 0.1); }
+            .nav-links li:last-child { border-bottom: none; }
+            .nav-links a { font-size: 1.1rem; display: block; padding: 0.5rem 0; }
+        }
+
+        /* ---- Page body ---- */
+        main { flex: 1; width: 100%; padding-top: 110px; max-width: 1200px; margin: 0 auto; padding-left: 1.5rem; padding-right: 1.5rem; padding-bottom: 4rem; }
+        .page-title { font-family: 'Bebas Neue', sans-serif; font-size: clamp(2.4rem, 7vw, 4rem); text-align: center; letter-spacing: 0.05em; color: var(--text-primary); margin: 1rem 0 0.25rem; }
+        .page-subtitle { text-align: center; color: rgba(255, 255, 255, 0.94); font-size: 1rem; margin-bottom: 2rem; text-shadow: 0 1px 3px rgba(0, 0, 0, 0.45); }
+
+        /* ---- Event sections ---- */
+        .events-route { display: none; }
+        body[data-events-view="status"] #status,
+        body[data-events-view="hub"] #liveNowSection,
+        body[data-events-view="hub"] #registerSection,
+        body[data-events-view="hub"] #calendarEvents,
+        body[data-events-view="hub"] #hub,
+        body[data-events-view="hub"] #previousResultsSection,
+        body[data-events-view="hub"] #leaguesSection,
+        body[data-events-view="hub"] #clubEventsSection,
+        body[data-events-view="hub"] #fundraisersSection,
+        body[data-events-view="hub"] #meetingsSection,
+        body[data-events-view="league-detail"] #leagueDetailSection,
+        body[data-events-view="detail"] #detail { display: block; }
+        .events-section { margin-bottom: 2.75rem; }
+        .events-section-head { display: flex; align-items: baseline; gap: 0.75rem; margin-bottom: 1.25rem; padding-bottom: 0.6rem; border-bottom: 2px solid var(--border-color); }
+        .events-section-title { font-family: 'Bebas Neue', sans-serif; font-size: clamp(1.6rem, 4vw, 2.2rem); letter-spacing: 0.04em; color: var(--text-primary); }
+        .events-group-head { margin: 2.25rem 0 0.85rem; padding-bottom: 0.4rem; border-bottom: 2px solid var(--border-color); }
+        .events-group-head .events-section-title { font-size: clamp(1.9rem, 5vw, 2.6rem); }
+        .events-group-sub { margin: 0.15rem 0 0; color: var(--text-muted); font-size: 0.95rem; }
+        .events-empty { color: var(--text-muted); padding: 0.4rem 0 1rem; }
+        .events-section.live .events-section-title { color: var(--primary); }
+        .events-section-count { color: var(--text-muted); font-size: 0.85rem; font-weight: 600; }
+        .previous-results-panel { margin: 0 0 2rem; }
+        .previous-results-toggle { width: 100%; display: flex; align-items: center; justify-content: space-between; gap: 1rem; background: var(--bg-secondary); color: var(--text-primary); border: 1px solid var(--border-color); border-radius: 14px; padding: 1rem 1.15rem; box-shadow: 0 4px 18px var(--card-shadow); cursor: pointer; text-align: left; font: inherit; transition: border-color 0.2s ease, transform 0.2s ease, box-shadow 0.2s ease; }
+        .previous-results-toggle:hover { border-color: var(--primary); transform: translateY(-2px); box-shadow: 0 8px 24px var(--card-shadow-hover); }
+        .previous-results-toggle:focus-visible { outline: 3px solid var(--primary); outline-offset: 2px; }
+        .previous-results-title { display: flex; flex-direction: column; gap: 0.15rem; }
+        .previous-results-title strong { font-family: 'Bebas Neue', sans-serif; font-size: 1.45rem; letter-spacing: 0.04em; font-weight: 400; }
+        .previous-results-title span { color: var(--text-muted); font-size: 0.9rem; line-height: 1.45; }
+        .previous-results-indicator { color: var(--primary); display: inline-flex; align-items: center; line-height: 1; }
+        .previous-results-body { margin-top: 1rem; }
+        .previous-results-actions { display: flex; align-items: center; justify-content: center; gap: 0.75rem; flex-wrap: wrap; margin: 1.25rem 0 0; }
+        .previous-results-status { flex-basis: 100%; text-align: center; color: var(--text-muted); font-size: 0.85rem; }
+        .previous-results-btn { background: var(--secondary); color: white; border: none; padding: 0.65rem 1.7rem; border-radius: 999px; font-weight: 700; font-size: 0.85rem; cursor: pointer; transition: background 0.15s ease; }
+        .previous-results-btn:hover { background: #003d6d; }
+        .previous-results-btn.secondary { background: transparent; color: var(--primary); border: 1px solid var(--primary); }
+        .live-dot { width: 0.7rem; height: 0.7rem; border-radius: 50%; background: var(--primary); display: inline-block; box-shadow: 0 0 0 0 rgba(255,107,53,0.6); animation: pulse 1.8s infinite; }
+        @keyframes pulse { 0% { box-shadow: 0 0 0 0 rgba(255,107,53,0.6); } 70% { box-shadow: 0 0 0 10px rgba(255,107,53,0); } 100% { box-shadow: 0 0 0 0 rgba(255,107,53,0); } }
+
+        .events-grid { display: grid; gap: 1.25rem; grid-template-columns: repeat(auto-fill, minmax(300px, 1fr)); }
+        @media (max-width: 560px) { .events-grid { grid-template-columns: 1fr; } }
+
+        .event-card { background: var(--bg-secondary); border-radius: 15px; overflow: hidden; border: 2px solid var(--border-color); transition: all 0.3s ease; cursor: pointer; text-align: left; width: 100%; font: inherit; color: inherit; text-decoration: none; display: flex; flex-direction: column; padding: 1.4rem; gap: 0.7rem; box-shadow: 0 6px 24px var(--card-shadow); }
+        .event-card:hover { transform: translateY(-5px); box-shadow: 0 10px 30px var(--card-shadow-hover); border-color: var(--primary); }
+        .event-card:focus-visible { outline: 3px solid var(--primary); outline-offset: 2px; }
+        .event-card.live { border-color: var(--primary); box-shadow: 0 8px 30px rgba(255, 107, 53, 0.25); }
+        .event-card-top { display: flex; align-items: flex-start; justify-content: space-between; gap: 0.75rem; }
+        .event-name { font-family: 'Bebas Neue', sans-serif; font-size: 1.45rem; line-height: 1.1; color: var(--text-primary); letter-spacing: 0.02em; }
+        .event-meta { font-size: 0.9rem; color: var(--text-tertiary); display: flex; flex-direction: column; gap: 0.3rem; }
+        .event-meta .meta-row { display: flex; align-items: center; gap: 0.4rem; }
+        .event-meta .meta-icon { display: inline-flex; align-items: center; justify-content: center; width: 1rem; min-width: 1rem; opacity: 0.8; }
+        /* External "register" CTA on schedule-feed (linked) cards */
+        .event-cta { margin-top: auto; font-weight: 800; font-size: 0.82rem; text-transform: uppercase; letter-spacing: 0.04em; color: var(--primary); }
+        .event-cta-icon { display: inline-flex; margin-left: 0.35rem; vertical-align: -0.125em; }
+        /* In-house sign-up cards (members or guests) */
+        .register-card { cursor: default; }
+        .register-card .register-fee { font-size: 0.9rem; color: var(--text-secondary); }
+        .register-card .register-status { display: flex; align-items: center; gap: 0.4rem; font-weight: 700; color: var(--green, #2e7d32); }
+        .register-form { display: flex; flex-direction: column; gap: 0.55rem; margin-top: 0.2rem; }
+        .reg-input { padding: 0.55rem 0.65rem; border: 1px solid var(--border-color); border-radius: 8px; font: inherit; font-size: 0.9rem; background: var(--bg-primary); color: var(--text-primary); }
+        .register-addon { display: flex; align-items: center; gap: 0.45rem; font-size: 0.88rem; color: var(--text-secondary); cursor: pointer; }
+        .register-error { color: var(--over); font-size: 0.88rem; line-height: 1.4; font-weight: 700; }
+        .register-confirm { display: flex; align-items: center; gap: 0.55rem; flex-wrap: wrap; }
+        .reg-btn { margin-top: 0.35rem; background: var(--primary-strong); color: #fff; border: none; padding: 0.6rem 1.4rem; min-height: 42px; border-radius: 50px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.04em; cursor: pointer; align-self: flex-start; transition: filter 0.2s ease; }
+        .reg-btn:hover { filter: brightness(1.07); }
+        .reg-btn:disabled { opacity: 0.6; cursor: default; }
+        .reg-btn.secondary { background: transparent; color: var(--primary); border: 1px solid var(--primary); }
+        .reg-btn.tertiary { background: var(--bg-tertiary); color: var(--text-secondary); border: 1px solid var(--border-color); }
+        #registerSection { margin: 0; padding: 0; background: transparent; border-radius: 0; }
+        #registerSection [data-react-events-registration="true"] { background: rgba(244, 244, 249, 0.94); margin: 0 -1.5rem 2rem; padding: 1.25rem 1.5rem 1.5rem; border-radius: 16px; }
+        [data-theme="dark"] #registerSection [data-react-events-registration="true"] { background: rgba(15, 15, 30, 0.86); }
+        #registerSection .events-group-head { margin-top: 0; }
+        /* Keep-score CTA on a live event */
+        .btn-keep-score { display: inline-block; margin: 0.25rem 0 0.75rem; background: var(--primary-strong); color: #fff; text-decoration: none; font-weight: 800; padding: 0.7rem 1.3rem; border-radius: 50px; text-transform: uppercase; letter-spacing: 0.04em; font-size: 0.9rem; }
+        .btn-keep-score:hover { filter: brightness(1.07); }
+        /* ---- Badges ---- */
+        .badge { padding: 0.3rem 0.7rem; border-radius: 20px; font-size: 0.7rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.04em; white-space: nowrap; }
+        .type-badge { background: var(--bg-tertiary); color: var(--text-secondary); border: 1px solid var(--border-color); }
+        [data-theme="dark"] .type-badge { background: var(--bg-primary); }
+        .type-badge.tournament { background: linear-gradient(135deg, var(--primary), #cc4a1a); color: white; border: none; }
+        .type-badge.league_round { background: linear-gradient(135deg, var(--secondary), var(--green)); color: white; border: none; }
+        .type-badge.fundraiser { background: linear-gradient(135deg, var(--accent), #e5a600); color: var(--dark); border: none; }
+        .type-badge.meeting { background: var(--bg-tertiary); color: var(--text-secondary); }
+        .status-badge { font-size: 0.68rem; }
+        .status-badge.live { background: var(--primary-strong); color: white; }
+        .status-badge.scheduled { background: rgba(0, 78, 137, 0.15); color: var(--secondary-text); }
+        [data-theme="dark"] .status-badge.scheduled { background: rgba(47, 127, 196, 0.25); color: #7fb3e0; }
+        .status-badge.final { background: var(--bg-tertiary); color: var(--text-muted); border: 1px solid var(--border-color); }
+        .status-badge.cancelled { background: rgba(200, 16, 46, 0.15); color: #c8102e; text-decoration: line-through; }
+        [data-theme="dark"] .status-badge.cancelled { color: #e63950; }
+
+        /* ---- Detail view ---- */
+        .detail-card { background: var(--bg-secondary); border-radius: 18px; padding: clamp(1.5rem, 4vw, 2.5rem); box-shadow: 0 10px 40px var(--card-shadow); border: 1px solid rgba(0, 78, 137, 0.08); margin-bottom: 1.5rem; }
+        [data-theme="dark"] .detail-card { border-color: rgba(255, 255, 255, 0.05); }
+        .detail-head { display: flex; flex-wrap: wrap; align-items: center; gap: 0.6rem; margin-bottom: 0.75rem; }
+        .detail-title { font-family: 'Bebas Neue', sans-serif; font-size: clamp(2rem, 6vw, 3rem); letter-spacing: 0.03em; color: var(--text-primary); flex: 1 1 100%; }
+        .detail-facts { display: grid; gap: 1rem; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); margin: 1.5rem 0; }
+        .detail-fact { background: var(--bg-tertiary); border-radius: 12px; padding: 1rem; }
+        [data-theme="dark"] .detail-fact { background: var(--bg-primary); }
+        .detail-fact .label { font-size: 0.72rem; color: var(--text-muted); text-transform: uppercase; letter-spacing: 0.05em; margin-bottom: 0.35rem; }
+        .detail-fact .value { font-size: 1rem; color: var(--text-secondary); font-weight: 600; word-break: break-word; }
+        .detail-fact .value a { color: var(--primary); text-decoration: none; }
+        .detail-fact .value a:hover { text-decoration: underline; }
+        .detail-notes { background: var(--bg-tertiary); border-left: 4px solid var(--accent); border-radius: 8px; padding: 1rem 1.25rem; margin: 1.25rem 0; color: var(--text-secondary); line-height: 1.6; white-space: pre-wrap; }
+        [data-theme="dark"] .detail-notes { background: var(--bg-primary); }
+        .live-banner { display: flex; align-items: center; gap: 0.6rem; background: linear-gradient(135deg, var(--primary), #cc4a1a); color: white; border-radius: 12px; padding: 1rem 1.25rem; margin: 1.25rem 0; font-weight: 700; }
+        .live-banner .leaderboard-link { margin-left: auto; color: white; text-decoration: underline; font-size: 0.9rem; font-weight: 600; }
+        .lb-conn { margin-left: auto; font-size: 0.78rem; font-weight: 700; opacity: 0.9; }
+        .live-weather { margin: -0.3rem 0 0.85rem; }
+        .weather-strip { background: var(--bg-secondary); border: 1px solid var(--border-color); border-left: 4px solid var(--secondary); border-radius: 14px; padding: 0.85rem; }
+        .weather-head { display: flex; align-items: center; justify-content: space-between; gap: 0.75rem; margin-bottom: 0.65rem; }
+        .weather-title { font-size: 0.66rem; font-weight: 800; text-transform: uppercase; letter-spacing: 0.04em; color: var(--text-muted); }
+        .weather-updated { flex: 0 0 auto; color: var(--text-muted); font-size: 0.68rem; font-weight: 700; }
+        .weather-main { display: grid; grid-template-columns: minmax(0, 1fr) auto auto; align-items: center; gap: 0.75rem; }
+        .weather-condition { display: flex; align-items: center; gap: 0.65rem; min-width: 0; }
+        .weather-temp { flex: 0 0 auto; font-family: 'Bebas Neue', sans-serif; font-size: 2.2rem; line-height: 0.9; letter-spacing: 0.04em; color: var(--primary); }
+        .weather-copy { display: grid; gap: 0.12rem; min-width: 0; color: var(--text-secondary); }
+        .weather-copy strong { color: var(--text-primary); font-size: 0.98rem; line-height: 1.15; }
+        .weather-copy span { color: var(--text-muted); font-size: 0.78rem; line-height: 1.2; }
+        .weather-graphic { width: 52px; height: 52px; display: grid; place-items: center; border: 1px solid var(--border-color); border-radius: 12px; background: var(--bg-tertiary); line-height: 1; }
+        .weather-graphic-icon { font-size: 2rem; line-height: 1; }
+        .weather-wind { display: flex; align-items: center; gap: 0.55rem; min-height: 48px; padding: 0.45rem 0.65rem; border: 1px solid var(--border-color); border-radius: 12px; background: var(--bg-tertiary); color: var(--text-primary); font: inherit; cursor: pointer; }
+        .weather-wind:active { transform: scale(0.98); }
+        .weather-wind svg { width: 20px; height: 20px; flex: 0 0 20px; color: var(--secondary); }
+        .weather-wind[data-relative="facing"] svg { color: var(--primary); }
+        .weather-wind-copy { display: grid; gap: 0.05rem; text-align: left; }
+        .weather-wind-copy strong { font-size: 0.86rem; line-height: 1.1; white-space: nowrap; }
+        .weather-wind-copy span { color: var(--text-muted); font-size: 0.68rem; line-height: 1.15; white-space: nowrap; }
+        .weather-wind-mode { text-transform: uppercase; letter-spacing: 0.04em; }
+        .weather-meta { display: flex; flex-wrap: wrap; gap: 0.35rem; margin-top: 0.7rem; }
+        .weather-meta span { border: 1px solid var(--border-color); border-radius: 999px; background: var(--bg-tertiary); color: var(--text-secondary); padding: 0.2rem 0.5rem; font-size: 0.72rem; line-height: 1.2; }
+        .weather-empty { color: var(--text-secondary); font-size: 0.86rem; }
+        .weather-note { margin-top: 0.55rem; color: var(--text-muted); font-size: 0.72rem; line-height: 1.35; }
+        @media (max-width: 420px) {
+            .weather-head { align-items: flex-start; }
+            .weather-main { grid-template-columns: minmax(0, 1fr) auto; }
+            .weather-graphic { width: 48px; height: 48px; }
+            .weather-graphic-icon { font-size: 1.85rem; }
+            .weather-wind { grid-column: 1 / -1; justify-content: flex-start; width: 100%; }
+        }
+        .lb-wrap { margin: 0.25rem 0 1.25rem; overflow-x: auto; -webkit-overflow-scrolling: touch; }
+        .lb-table { width: 100%; min-width: 520px; border-collapse: collapse; font-size: 0.95rem; }
+        @media (min-width: 620px) { .lb-table { min-width: 0; } }
+        .lb-table th { text-align: left; font-size: 0.72rem; text-transform: uppercase; letter-spacing: 0.05em; color: var(--text-muted); padding: 0.4rem 0.6rem; border-bottom: 2px solid var(--border-color); }
+        .lb-table td { padding: 0.5rem 0.6rem; border-bottom: 1px solid var(--border-color); color: var(--text-secondary); }
+        .lb-table tbody tr:first-child td { font-weight: 700; color: var(--text-primary); }
+        .lb-pos { width: 2.5rem; color: var(--text-muted); font-variant-numeric: tabular-nums; }
+        .lb-name { font-weight: 600; color: var(--text-primary); }
+        .lb-table.live-matchplay { min-width: 0; table-layout: fixed; }
+        .lb-table.live-matchplay th:nth-child(1),
+        .lb-table.live-matchplay td:nth-child(1) { width: 2.4rem; }
+        .lb-table.live-matchplay th:nth-child(3),
+        .lb-table.live-matchplay td:nth-child(3) { width: 3rem; }
+        .lb-table.live-matchplay th:nth-child(4),
+        .lb-table.live-matchplay td:nth-child(4) { width: 4.9rem; }
+        .lb-table.live-matchplay .lb-name { white-space: normal; line-height: 1.25; overflow-wrap: anywhere; }
+        .lb-table.live-matchplay .lb-members { display: block; margin-top: 0.12rem; color: var(--text-muted); font-size: 0.78rem; font-weight: 600; }
+        .lb-table.live-matchplay .lb-match { line-height: 1.2; }
+        .lb-topar { text-align: right; font-variant-numeric: tabular-nums; font-weight: 700; }
+        .lb-topar.under { color: #2e9e44; }
+        .lb-topar.over { color: var(--primary); }
+        .lb-empty { color: var(--text-muted); padding: 0.75rem 0; font-style: italic; }
+        .res-chips { font-size: 0.8rem; color: var(--text-muted); }
+        .extras-list { margin: 0.25rem 0 1rem 1.25rem; color: var(--text-secondary); line-height: 1.7; }
+        #leaguesSection { margin-bottom: 1.5rem; }
+        .leagues-grid { display: grid; gap: 0.75rem; grid-template-columns: repeat(auto-fill, minmax(200px, 1fr)); margin-top: 0.75rem; }
+        .league-card { text-align: left; background: var(--bg-secondary); border: 1px solid var(--border-color); border-radius: 12px; padding: 1rem; cursor: pointer; display: flex; flex-direction: column; gap: 0.25rem; transition: border-color .15s, transform .15s; font: inherit; }
+        .league-card:hover { border-color: var(--secondary); transform: translateY(-2px); }
+        .league-name { font-weight: 700; color: var(--text-primary); }
+        .league-meta { font-size: 0.8rem; color: var(--text-muted); }
+        .team-dot { display: inline-block; width: 0.5rem; height: 0.5rem; border-radius: 999px; margin-right: 0.35rem; vertical-align: middle; background: var(--text-muted); }
+        .team-dot.red { background: var(--primary); }
+        .team-dot.blue { background: var(--secondary); }
+        .team-dot.tie { background: var(--accent); }
+        .league-round-card { cursor: pointer; position: relative; overflow: hidden; }
+        .league-round-card::before { content: ""; position: absolute; inset: 0 auto 0 0; width: 5px; background: var(--border-color); }
+        .league-round-card.winner-red::before { background: var(--primary); }
+        .league-round-card.winner-blue::before { background: var(--secondary); }
+        .league-round-card.winner-tie::before { background: var(--accent); }
+        #fundraisersSection { margin-bottom: 1.5rem; }
+        .fundraiser-card { background: var(--bg-secondary); border: 1px solid var(--border-color); border-radius: 14px; padding: 1.25rem 1.5rem; margin-top: 0.75rem; }
+        .fundraiser-title { font-family: 'Bebas Neue', sans-serif; font-size: 1.5rem; letter-spacing: 0.03em; color: var(--text-primary); margin-bottom: 0.5rem; }
+        .fr-bar { height: 12px; background: var(--bg-tertiary); border-radius: 999px; overflow: hidden; margin: 0.25rem 0; }
+        .fr-bar-fill { height: 100%; background: linear-gradient(90deg, #2e9e44, #25c05a); border-radius: 999px; }
+        .fr-progress { font-size: 0.85rem; color: var(--text-muted); margin-bottom: 0.5rem; }
+        .fundraiser-body { color: var(--text-secondary); line-height: 1.6; }
+        .fundraiser-body p { margin: 0.5rem 0; } .fundraiser-body ul { margin: 0.5rem 0 0.5rem 1.25rem; }
+        .donate-btn { display: inline-flex; align-items: center; gap: 0.4rem; margin-top: 0.75rem; background: #2e9e44; color: #fff; padding: 0.6rem 1.25rem; border-radius: 10px; font-weight: 700; text-decoration: none; }
+        .donate-btn:hover { background: #25883a; }
+        .fr-share { display: flex; flex-wrap: wrap; align-items: center; gap: 0.5rem; margin-top: 0.85rem; }
+        .fr-share-label { font-size: 0.8rem; color: var(--text-muted); font-weight: 600; }
+        .fr-share-btn { display: inline-flex; align-items: center; gap: 0.3rem; font: inherit; font-size: 0.8rem; font-weight: 600; padding: 0.35rem 0.7rem; border-radius: 999px; border: 1px solid var(--border-color); background: var(--bg-tertiary); color: var(--text-secondary); text-decoration: none; cursor: pointer; }
+        .fr-share-btn:hover { border-color: var(--secondary); color: var(--text-primary); }
+        .fr-share-btn.fb { color: #1877f2; } .fr-share-btn.tw { color: var(--text-primary); }
+        @keyframes lbflash { from { background: rgba(255,107,53,0.18); } to { background: transparent; } }
+        .lb-table tbody tr.lb-upd td { animation: lbflash 0.9s ease-out; }
+
+        .roster-title { font-family: 'Bebas Neue', sans-serif; font-size: 1.6rem; letter-spacing: 0.03em; color: var(--text-primary); margin: 1.75rem 0 1rem; }
+        .division-group { margin-bottom: 1.5rem; }
+        .division-name { font-size: 0.8rem; text-transform: uppercase; letter-spacing: 0.06em; color: var(--primary); font-weight: 700; margin-bottom: 0.6rem; }
+        .player-list { display: grid; gap: 0.5rem; grid-template-columns: repeat(auto-fill, minmax(220px, 1fr)); }
+        .player-row { background: var(--bg-tertiary); border-radius: 10px; padding: 0.65rem 0.85rem; display: flex; align-items: baseline; gap: 0.5rem; border: 1px solid var(--border-color); }
+        [data-theme="dark"] .player-row { background: var(--bg-primary); }
+        .player-name { font-weight: 600; color: var(--text-secondary); }
+        .player-pdga { font-size: 0.78rem; color: var(--text-muted); }
+        .player-team { margin-left: auto; font-size: 0.72rem; color: var(--text-muted); text-transform: uppercase; letter-spacing: 0.04em; }
+
+        /* ---- States ---- */
+        .status-box { text-align: center; padding: 3rem 1.5rem; color: var(--text-primary); }
+        .status-box .spinner { width: 42px; height: 42px; border: 4px solid var(--border-color); border-top-color: var(--primary); border-radius: 50%; margin: 0 auto 1rem; animation: spin 0.9s linear infinite; }
+        @keyframes spin { to { transform: rotate(360deg); } }
+        .status-box.error { color: var(--primary); }
+        .status-box .empty-icon { display: inline-flex; align-items: center; justify-content: center; opacity: 0.65; margin-bottom: 0.5rem; color: var(--primary); }
+        .status-message { margin-bottom: 0.75rem; font-weight: 700; }
+        .retry-btn svg { margin-right: 0.35rem; vertical-align: -0.15em; }
+        .retry-btn { margin-top: 1rem; background: var(--primary-strong); color: white; border: none; padding: 0.75rem 1.75rem; min-height: 44px; border-radius: 50px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.05em; cursor: pointer; transition: all 0.3s ease; }
+        .retry-btn:hover { background: #ff7f4d; transform: translateY(-2px); }
+        .last-updated { text-align: center; color: var(--text-muted); font-size: 0.8rem; margin-top: 1.5rem; }
+        .back-link { display: inline-block; margin-top: 0.5rem; color: var(--secondary); text-decoration: none; font-size: 0.95rem; background: none; border: none; cursor: pointer; font: inherit; }
+        .back-link:hover { color: var(--primary); }
+
+        /* ---- Footer (mirrors index.html) ---- */
+        footer { background: linear-gradient(135deg, var(--dark) 0%, #0d1a0d 100%); color: white; text-align: center; padding: 2.5rem 2rem; font-size: 0.95rem; border-top: 3px solid var(--accent); }
+        [data-theme="dark"] footer { background: linear-gradient(135deg, var(--bg-secondary) 0%, #0a0a14 100%); }
+        @media print { header, footer { display: none; } }
+
+        /* ---- Tee signs (T4): per-hole official photo or SVG fallback ---- */
+        .tee-signs-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(150px, 1fr)); gap: 0.75rem; margin-top: 0.5rem; }
+        .ts-hole-card { border: 1px solid var(--border-color); border-radius: 12px; padding: 0.6rem; background: var(--bg-primary); display: flex; flex-direction: column; gap: 0.4rem; }
+        .ts-hole-card.winner-red { box-shadow: 0 0 0 3px var(--primary); }
+        .ts-hole-card.winner-blue { box-shadow: 0 0 0 3px var(--secondary); }
+        .ts-hole-card.winner-tie { box-shadow: 0 0 0 3px var(--accent); }
+        .ts-hole-photo { width: 100%; aspect-ratio: 4 / 3; object-fit: cover; border-radius: 8px; background: var(--bg-tertiary); }
+        .ts-hole-svg { display: flex; justify-content: center; }
+        .ts-hole-svg svg { width: 100%; height: auto; max-width: 100%; }
+        .ts-hole-meta { font-size: 0.85rem; color: var(--text-secondary); font-weight: 600; }
+        .ts-hole-num { color: var(--primary); font-weight: 700; }
+        .tee-sign { color: var(--text-primary); }
+        .tee-sign-bg { fill: var(--bg-secondary); stroke: var(--border-color); stroke-opacity: 0.7; }
+        .tee-sign-hole { font: 700 44px 'Bebas Neue', system-ui, sans-serif; fill: currentColor; }
+        .tee-sign-course { font: 600 14px system-ui, sans-serif; fill: currentColor; opacity: 0.7; }
+        .tee-sign-rule { stroke: currentColor; stroke-opacity: 0.2; }
+        .tee-sign-label, .tee-sign-par { font: 600 14px system-ui, sans-serif; fill: currentColor; }
+        .tee-sign-dist { font: 600 14px system-ui, sans-serif; fill: currentColor; opacity: 0.8; }
+    </style>
+  <script type="module" src="public-app/public-app.js"></script>
+  <script src="pwa.js" defer></script>
+</head>
+<body data-api-base="" data-page="events" data-events-view="status">
+    <div id="publicReactPageChrome"></div>
+    <div id="eventsViewControllerReactApp"></div>
+
+    <main>
+        <h1 class="page-title">Events &amp; Club Events</h1>
+        <p class="page-subtitle">Disc golf tournaments &amp; league rounds, plus club fundraisers, meetings &amp; minutes</p>
+
+        <!-- Loading / error -->
+        <div id="status" class="events-route"></div>
+
+        <!-- LIVE NOW: any club-scored event currently being scored — always surfaced at the very top -->
+        <div id="liveNowSection" class="events-route"></div>
+
+        <!-- REGISTER: club events open for sign-up (members or guests) -->
+        <div id="registerSection" class="events-route"></div>
+
+        <!-- EVENTS: disc golf tournaments & league rounds (schedule feed + any club-scored upcoming events) -->
+        <div id="calendarEvents" class="events-route"></div>
+        <div id="hub" class="events-route"></div>
+        <div id="previousResultsSection" class="events-route"></div>
+        <div id="leaguesSection" class="events-route"></div>
+
+        <!-- CLUB EVENTS: fundraisers, meetings & minutes -->
+        <div id="clubEventsSection" class="events-route"></div>
+        <div id="fundraisersSection" class="events-route"></div>
+        <div id="meetingsSection" class="events-route"></div>
+
+        <div id="leagueDetailSection" class="events-route"></div>
+
+        <!-- Detail view (single event) -->
+        <div id="detail" class="events-route"></div>
+
+        <div id="eventsLastUpdatedReactApp"></div>
+        <div style="text-align:center;">
+            <a href="index.html" class="back-link">&larr; Back to home</a>
+        </div>
+    </main>
+
+    <footer><p>&copy; 2026 Greenville Disc Golf Club. All rights reserved. | Greenville, NC</p></footer>
+
+    <div id="crottsReactApp"></div>
+</body>
+</html>

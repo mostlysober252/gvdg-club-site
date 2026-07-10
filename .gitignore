@@ -1,0 +1,7 @@
+.codegraph/
+node_modules/
+.omo/
+.pages-dist/
+/score-app/
+.deploy-log
+.gvdg-deploy.env
